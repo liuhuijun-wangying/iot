@@ -11,19 +11,13 @@ import java.util.zip.ZipOutputStream;
 
 public class CompressUtil {
 
-    public static byte[] gzip(byte[] b) {
-        if(b==null || b.length==0){
-            return null;
-        }
+    public static byte[] gzip(byte[] b) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         GZIPOutputStream gzip=null;
         try {
             gzip = new GZIPOutputStream(out);
             gzip.write(b);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }finally{
+        } finally{
             if(gzip!=null){
                 try {
                     gzip.close();
@@ -35,11 +29,7 @@ public class CompressUtil {
         return out.toByteArray();
     }
 
-    public static byte[] ungzip(byte[] b){
-        if(b==null || b.length==0){
-            return null;
-        }
-
+    public static byte[] ungzip(byte[] b) throws IOException {
         ByteArrayOutputStream out= new ByteArrayOutputStream();
         ByteArrayInputStream in=null;
         GZIPInputStream ginzip=null;
@@ -52,10 +42,7 @@ public class CompressUtil {
             while ((offset = ginzip.read(buffer)) != -1) {
                 out.write(buffer, 0, offset);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        } finally {
+        }  finally {
             if (ginzip != null) {
                 try {
                     ginzip.close();
@@ -72,10 +59,7 @@ public class CompressUtil {
         return out.toByteArray();
     }
 
-    public static byte[] zip(byte[] b) {
-        if(b==null || b.length==0){
-            return null;
-        }
+    public static byte[] zip(byte[] b) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ZipOutputStream zout = null;
         try {
@@ -83,9 +67,6 @@ public class CompressUtil {
             zout.putNextEntry(new ZipEntry("0"));
             zout.write(b);
             zout.closeEntry();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
         } finally {
             if (zout != null) {
                 try {
@@ -97,11 +78,7 @@ public class CompressUtil {
         return out.toByteArray();
     }
 
-    public static byte[] unzip(byte[] b) {
-        if(b==null || b.length==0){
-            return null;
-        }
-
+    public static byte[] unzip(byte[] b) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();;
         ByteArrayInputStream in = null;
         ZipInputStream zin = null;
@@ -114,10 +91,7 @@ public class CompressUtil {
             while ((offset = zin.read(buffer)) != -1) {
                 out.write(buffer, 0, offset);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        } finally {
+        }  finally {
             if (zin != null) {
                 try {
                     zin.close();

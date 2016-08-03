@@ -1,6 +1,7 @@
 package com.iot.tcpserver.client.codec;
 
 import com.iot.tcpserver.util.NumUtil;
+import com.iot.tcpserver.util.TextUtil;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -15,9 +16,6 @@ public class LengthFieldCodec{
 	
 	//用户层到socket
 	public byte[] encode(byte[] data){
-		if(isEmpty(data)){
-			throw new NullPointerException();
-		}
 		ByteBuffer buf = ByteBuffer.allocate(4+data.length);
 		buf.put(NumUtil.int2Bytes(data.length));
 		buf.put(data);
@@ -31,13 +29,13 @@ public class LengthFieldCodec{
 	
 	//socket到用户层
 	public DecodeResult decode(byte[] data){
-		if(isEmpty(data) && isEmpty(cache)){
+		if(TextUtil.isEmpty(data) && TextUtil.isEmpty(cache)){
 			return null;
 		}
-		if(!isEmpty(data) && isEmpty(cache)){
+		if(!TextUtil.isEmpty(data) && TextUtil.isEmpty(cache)){
 			return doDecode(data);
 		}
-		if(isEmpty(data) && !isEmpty(cache)){
+		if(TextUtil.isEmpty(data) && !TextUtil.isEmpty(cache)){
 			byte[] tmp = cache.clone();
 			cache = null;
 			return doDecode(tmp);
@@ -76,8 +74,5 @@ public class LengthFieldCodec{
 		return null;
 	}
 	
-	private boolean isEmpty(byte[] data){
-		return data==null || data.length==0;
-	}
 
 }

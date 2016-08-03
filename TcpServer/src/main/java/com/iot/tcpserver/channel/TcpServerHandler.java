@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
 
     private static final BaseMsg HEARTBEAT_MSG = new BaseMsg(ServerEnv.CMD_HEARTBEAT,null);
-    Logger log = LoggerFactory.getLogger(TcpServerHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(TcpServerHandler.class);
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -26,10 +26,8 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, BaseMsg baseMsg) throws Exception {
-        //System.out.println("========recv::"+baseMsg.toString());
-        log.info("========recv::"+baseMsg.toString());
         switch (baseMsg.getCmd()){
-            case ServerEnv.CMD_HEARTBEAT:
+            case ServerEnv.CMD_HEARTBEAT://心跳包
                 ctx.writeAndFlush(HEARTBEAT_MSG);
                 break;
             case ServerEnv.CMD_SEND_AES_KEY:
@@ -42,14 +40,15 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
                     ctx.writeAndFlush(new BaseMsg(ServerEnv.CMD_SEND_AES_KEY,new byte[]{0}));
                 }
                 break;
-            case ServerEnv.CMD_APP_AUTH:
+            default:
+                log.info("========recv::"+baseMsg.toString());
                 break;
         }
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        cause.printStackTrace();
+        log.error("exceptionCaught",cause);
         ctx.close();
     }
 }

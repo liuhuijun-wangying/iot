@@ -4,24 +4,20 @@ import com.iot.tcpserver.util.ConfigUtil;
 import com.iot.tcpserver.util.CryptUtil;
 
 import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
 
 public class ServerMain {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws NoSuchAlgorithmException {
         initRsaKey();
         initConfig();
         TcpServer.startNetty(ServerEnv.SERVER_PORT);
     }
 
-    private static void initRsaKey(){
-        try{
-            KeyPair keyPair = CryptUtil.generateKeyPair();
-            ServerEnv.PUBLIC_KEY = CryptUtil.key2Str(keyPair.getPublic());
-            ServerEnv.PRIVATE_KEY = keyPair.getPrivate();
-        }catch (Exception e){
-            e.printStackTrace();
-            throw new RuntimeException("generate key failed");
-        }
+    private static void initRsaKey() throws NoSuchAlgorithmException {
+        KeyPair keyPair = CryptUtil.generateKeyPair();
+        ServerEnv.PUBLIC_KEY = CryptUtil.key2Str(keyPair.getPublic());
+        ServerEnv.PRIVATE_KEY = keyPair.getPrivate();
     }
 
     private static void initConfig(){

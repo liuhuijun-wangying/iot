@@ -1,5 +1,6 @@
 package com.iot.tcpserver.client;
 
+import com.iot.tcpserver.client.codec.ChannelPipeline;
 import com.iot.tcpserver.codec.BaseMsg;
 
 import java.io.IOException;
@@ -51,9 +52,6 @@ public class ClientSocketChannel {
 	private int heartbeatCount;
 
 	private ChannelPipeline pipeline = new ChannelPipeline();
-	/*public ChannelPipeline pipeline(){
-		return pipeline;
-	}*/
 
 	private ChannelHandler<ClientSocketChannel,BaseMsg> handler;
 	public void setHandler(ChannelHandler<ClientSocketChannel,BaseMsg> handler){
@@ -78,7 +76,14 @@ public class ClientSocketChannel {
 
 	//api
 	public void send(BaseMsg obj) {//api
-		byte[] encoded = pipeline.downstream(obj);
+		byte[] encoded = null;
+		try {
+			encoded = pipeline.encode(obj);
+		}catch (Exception e){
+			e.printStackTrace();
+			//TODO handle error
+		}
+
 		if(encoded!=null){
 			addCmd(new Cmd(SEND,encoded));
 		}
@@ -364,12 +369,10 @@ public class ClientSocketChannel {
 			} else if (count>0){
 				sendOrRecvDataTime = System.nanoTime()/1000000;
 				heartbeatCount = 0;
-				List<BaseMsg> msg = pipeline.upstream(Arrays.copyOfRange(buf.array(), 0, count));
+				List<BaseMsg> msg = pipeline.decode(Arrays.copyOfRange(buf.array(), 0, count));
 				if(handler!=null && !msg.isEmpty()){
 					for(BaseMsg obj: msg){
-						if(obj!=null){
-							handler.onRead(this,obj);
-						}
+						handler.onRead(this,obj);
 					}
 				}
 				buf.clear();
@@ -377,6 +380,9 @@ public class ClientSocketChannel {
 		} catch (IOException e1) {
 			logE("read IOE");
 			reconnect();
+		} catch (Exception e) {
+			e.printStackTrace();
+			//TODO handle error
 		}
 	}
 

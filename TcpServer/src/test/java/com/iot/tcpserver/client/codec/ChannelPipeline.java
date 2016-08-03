@@ -1,18 +1,19 @@
-package com.iot.tcpserver.client;
+package com.iot.tcpserver.client.codec;
 
-import com.iot.tcpserver.client.codec.LengthFieldCodec;
-import com.iot.tcpserver.client.codec.BaseMsgCodec;
 import com.iot.tcpserver.codec.BaseMsg;
+import com.iot.tcpserver.util.TextUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ChannelPipeline {
+
+	private LengthFieldCodec stickPackCodec = new LengthFieldCodec();
+	private BaseMsgCodec serializeCodec = new BaseMsgCodec();
 	
-	//socket到用户层
-	List<BaseMsg> upstream(byte[] data){
+	public List<BaseMsg> decode(byte[] data) throws Exception {
 		List<BaseMsg> list = new ArrayList<>();
-		if(data==null || data.length==0){
+		if(TextUtil.isEmpty(data)){
 			return list;
 		}
 
@@ -21,11 +22,15 @@ public class ChannelPipeline {
 			return list;
 		}
 
-		list.add(serializeCodec.decode(result.data));
+		if(result.data!=null){
+			list.add(serializeCodec.decode(result.data));
+		}
 		if(result.needContinue){
 			while(true){
 				result = stickPackCodec.decode(null);
-				list.add(serializeCodec.decode(result.data));
+				if(result.data!=null){
+					list.add(serializeCodec.decode(result.data));
+				}
 				if(!result.needContinue){
 					break;
 				}
@@ -34,17 +39,12 @@ public class ChannelPipeline {
 		return list;
 	}
 	
-	//用户层到socket
-	byte[] downstream(BaseMsg obj){
+	public byte[] encode(BaseMsg obj) throws Exception {
 		if(obj==null){
 			return null;
 		}
-
 		byte[] tmp = serializeCodec.encode(obj);
 		return stickPackCodec.encode(tmp);
 	}
 
-	private LengthFieldCodec stickPackCodec = new LengthFieldCodec();
-	private BaseMsgCodec serializeCodec = new BaseMsgCodec();
-	
 }

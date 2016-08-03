@@ -1,7 +1,6 @@
 package com.iot.tcpserver.codec;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 
 public class BaseMsg {
 

@@ -4,36 +4,44 @@ import com.iot.tcpserver.client.ClientEnv;
 import com.iot.tcpserver.codec.BaseMsg;
 import com.iot.tcpserver.util.CompressUtil;
 import com.iot.tcpserver.util.CryptUtil;
+import com.iot.tcpserver.util.TextUtil;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 
 public class BaseMsgCodec {
 
-    public byte[] encode(BaseMsg msg) {
-        if(msg == null){
-            return null;
-        }
+    public byte[] encode(BaseMsg msg) throws Exception{
 
-        //先加密
-        byte[] encryptedBytes;
-        if(msg.isEncrypt()){
-            encryptedBytes = CryptUtil.aesEncrypt(msg.getData(), ClientEnv.AES_KEY);
-        }else{
-            encryptedBytes = msg.getData();
-        }
+        byte[] compressedBytes = null;
+        if(!TextUtil.isEmpty(msg.getData())){
+            //先加密
+            byte[] encryptedBytes;
+            if(msg.isEncrypt()){
+                encryptedBytes = CryptUtil.aesEncrypt(msg.getData(), ClientEnv.AES_KEY);
+            }else{
+                encryptedBytes = msg.getData();
+            }
 
-        //再压缩
-        byte[] compressedBytes;
-        switch (msg.getCompressType()){
-            case BaseMsg.COMPRESS_GZIP:
-                compressedBytes = CompressUtil.gzip(encryptedBytes);
-                break;
-            case BaseMsg.COMPRESS_ZIP:
-                compressedBytes = CompressUtil.zip(encryptedBytes);
-                break;
-            default:
-                compressedBytes = encryptedBytes;
+            if(TextUtil.isEmpty(encryptedBytes)){
+                throw new Exception("unreachable");
+            }
+
+            //再压缩
+            switch (msg.getCompressType()){
+                case BaseMsg.COMPRESS_GZIP:
+                    compressedBytes = CompressUtil.gzip(encryptedBytes);
+                    break;
+                case BaseMsg.COMPRESS_ZIP:
+                    compressedBytes = CompressUtil.zip(encryptedBytes);
+                    break;
+                default:
+                    compressedBytes = encryptedBytes;
+                    break;
+            }
+
+            if(TextUtil.isEmpty(compressedBytes)){
+                throw new Exception("unreachable");
+            }
         }
 
         ByteBuffer out = ByteBuffer.allocate(12+(compressedBytes==null?0:compressedBytes.length));
@@ -47,7 +55,7 @@ public class BaseMsgCodec {
         return out.array();
     }
 
-    public BaseMsg decode(byte[] data) {
+    public BaseMsg decode(byte[] data) throws Exception{
         if(data == null || data.length==0){
             return null;
         }
@@ -56,12 +64,12 @@ public class BaseMsgCodec {
         //cmd+msgId+compressType+isEncrypt+jsonStr
         // 2 +  8  +      1     +     1   +   n
         if(count<12){
+            //TODO should we close ctx here???
             return null;
         }
         ByteBuffer buf = ByteBuffer.allocate(count);
         buf.put(data);
         buf.flip();
-
 
         short cmd = buf.getShort();
         long msgId = buf.getLong();
@@ -85,13 +93,21 @@ public class BaseMsgCodec {
                     break;
                 default:
                     unCompressedBytes = dataBytes;
+                    break;
             }
+            if(TextUtil.isEmpty(unCompressedBytes)){
+                throw new Exception("unreachable");
+            }
+
             //再解密
             byte[] msgDataBytes;
             if(isEncrypt==1){
                 msgDataBytes = CryptUtil.aesDecrypt(unCompressedBytes,ClientEnv.AES_KEY);
             }else{
                 msgDataBytes = unCompressedBytes;
+            }
+            if(TextUtil.isEmpty(msgDataBytes)){
+                throw new Exception("unreachable");
             }
             result.setData(msgDataBytes);
         }

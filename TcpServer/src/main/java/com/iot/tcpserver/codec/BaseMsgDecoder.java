@@ -3,14 +3,18 @@ package com.iot.tcpserver.codec;
 import com.iot.tcpserver.channel.ServerEnv;
 import com.iot.tcpserver.util.CompressUtil;
 import com.iot.tcpserver.util.CryptUtil;
+import com.iot.tcpserver.util.TextUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-//TODO 解密、解缩的异常处理
 public class BaseMsgDecoder extends ByteToMessageDecoder {
+
+    private static final Logger log = LoggerFactory.getLogger(BaseMsgDecoder.class);
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf byteBuf, List<Object> list) throws Exception {
@@ -19,6 +23,8 @@ public class BaseMsgDecoder extends ByteToMessageDecoder {
         //cmd+msgId+compressType+isEncrypt+jsonStr
         // 2 +  8  +      1     +     1   +   n
         if(count<12){
+            log.error("msg len <12, len=="+count);
+            //TODO should we close ctx here???
             return;
         }
         short cmd = byteBuf.readShort();
@@ -44,13 +50,28 @@ public class BaseMsgDecoder extends ByteToMessageDecoder {
                 default:
                     unCompressedBytes = dataBytes;
             }
+
+            if(TextUtil.isEmpty(unCompressedBytes)){
+                log.error("uncompress result is null, should`t reach here");
+                throw new Exception("unreachable");
+            }
             //再解密
-            byte[] data = null;
+            byte[] data;
             if(isEncrypt==1){
                 byte[] aesKey = ctx.channel().attr(ServerEnv.KEY).get();
+                if(TextUtil.isEmpty(aesKey)){
+                    log.error("aes key is null");
+                    ctx.close();
+                    return;
+                }
                 data = CryptUtil.aesDecrypt(unCompressedBytes,aesKey);
             }else{
                 data = unCompressedBytes;
+            }
+
+            if(TextUtil.isEmpty(data)){
+                log.error("decrypt result is null, should`t reach here");
+                throw new Exception("unreachable");
             }
             result.setData(data);
         }

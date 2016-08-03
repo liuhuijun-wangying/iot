@@ -1,5 +1,7 @@
 package com.iot.tcpserver.client;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.iot.tcpserver.channel.ServerEnv;
 import com.iot.tcpserver.codec.BaseMsg;
 import com.iot.tcpserver.util.CryptUtil;
@@ -46,9 +48,24 @@ public class ClientMain {
                         byte[] b = CryptUtil.rsaEncryptByPublicKey(ClientEnv.AES_KEY,new String(msg.getData(),"UTF-8"));
                         ctx.send(new BaseMsg(ServerEnv.CMD_SEND_AES_KEY,b));
                         break;
+                    case ServerEnv.CMD_SEND_AES_KEY://resp
+                        if(msg.getData()!=null && msg.getData().length==1){
+                            //1代表密钥协商成功,成功后进行认证
+                            if(msg.getData()[0]==1){
+                                JSONObject json = new JSONObject();
+                                json.put("version","1.0");
+                                json.put("id","123456789");
+                                json.put("username","zc_username");
+                                json.put("password",CryptUtil.md5("zc_password"));
+                                ctx.send(new BaseMsg(ServerEnv.CMD_APP_AUTH,true,json.toJSONString().getBytes("UTF-8")));
+                            }else{
+                                //TODO
+                            }
+                        }
+                        break;
                 }
             }catch (Exception e){
-
+                e.printStackTrace();
             }
         }
 

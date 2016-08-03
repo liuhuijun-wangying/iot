@@ -34,7 +34,15 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
                 break;
             case ServerEnv.CMD_SEND_AES_KEY:
                 byte[] aesKey = CryptUtil.rsaDecryptByPrivate(baseMsg.getData(),ServerEnv.PRIVATE_KEY);
-                ctx.channel().attr(ServerEnv.KEY).set(aesKey);
+                //密钥协商完毕,成功返回1,否则返回0
+                if(aesKey!=null && aesKey.length!=0){
+                    ctx.channel().attr(ServerEnv.KEY).set(aesKey);
+                    ctx.writeAndFlush(new BaseMsg(ServerEnv.CMD_SEND_AES_KEY,new byte[]{1}));
+                }else{
+                    ctx.writeAndFlush(new BaseMsg(ServerEnv.CMD_SEND_AES_KEY,new byte[]{0}));
+                }
+                break;
+            case ServerEnv.CMD_APP_AUTH:
                 break;
         }
     }

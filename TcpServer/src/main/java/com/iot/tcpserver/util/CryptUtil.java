@@ -4,6 +4,7 @@ import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.security.*;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
@@ -129,6 +130,20 @@ public class CryptUtil {
     public static String key2Str(Key key){
         byte[] keyBytes = key.getEncoded();
         return new BASE64Encoder().encode(keyBytes);
+    }
+
+    public static String md5(String str){
+        if(TextUtil.isEmpty(str)){
+            return null;
+        }
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(str.getBytes());
+            return new BigInteger(1, md.digest()).toString(16);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
     
 }

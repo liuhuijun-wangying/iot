@@ -30,6 +30,14 @@ public class BaseMsg {
         this.isEncrypt = isEncrypt;
     }
 
+    public BaseMsg(short cmd, boolean isEncrypt, byte[] data) {
+        this.cmd = cmd;
+        this.msgId = 0;
+        this.compressType = COMPRESS_NONE;
+        this.isEncrypt = isEncrypt;
+        this.data = data;
+    }
+
     public BaseMsg(short cmd, long msgId, byte compressType, boolean isEncrypt, byte[] data) {
         this.cmd = cmd;
         this.msgId = msgId;

@@ -8,10 +8,14 @@ import java.security.NoSuchAlgorithmException;
 
 public class ServerMain {
 
-    public static void main(String[] args) throws NoSuchAlgorithmException {
-        initRsaKey();
-        initConfig();
-        TcpServer.startNetty(ServerEnv.SERVER_PORT);
+    public static void main(String[] args){
+        try{
+            initRsaKey();
+            initConfig();
+            TcpServer.startNetty(ServerEnv.SERVER_PORT);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     private static void initRsaKey() throws NoSuchAlgorithmException {

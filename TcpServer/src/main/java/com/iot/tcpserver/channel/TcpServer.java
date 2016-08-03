@@ -12,7 +12,7 @@ import io.netty.handler.codec.LengthFieldPrepender;
 
 public class TcpServer {
 
-    public static void startNetty(int port){
+    public static void startNetty(int port) throws InterruptedException {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
@@ -24,8 +24,6 @@ public class TcpServer {
 
             ChannelFuture f = b.bind(port).sync();
             f.channel().closeFuture().sync();
-        } catch (InterruptedException e){
-            e.printStackTrace();
         }finally {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();

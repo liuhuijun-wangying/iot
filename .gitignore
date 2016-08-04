@@ -1,2 +1,4 @@
 /TcpServer/TcpServer.iml
 /TcpServer/target/
+/Kafka/logs/
+/Zookeeper/zookeeper.out

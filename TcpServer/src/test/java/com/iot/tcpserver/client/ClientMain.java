@@ -11,17 +11,16 @@ import java.security.NoSuchAlgorithmException;
 //稍加修改，也可用于android
 public class ClientMain {
 
-    public static void main(String[] args) throws NoSuchAlgorithmException {
+    public static void main(String[] args) throws Exception {
         initAesKey();
         startClient();
     }
 
     private static void startClient(){
-        ClientSocketChannel client = new ClientSocketChannel("127.0.0.1", 8080);
+        ClientSocketChannel client = new ClientSocketChannel("127.0.0.1", 8888);
         client.setHandler(handler);
-        //读写idle时间,idle时发心跳包,生产环境改为30s
-        //这里设置为5s方便测试
-        client.setIdleTimeSecond(5);
+        //读写idle时间,idle时发心跳包
+        client.setIdleTimeSecond(60);
         client.start();
     }
 
@@ -30,10 +29,9 @@ public class ClientMain {
     }
 
     private static final boolean IS_APP = true;
+    private static final BaseMsg HEARTBEAT_MSG = new BaseMsg(ServerEnv.CMD_HEARTBEAT,null);
+
     private static ChannelHandler<ClientSocketChannel,BaseMsg> handler = new ChannelHandler<ClientSocketChannel,BaseMsg>() {
-
-        private final BaseMsg HEARTBEAT_MSG = new BaseMsg(ServerEnv.CMD_HEARTBEAT,null);
-
         //对于一些没有RSA计算能力的设备,不进行密钥协商,直接doAuth
         @Override
         public void onRead(ClientSocketChannel ctx, BaseMsg msg)throws Exception {

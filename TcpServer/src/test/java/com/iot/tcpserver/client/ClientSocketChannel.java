@@ -39,7 +39,7 @@ public class ClientSocketChannel {
 	private Selector selector;
 	private SocketChannel sc;
 	private List<ByteBuffer> writeCache = new ArrayList<>();
-	private ByteBuffer buf = ByteBuffer.allocate(4*1024);
+	private ByteBuffer buf = ByteBuffer.allocate(2*1024);//2k
 	private BlockingQueue<Cmd> cmdList = new LinkedBlockingQueue<>();
 
 	private String ip;

@@ -12,18 +12,26 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class CryptUtil {
 
-    public static byte[] generateAESKey() throws NoSuchAlgorithmException {
-        KeyGenerator keygen = KeyGenerator.getInstance("AES");
-        SecureRandom random = new SecureRandom();
-        keygen.init(128,random);
-        return keygen.generateKey().getEncoded();
+    public static byte[] generateAESKey(){
+        try{
+            KeyGenerator keygen = KeyGenerator.getInstance("AES");
+            SecureRandom random = new SecureRandom();
+            keygen.init(128,random);
+            return keygen.generateKey().getEncoded();
+        }catch (NoSuchAlgorithmException cannotHappen){
+            return null;
+        }
     }
 
-    public static KeyPair generateKeyPair() throws NoSuchAlgorithmException {
-        KeyPairGenerator pairgen = KeyPairGenerator.getInstance("RSA");
-        SecureRandom random = new SecureRandom();
-        pairgen.initialize(1024, random);
-        return pairgen.generateKeyPair();
+    public static KeyPair generateKeyPair(){
+        try{
+            KeyPairGenerator pairgen = KeyPairGenerator.getInstance("RSA");
+            SecureRandom random = new SecureRandom();
+            pairgen.initialize(1024, random);
+            return pairgen.generateKeyPair();
+        }catch (NoSuchAlgorithmException cannotHappen){
+            return null;
+        }
     }
 
     public static byte[] aesEncrypt(byte[] content, byte[] key)throws Exception{
@@ -77,10 +85,14 @@ public class CryptUtil {
         return new BASE64Encoder().encode(keyBytes);
     }
 
-    public static String md5(String str) throws NoSuchAlgorithmException {
-        MessageDigest md = MessageDigest.getInstance("MD5");
-        md.update(str.getBytes());
-        return new BigInteger(1, md.digest()).toString(16);
+    public static String md5(String str){
+        try{
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(str.getBytes());
+            return new BigInteger(1, md.digest()).toString(16);
+        }catch (NoSuchAlgorithmException cannotHappen){
+            return null;
+        }
     }
     
 }

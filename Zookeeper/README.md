@@ -1,5 +1,6 @@
 - ZK
 - 版本：3.4.8
-- 前台启动：sudo /bin/zkServer.sh start-foreground
-- 后台启动：sudo /bin/zkServer.sh start
-- 停止：   sudo /bin/zkServer.sh stop
+- 启动之前在配置文件的dataDir目录下新建myid文件,文件的内容要与配置文件中的server.x数字一致
+- 前台启动：sudo ./bin/zkServer.sh start-foreground
+- 后台启动：sudo ./bin/zkServer.sh start
+- 停止：   sudo ./bin/zkServer.sh stop

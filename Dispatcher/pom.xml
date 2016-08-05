@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.iot.tcpserver</groupId>
-    <artifactId>TcpServer</artifactId>
+    <groupId>com.iot.dispatcher</groupId>
+    <artifactId>Dispatcher</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <parent>
@@ -36,17 +36,12 @@
         </dependency>
 
         <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>1.2.15</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.zookeeper</groupId>
             <artifactId>zookeeper</artifactId>
             <version>3.4.8</version>
         </dependency>
 
     </dependencies>
+
 
 </project>

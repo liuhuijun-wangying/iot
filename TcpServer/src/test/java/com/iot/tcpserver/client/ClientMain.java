@@ -5,13 +5,11 @@ import com.iot.tcpserver.channel.ServerEnv;
 import com.iot.tcpserver.codec.BaseMsg;
 import com.iot.tcpserver.util.CryptUtil;
 
-import java.security.NoSuchAlgorithmException;
-
 //用于测试server
 //稍加修改，也可用于android
 public class ClientMain {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args){
         initAesKey();
         startClient();
     }
@@ -24,7 +22,7 @@ public class ClientMain {
         client.start();
     }
 
-    private static void initAesKey() throws NoSuchAlgorithmException {
+    private static void initAesKey(){
         ClientEnv.AES_KEY = CryptUtil.generateAESKey();
     }
 

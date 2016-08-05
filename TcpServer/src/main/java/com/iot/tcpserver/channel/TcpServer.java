@@ -9,8 +9,12 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TcpServer {
+
+    private static Logger log = LoggerFactory.getLogger(TcpServer.class);
 
     public static void startNetty(int port) throws InterruptedException {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
@@ -23,6 +27,7 @@ public class TcpServer {
             b.option(ChannelOption.SO_BACKLOG, 1024);
 
             ChannelFuture f = b.bind(port).sync();
+            log.info("dispatcher server has started on port "+port);
             f.channel().closeFuture().sync();
         }finally {
             workerGroup.shutdownGracefully();

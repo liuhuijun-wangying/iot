@@ -4,7 +4,6 @@ import com.iot.tcpserver.util.ConfigUtil;
 import com.iot.tcpserver.util.CryptUtil;
 
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
 
 public class ServerMain {
 
@@ -18,14 +17,14 @@ public class ServerMain {
         }
     }
 
-    private static void initRsaKey() throws NoSuchAlgorithmException {
+    private static void initRsaKey(){
         KeyPair keyPair = CryptUtil.generateKeyPair();
         ServerEnv.PUBLIC_KEY = CryptUtil.key2Str(keyPair.getPublic());
         ServerEnv.PRIVATE_KEY = keyPair.getPrivate();
     }
 
     private static void initConfig(){
-        String serverPort = ConfigUtil.getProp().getProperty("server_port","8080");
+        String serverPort = ConfigUtil.getProp().getProperty("server_port");
         ServerEnv.SERVER_PORT = Integer.parseInt(serverPort);
     }
 

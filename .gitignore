@@ -2,3 +2,5 @@
 /TcpServer/target/
 /Kafka/logs/
 /Zookeeper/zookeeper.out
+/Dispatcher/Dispatcher.iml
+/iot-parent.iml

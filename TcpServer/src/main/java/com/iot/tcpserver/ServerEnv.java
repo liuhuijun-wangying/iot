@@ -1,4 +1,4 @@
-package com.iot.tcpserver.channel;
+package com.iot.tcpserver;
 
 import io.netty.util.AttributeKey;
 
@@ -11,5 +11,4 @@ public class ServerEnv {
 
     public static String PUBLIC_KEY;
     public static PrivateKey PRIVATE_KEY;
-    public static int SERVER_PORT;
 }

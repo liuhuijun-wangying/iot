@@ -16,7 +16,20 @@ public class ConsistentHash {
     private SortedMap<Integer,ServerInfo> circle = new TreeMap<>();
     private List<ServerInfo> members = new ArrayList<>();
 
-    public synchronized void set(ServerInfo[] sis){
+    private ConsistentHash(){}
+    private static ConsistentHash instance;
+    public static ConsistentHash getInstance(){
+        if(instance==null){
+            synchronized (ConsistentHash.class){
+                if (instance==null){
+                    instance = new ConsistentHash();
+                }
+            }
+        }
+        return instance;
+    }
+
+    public synchronized void set(List<ServerInfo> sis){
         circle.clear();
         members.clear();
         for(ServerInfo si: sis){

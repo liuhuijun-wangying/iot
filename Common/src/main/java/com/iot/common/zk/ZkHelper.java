@@ -1,12 +1,13 @@
 package com.iot.common.zk;
 
-import org.apache.zookeeper.WatchedEvent;
-import org.apache.zookeeper.Watcher;
-import org.apache.zookeeper.ZooKeeper;
+import com.iot.common.util.TextUtil;
+import org.apache.zookeeper.*;
 import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -14,14 +15,8 @@ import java.util.concurrent.CountDownLatch;
  */
 public class ZkHelper {
 
-    //test
-    public static void main(String[] args) throws Exception {
-        ZkHelper.getInstance().connect("127.0.0.1:2181");
-        ZkHelper.getInstance().test();
-    }
-
     private static Logger log = LoggerFactory.getLogger(ZkHelper.class);
-    private static final String RootPath = "/TcpServers";
+    private static final int SESSION_TIMEOUT = 5000;
 
     private ZkHelper(){}
     private static ZkHelper instance;
@@ -36,23 +31,72 @@ public class ZkHelper {
         return instance;
     }
 
+    public interface ChildChangeListener{
+        void onChanged();
+    }
+
     private CountDownLatch latch = new CountDownLatch(1);
     private ZooKeeper zk;
-    public void connect(String addr) throws Exception {
-        zk = new ZooKeeper(addr, 5000, new Watcher() {
-            @Override
-            public void process(WatchedEvent watchedEvent) {
-                if (Event.KeeperState.SyncConnected == watchedEvent.getState()) {
-                    log.info("===zk conn ok on addr::"+addr);
+    public void connect(String addr, String rootPath, ChildChangeListener listener) throws Exception {
+        if(TextUtil.isEmpty(addr) || TextUtil.isEmpty(rootPath)){
+            throw new NullPointerException("addr or path cannot be null");
+        }
+        zk = new ZooKeeper(addr, SESSION_TIMEOUT, new MyWatcher(listener));
+        latch.await();
+        initRootPath(rootPath);
+    }
+
+    private class MyWatcher implements Watcher{
+
+        private ChildChangeListener listener;
+        private MyWatcher(ChildChangeListener listener){
+            this.listener = listener;
+        }
+
+        @Override
+        public void process(WatchedEvent event) {
+            if (Watcher.Event.KeeperState.SyncConnected == event.getState()) {
+                if(latch.getCount()==1){
+                    log.info("================zk client connect ok");
                     latch.countDown();
                 }
             }
-        });
-        latch.await();
+            if (listener==null){
+                return;
+            }
+            if(Watcher.Event.EventType.NodeChildrenChanged == event.getType()){
+                listener.onChanged();
+            }
+        }
+    };
+
+    private void initRootPath(String rootPath) throws Exception {
+        Stat stat = zk.exists(rootPath,false);
+        if(stat!=null){//exists
+            log.info("zk work root path exists, path="+rootPath);
+            return;
+        }
+        log.info("creating zk work root path, path="+rootPath);
+        zk.create(rootPath, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
     }
 
-    private void initPath(){
+    public List<String> getAllData(String rootPath) throws Exception {
+        List<String> childPaths = zk.getChildren(rootPath,true);
+        List<String> result = new ArrayList<>();
+        if(childPaths.isEmpty()){
+            return result;
+        }
+        for(String childPath: childPaths){
+            byte[] data = zk.getData(rootPath+"/"+childPath,false,null);
+            if(!TextUtil.isEmpty(data)){
+                result.add(new String(data,"UTF-8"));
+            }
+        }
+        return result;
+    }
 
+    public void createChildPath(String rootPath, String childPath, byte[] data) throws Exception {
+        zk.create(rootPath+"/"+childPath, data, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
     }
 
     public void close(){
@@ -63,42 +107,6 @@ public class ZkHelper {
                 e.printStackTrace();
             }
         }
-    }
-
-    private void test() throws Exception {
-        String testRootPath = "/testRootPath";
-
-        Stat stat = zk.exists(testRootPath,false);
-        System.out.println("exists::"+stat==null);
-
-
-
-
-
-
-        /*zk.create("/testRootPath", "testRootData".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE,CreateMode.EPHEMERAL);
-
-        // 创建一个子目录节点
-        zk.create("/testRootPath/testChildPathOne", "testChildDataOne".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE,CreateMode.EPHEMERAL);
-        System.out.println("==getData::"+new String(zk.getData("/testRootPath",false,null)));
-
-        // 取出子目录节点列表
-        System.out.println("==getChild::"+zk.getChildren("/testRootPath",true));
-
-        // 创建另外一个子目录节点
-        zk.create("/testRootPath/testChildPathTwo", "testChildDataTwo".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE,CreateMode.EPHEMERAL);
-        System.out.println(zk.getChildren("/testRootPath",true));
-
-        // 修改子目录节点数据
-        zk.setData("/testRootPath/testChildPathOne","hahahahaha".getBytes(),-1);
-        byte[] datas = zk.getData("/testRootPath/testChildPathOne", true, null);
-        String str = new String(datas,"utf-8");
-        System.out.println(str);
-
-        //删除整个子目录   -1代表version版本号，-1是删除所有版本
-        zk.delete("/testRootPath/testChildPathOne", -1);
-        System.out.println(zk.getChildren("/testRootPath",true));
-        System.out.println("==getData::"+new String(zk.getData("/testRootPath",false,null)));*/
     }
 
 }

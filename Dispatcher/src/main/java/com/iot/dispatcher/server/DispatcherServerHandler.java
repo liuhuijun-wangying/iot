@@ -1,11 +1,16 @@
 package com.iot.dispatcher.server;
 
+import com.alibaba.fastjson.JSONObject;
+import com.iot.common.util.TextUtil;
+import com.iot.dispatcher.ConsistentHash;
+import com.iot.dispatcher.ServerInfo;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.*;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +38,27 @@ public class DispatcherServerHandler extends ChannelInboundHandlerAdapter {
         return null;
     }
 
+    private String getRespResult(String clientId){
+        JSONObject jsonObject = new JSONObject();
+        if(TextUtil.isEmpty(clientId)){
+            jsonObject.put("status","param invalid");
+            jsonObject.put("code",1);//1:client param error
+            return jsonObject.toJSONString();
+        }
+        ServerInfo si = ConsistentHash.getInstance().get(clientId);
+        if(si==null){
+            jsonObject.put("status","no available server");
+            jsonObject.put("code",2);//2:server error
+            return jsonObject.toJSONString();
+        }
+        jsonObject.put("status","ok");
+        jsonObject.put("code",0);//0:success
+        jsonObject.put("serverIp",si.getIp());
+        //jsonObject.put("serverName",si.getIp());
+        jsonObject.put("serverPort",si.getPort());
+        return jsonObject.toJSONString();
+    }
+
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         if (msg instanceof HttpRequest) {
@@ -42,10 +68,14 @@ public class DispatcherServerHandler extends ChannelInboundHandlerAdapter {
                 ctx.write(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE));
             }
 
-
+            byte[] result = null;
+            try {
+                result = getRespResult(parseId(req)).getBytes("UTF-8");
+            } catch (UnsupportedEncodingException cannotHappen) {
+            }
 
             FullHttpResponse response = new DefaultFullHttpResponse(
-                    HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer("test".getBytes()));
+                    HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(result));
 
             response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain");
             response.headers().set(HttpHeaderNames.CONTENT_LENGTH, response.content().readableBytes());

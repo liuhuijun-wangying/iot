@@ -1,4 +1,4 @@
-package com.iot.tcpserver.channel;
+package com.iot.tcpserver;
 
 import com.iot.common.constant.Cmds;
 import com.iot.common.util.CryptUtil;

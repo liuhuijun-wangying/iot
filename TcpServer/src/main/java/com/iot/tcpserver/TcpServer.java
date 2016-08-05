@@ -1,4 +1,4 @@
-package com.iot.tcpserver.channel;
+package com.iot.tcpserver;
 
 import com.iot.tcpserver.codec.BaseMsgDecoder;
 import com.iot.tcpserver.codec.BaseMsgEncoder;

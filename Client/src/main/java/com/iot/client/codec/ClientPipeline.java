@@ -1,12 +1,11 @@
-package com.iot.tcpserver.client.codec;
+package com.iot.client.codec;
 
-import com.iot.tcpserver.codec.BaseMsg;
-import com.iot.tcpserver.util.TextUtil;
+import com.iot.common.util.TextUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChannelPipeline {
+public class ClientPipeline {
 
 	private LengthFieldCodec stickPackCodec = new LengthFieldCodec();
 	private BaseMsgCodec serializeCodec = new BaseMsgCodec();

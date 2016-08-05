@@ -1,4 +1,4 @@
-package com.iot.tcpserver.util;
+package com.iot.common.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

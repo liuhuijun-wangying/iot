@@ -1,7 +1,7 @@
 package com.iot.tcpserver.channel;
 
+import com.iot.common.util.CryptUtil;
 import com.iot.tcpserver.util.ConfigUtil;
-import com.iot.tcpserver.util.CryptUtil;
 
 import java.security.KeyPair;
 

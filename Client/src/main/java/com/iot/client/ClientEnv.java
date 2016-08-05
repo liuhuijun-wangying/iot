@@ -1,4 +1,4 @@
-package com.iot.tcpserver.client;
+package com.iot.client;
 
 public class ClientEnv {
 

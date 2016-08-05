@@ -1,6 +1,11 @@
-/TcpServer/TcpServer.iml
-/TcpServer/target/
 /Kafka/logs/
 /Zookeeper/zookeeper.out
-/Dispatcher/Dispatcher.iml
 /iot-parent.iml
+/Client/target/
+/Client/Client.iml
+/Common/target/
+/Common/Common.iml
+/Dispatcher/target/
+/Dispatcher/Dispatcher.iml
+/TcpServer/target/
+/TcpServer/TcpServer.iml

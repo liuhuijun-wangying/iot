@@ -1,4 +1,4 @@
-package com.iot.tcpserver.util;
+package com.iot.common.util;
 
 /**
  * Created by zc on 16-8-2.

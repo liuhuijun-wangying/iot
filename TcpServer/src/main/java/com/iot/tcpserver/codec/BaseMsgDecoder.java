@@ -1,9 +1,9 @@
 package com.iot.tcpserver.codec;
 
+import com.iot.common.util.CompressUtil;
+import com.iot.common.util.CryptUtil;
+import com.iot.common.util.TextUtil;
 import com.iot.tcpserver.channel.ServerEnv;
-import com.iot.tcpserver.util.CompressUtil;
-import com.iot.tcpserver.util.CryptUtil;
-import com.iot.tcpserver.util.TextUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;

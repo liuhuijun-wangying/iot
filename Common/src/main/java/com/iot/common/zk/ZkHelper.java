@@ -1,7 +1,8 @@
-package com.iot.dispatcher.zk;
+package com.iot.common.zk;
 
-import com.iot.dispatcher.util.ConfigUtil;
-import org.apache.zookeeper.*;
+import org.apache.zookeeper.WatchedEvent;
+import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +16,7 @@ public class ZkHelper {
 
     //test
     public static void main(String[] args) throws Exception {
-        ZkHelper.getInstance().connect();
+        ZkHelper.getInstance().connect("127.0.0.1:2181");
         ZkHelper.getInstance().test();
     }
 
@@ -37,8 +38,7 @@ public class ZkHelper {
 
     private CountDownLatch latch = new CountDownLatch(1);
     private ZooKeeper zk;
-    public void connect() throws Exception {
-        String addr = getZkAddr();
+    public void connect(String addr) throws Exception {
         zk = new ZooKeeper(addr, 5000, new Watcher() {
             @Override
             public void process(WatchedEvent watchedEvent) {
@@ -101,7 +101,4 @@ public class ZkHelper {
         System.out.println("==getData::"+new String(zk.getData("/testRootPath",false,null)));*/
     }
 
-    private String getZkAddr(){
-        return ConfigUtil.getProp().getProperty("zk_addr");
-    }
 }

@@ -1,4 +1,4 @@
-package com.iot.tcpserver.util;
+package com.iot.common.util;
 
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;

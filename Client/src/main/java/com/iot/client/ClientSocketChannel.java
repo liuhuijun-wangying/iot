@@ -1,7 +1,7 @@
-package com.iot.tcpserver.client;
+package com.iot.client;
 
-import com.iot.tcpserver.client.codec.ChannelPipeline;
-import com.iot.tcpserver.codec.BaseMsg;
+import com.iot.client.codec.BaseMsg;
+import com.iot.client.codec.ClientPipeline;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -10,11 +10,7 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -51,7 +47,7 @@ public class ClientSocketChannel {
 	private int reconnRetryCount;
 	private int heartbeatCount;
 
-	private ChannelPipeline pipeline = new ChannelPipeline();
+	private ClientPipeline pipeline = new ClientPipeline();
 
 	private ChannelHandler<ClientSocketChannel,BaseMsg> handler;
 	public void setHandler(ChannelHandler<ClientSocketChannel,BaseMsg> handler){

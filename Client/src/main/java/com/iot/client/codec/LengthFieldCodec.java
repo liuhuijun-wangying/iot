@@ -1,7 +1,7 @@
-package com.iot.tcpserver.client.codec;
+package com.iot.client.codec;
 
-import com.iot.tcpserver.util.NumUtil;
-import com.iot.tcpserver.util.TextUtil;
+import com.iot.common.util.NumUtil;
+import com.iot.common.util.TextUtil;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;

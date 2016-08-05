@@ -1,10 +1,9 @@
-package com.iot.tcpserver.client.codec;
+package com.iot.client.codec;
 
-import com.iot.tcpserver.client.ClientEnv;
-import com.iot.tcpserver.codec.BaseMsg;
-import com.iot.tcpserver.util.CompressUtil;
-import com.iot.tcpserver.util.CryptUtil;
-import com.iot.tcpserver.util.TextUtil;
+import com.iot.client.ClientEnv;
+import com.iot.common.util.CompressUtil;
+import com.iot.common.util.CryptUtil;
+import com.iot.common.util.TextUtil;
 
 import java.nio.ByteBuffer;
 

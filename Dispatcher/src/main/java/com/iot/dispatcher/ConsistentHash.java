@@ -1,6 +1,6 @@
 package com.iot.dispatcher;
 
-import com.iot.dispatcher.util.CryptUtil;
+import com.iot.common.util.CryptUtil;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -4,17 +4,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.iot</groupId>
-    <artifactId>iot-parent</artifactId>
+    <groupId>com.iot.common</groupId>
+    <artifactId>Common</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
 
-    <modules>
-        <module>TcpServer</module>
-        <module>Dispatcher</module>
-        <module>Client</module>
-        <module>Common</module>
-    </modules>
+    <parent>
+        <groupId>com.iot</groupId>
+        <artifactId>iot-parent</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
 
     <build>
         <plugins>
@@ -32,23 +30,12 @@
     <dependencies>
 
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.21</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.21</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>1.2.15</version>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper</artifactId>
+            <version>3.4.8</version>
         </dependency>
 
     </dependencies>
+
 
 </project>

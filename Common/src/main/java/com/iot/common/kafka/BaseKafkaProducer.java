@@ -10,17 +10,17 @@ import java.util.Properties;
  */
 public class BaseKafkaProducer {
 
-    private KafkaProducer<String, byte[]> producer;
+    private KafkaProducer<Short, KafkaMsg> producer;
     private boolean hasInited = false;
     public void init(Properties prop) {
         if(hasInited){
             return;
         }
-        prop.setProperty("key.serializer","org.apache.kafka.common.serialization.StringSerializer");
-        prop.setProperty("value.serializer","org.apache.kafka.common.serialization.ByteArraySerializer");
+        prop.setProperty("key.serializer","com.iot.common.kafka.ShortSerializer");
+        prop.setProperty("value.serializer","com.iot.common.kafka.KafkaMsgSerializer");
         producer = new KafkaProducer<>(prop);
         //第一次发送耗时,先发送一个test
-        send("test",null);
+        send("test", (short)0, null);
         hasInited = true;
     }
 
@@ -37,8 +37,8 @@ public class BaseKafkaProducer {
         return instance;
     }
 
-    public void send(String topic, byte[] value){
-        producer.send(new ProducerRecord<>(topic, value));
+    public void send(String topic, short key, KafkaMsg value){
+        producer.send(new ProducerRecord<>(topic, key, value));
     }
 
     public void close(){

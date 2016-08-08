@@ -1,6 +1,9 @@
 package com.iot.tcpserver;
 
 import com.iot.common.constant.Cmds;
+import com.iot.common.constant.Topics;
+import com.iot.common.kafka.BaseKafkaProducer;
+import com.iot.common.kafka.KafkaMsg;
 import com.iot.common.util.CryptUtil;
 import com.iot.tcpserver.codec.BaseMsg;
 import io.netty.channel.ChannelHandlerContext;
@@ -43,8 +46,23 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
                 break;
             default:
                 log.info("========recv::"+baseMsg.toString());
+                KafkaMsg kafkaMsg = new KafkaMsg(baseMsg.getMsgId(),baseMsg.getData());
+                BaseKafkaProducer.getInstance().send(getTopic(baseMsg.getCmd()),baseMsg.getCmd(),kafkaMsg);
                 break;
         }
+    }
+
+    private static String getTopic(short cmd){
+        if(cmd<100){
+            return null;
+        }
+        if(cmd<200){
+            return Topics.TOPIC_ACCOUNT;
+        }
+        if(cmd<300){
+            return Topics.TOPIC_IM;
+        }
+        return null;
     }
 
     @Override

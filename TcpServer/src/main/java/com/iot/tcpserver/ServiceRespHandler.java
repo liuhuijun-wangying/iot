@@ -1,6 +1,6 @@
 package com.iot.tcpserver;
 
-import com.iot.common.util.TextUtil;
+import com.iot.common.kafka.KafkaMsg;
 import com.iot.common.kafka.BaseKafkaConsumer;
 
 /**
@@ -9,10 +9,8 @@ import com.iot.common.kafka.BaseKafkaConsumer;
 public class ServiceRespHandler implements BaseKafkaConsumer.KafkaProcessor{
 
     @Override
-    public void process(String topic, String key, byte[] value) {
-        if(TextUtil.isEmpty(value)){
-            return;
-        }
+    public void process(String topic, Short key, KafkaMsg value) {
+
 
     }
 }

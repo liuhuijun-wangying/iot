@@ -1,5 +1,6 @@
 package com.iot.tcpserver;
 
+import com.iot.common.constant.Topics;
 import com.iot.common.util.CryptUtil;
 import com.iot.common.zk.ZkHelper;
 import com.iot.dispatcher.ServerInfo;
@@ -16,8 +17,6 @@ public class TcpServerMain {
 
     //zk存储tcp server data的root path
     private static final String ZK_ROOT_PATH = "/TcpServers";
-    //TcpServer订阅的消息主题
-    private static final String[] TOPICS = {"TOPIC_SERVICE_RESP"};
 
     public static void main(String[] args){
         try{
@@ -43,8 +42,9 @@ public class TcpServerMain {
         Properties consumerProp = new Properties();
         InputStream consumerIn = BaseKafkaConsumer.class.getClassLoader().getResourceAsStream("consumer.properties");
         consumerProp.load(consumerIn);
-        BaseKafkaConsumer.getInstance().init(consumerProp,TOPICS,new ServiceRespHandler());
-        BaseKafkaConsumer.getInstance().start();
+        BaseKafkaConsumer.getInstance().init(consumerProp, new String[]{Topics.TOPIC_SERVICE_RESP},new ServiceRespHandler());
+        Thread t = new Thread(BaseKafkaConsumer.getInstance());
+        t.start();
     }
 
     private static void initZk(ServerInfo si) throws Exception {

@@ -10,7 +10,7 @@ import java.util.Properties;
 /**
  * Created by zc on 16-8-8.
  */
-public class BaseKafkaConsumer extends Thread{
+public class BaseKafkaConsumer implements Runnable{
 
     private BaseKafkaConsumer(){}
     private static BaseKafkaConsumer instance;
@@ -25,7 +25,7 @@ public class BaseKafkaConsumer extends Thread{
         return instance;
     }
 
-    private KafkaConsumer<String, byte[]> consumer;
+    private KafkaConsumer<Short, KafkaMsg> consumer;
     private boolean hasInited = false;
     private KafkaProcessor processor;
     public void init(Properties prop, String[] topics, KafkaProcessor processor) throws IOException {
@@ -36,15 +36,15 @@ public class BaseKafkaConsumer extends Thread{
             throw new NullPointerException("processor = null makes no sense");
         }
         this.processor = processor;
-        prop.setProperty("key.deserializer","org.apache.kafka.common.serialization.StringDeserializer");
-        prop.setProperty("value.deserializer","org.apache.kafka.common.serialization.ByteArrayDeserializer");
+        prop.setProperty("key.deserializer","com.iot.common.kafka.ShortDeserializer");
+        prop.setProperty("value.deserializer","com.iot.common.kafka.KafkaMsgDeserializer");
         consumer = new KafkaConsumer<>(prop);
         consumer.subscribe(Arrays.asList(topics));
         hasInited = true;
     }
 
     public interface KafkaProcessor{
-        void process(String topic,String key,byte[] value);
+        void process(String topic,Short key,KafkaMsg value);
     }
 
     private boolean isRunning = false;
@@ -52,7 +52,7 @@ public class BaseKafkaConsumer extends Thread{
     public void run(){
         isRunning = true;
         while (isRunning && !Thread.interrupted()) {
-            for (ConsumerRecord<String, byte[]> record : consumer.poll(100)) {
+            for (ConsumerRecord<Short, KafkaMsg> record : consumer.poll(100)) {
                 processor.process(record.topic(),record.key(),record.value());
             }
         }

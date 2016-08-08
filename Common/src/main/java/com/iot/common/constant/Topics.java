@@ -5,7 +5,7 @@ package com.iot.common.constant;
  */
 public class Topics {
 
-    public static final String TOPIC_SERVICE_RESP = "TOPIC_SERVICE_RESP";
-    public static final String TOPIC_ACCOUNT = "TOPIC_ACCOUNT";
-    public static final String TOPIC_IM = "TOPIC_IM";
+    public static final String TOPIC_SERVICE_RESP = "topic-service-resp";
+    public static final String TOPIC_ACCOUNT = "topic-account";
+    public static final String TOPIC_IM = "topic-im";
 }

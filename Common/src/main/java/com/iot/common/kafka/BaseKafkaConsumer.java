@@ -1,6 +1,7 @@
 package com.iot.common.kafka;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 
 import java.io.IOException;
@@ -59,7 +60,11 @@ public class BaseKafkaConsumer implements Runnable{
     public void run(){
         isRunning = true;
         while (isRunning && !Thread.interrupted()) {
-            for (ConsumerRecord<Short, KafkaMsg> record : consumer.poll(100)) {
+            ConsumerRecords<Short, KafkaMsg> records = consumer.poll(100);
+            if(records.isEmpty()){
+                continue;
+            }
+            for (ConsumerRecord<Short, KafkaMsg> record : records) {
                 if(fixedThreadPool==null){
                     processor.process(record.topic(),record.key(),record.value());
                 }else{
@@ -71,6 +76,7 @@ public class BaseKafkaConsumer implements Runnable{
                     });
                 }
             }
+            consumer.commitAsync();
         }
         if(consumer!=null){
             consumer.close();

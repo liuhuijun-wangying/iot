@@ -3,7 +3,9 @@ package com.iot.account;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.iot.common.constant.Cmds;
+import com.iot.common.constant.Topics;
 import com.iot.common.kafka.BaseKafkaConsumer;
+import com.iot.common.kafka.BaseKafkaProducer;
 import com.iot.common.kafka.KafkaMsg;
 import com.iot.common.util.TextUtil;
 
@@ -36,6 +38,8 @@ public class KafkaMsgReceiver implements BaseKafkaConsumer.KafkaProcessor{
                     System.err.println("=====>password::"+data.getString("password"));
                     System.err.println("=====>id::"+data.getString("id"));
                     System.err.println("=====>version::"+data.getString("version"));
+                    KafkaMsg kafkaMsg = new KafkaMsg(msgId,"account test ok".getBytes());
+                    BaseKafkaProducer.getInstance().send(Topics.TOPIC_SERVICE_RESP,Cmds.CMD_APP_AUTH,kafkaMsg);
                 }
                 break;
             case Cmds.CMD_DEVICE_AUTH:

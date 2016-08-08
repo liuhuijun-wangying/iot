@@ -27,7 +27,7 @@ public class TcpServer {
             b.option(ChannelOption.SO_BACKLOG, 1024);
 
             ChannelFuture f = b.bind(port).sync();
-            log.info("dispatcher server has started on port "+port);
+            log.info("tcp server has started on port "+port);
             f.channel().closeFuture().sync();
         }finally {
             workerGroup.shutdownGracefully();

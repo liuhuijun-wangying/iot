@@ -10,7 +10,6 @@ public class ServiceRespHandler implements BaseKafkaConsumer.KafkaProcessor{
 
     @Override
     public void process(String topic, Short key, KafkaMsg value) {
-
-
+        System.err.println("======>topic:"+topic+",key:"+key+",value:"+new String(value.getData()));
     }
 }

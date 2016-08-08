@@ -68,7 +68,7 @@ public class ZkHelper {
                 listener.onChanged();
             }
         }
-    };
+    }
 
     private void initRootPath(String rootPath) throws Exception {
         Stat stat = zk.exists(rootPath,false);
@@ -96,7 +96,12 @@ public class ZkHelper {
     }
 
     public void createChildPath(String rootPath, String childPath, byte[] data) throws Exception {
-        zk.create(rootPath+"/"+childPath, data, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+        String path = rootPath+"/"+childPath;
+        Stat stat = zk.exists(path,false);
+        if(stat!=null){//exists
+            zk.delete(path, -1);
+        }
+        zk.create(path, data, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
     }
 
     public void close(){

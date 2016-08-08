@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.iot.tcpserver</groupId>
-    <artifactId>TcpServer</artifactId>
+    <groupId>com.iot.account</groupId>
+    <artifactId>AccountService</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <parent>
@@ -30,23 +30,12 @@
     <dependencies>
 
         <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-            <version>4.1.4.Final</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.iot.common</groupId>
             <artifactId>Common</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.iot.dispatcher</groupId>
-            <artifactId>Dispatcher</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-
     </dependencies>
+
 
 </project>

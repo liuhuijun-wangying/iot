@@ -78,7 +78,7 @@ public class ClientMain {
             JSONObject json = new JSONObject();
             json.put("version","1.0");
             json.put("id","app123456789");
-            json.put("username","zc_username");
+            json.put("username","zc_username11111");
             json.put("password",CryptUtil.md5("zc_password"));
             ctx.send(new BaseMsg(Cmds.CMD_APP_AUTH,true,json.toJSONString().getBytes("UTF-8")));
         }

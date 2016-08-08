@@ -38,7 +38,10 @@ public class BaseKafkaConsumer implements Runnable{
         if(processor==null){
             throw new NullPointerException("processor = null makes no sense");
         }
-        fixedThreadPool = Executors.newFixedThreadPool(Integer.parseInt(prop.getProperty("process.num")));
+        int threadNum = Integer.parseInt(prop.getProperty("process.num","0"));
+        if(threadNum>0){
+            fixedThreadPool = Executors.newFixedThreadPool(threadNum);
+        }
         this.processor = processor;
         prop.setProperty("key.deserializer","com.iot.common.kafka.ShortDeserializer");
         prop.setProperty("value.deserializer","com.iot.common.kafka.KafkaMsgDeserializer");
@@ -57,12 +60,16 @@ public class BaseKafkaConsumer implements Runnable{
         isRunning = true;
         while (isRunning && !Thread.interrupted()) {
             for (ConsumerRecord<Short, KafkaMsg> record : consumer.poll(100)) {
-                fixedThreadPool.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        processor.process(record.topic(),record.key(),record.value());
-                    }
-                });
+                if(fixedThreadPool==null){
+                    processor.process(record.topic(),record.key(),record.value());
+                }else{
+                    fixedThreadPool.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            processor.process(record.topic(),record.key(),record.value());
+                        }
+                    });
+                }
             }
         }
         if(consumer!=null){

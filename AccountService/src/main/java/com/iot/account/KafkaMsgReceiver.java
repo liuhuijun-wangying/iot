@@ -31,14 +31,17 @@ public class KafkaMsgReceiver implements BaseKafkaConsumer.KafkaProcessor{
     private void handleMsg(short cmd, long msgId, JSONObject data){
         switch (cmd){
             case Cmds.CMD_APP_AUTH:
-                System.err.println("=====>username::"+data.getString("username"));
-                System.err.println("=====>password::"+data.getString("password"));
-                System.err.println("=====>id::"+data.getString("id"));
-                System.err.println("=====>version::"+data.getString("version"));
+                if(data!=null){
+                    System.err.println("=====>username::"+data.getString("username"));
+                    System.err.println("=====>password::"+data.getString("password"));
+                    System.err.println("=====>id::"+data.getString("id"));
+                    System.err.println("=====>version::"+data.getString("version"));
+                }
                 break;
             case Cmds.CMD_DEVICE_AUTH:
 
                 break;
         }
     }
+
 }

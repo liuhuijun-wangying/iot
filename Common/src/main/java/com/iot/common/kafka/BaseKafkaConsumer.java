@@ -6,6 +6,8 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by zc on 16-8-8.
@@ -28,6 +30,7 @@ public class BaseKafkaConsumer implements Runnable{
     private KafkaConsumer<Short, KafkaMsg> consumer;
     private boolean hasInited = false;
     private KafkaProcessor processor;
+    private ExecutorService fixedThreadPool;
     public void init(Properties prop, String[] topics, KafkaProcessor processor) throws IOException {
         if(hasInited){
             return;
@@ -35,6 +38,7 @@ public class BaseKafkaConsumer implements Runnable{
         if(processor==null){
             throw new NullPointerException("processor = null makes no sense");
         }
+        fixedThreadPool = Executors.newFixedThreadPool(Integer.parseInt(prop.getProperty("process.num")));
         this.processor = processor;
         prop.setProperty("key.deserializer","com.iot.common.kafka.ShortDeserializer");
         prop.setProperty("value.deserializer","com.iot.common.kafka.KafkaMsgDeserializer");
@@ -53,7 +57,12 @@ public class BaseKafkaConsumer implements Runnable{
         isRunning = true;
         while (isRunning && !Thread.interrupted()) {
             for (ConsumerRecord<Short, KafkaMsg> record : consumer.poll(100)) {
-                processor.process(record.topic(),record.key(),record.value());
+                fixedThreadPool.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        processor.process(record.topic(),record.key(),record.value());
+                    }
+                });
             }
         }
         if(consumer!=null){

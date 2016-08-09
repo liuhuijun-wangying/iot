@@ -4,7 +4,7 @@
 ## Run
 - 配置、启动zookeeper
 - 配置、启动kafka
-- 启动mysql
+- 配置、启动mariadb
 - 启动Dispatcher
 - 启动TcpServer
 - 启动每个Service

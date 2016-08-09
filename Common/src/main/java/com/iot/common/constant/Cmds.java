@@ -14,6 +14,7 @@ public class Cmds {
     /* 100-200  account相关 */
     public static final short CMD_APP_AUTH = 100;
     public static final short CMD_DEVICE_AUTH = 101;
+    public static final short CMD_APP_REGISTER = 102;
 
     /* 200-300  im相关 */
     public static final short CMD_IM = 200;

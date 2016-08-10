@@ -1,10 +1,8 @@
 package com.iot.common.kafka;
 
-import com.iot.common.util.NumUtil;
-import com.iot.common.util.TextUtil;
 import org.apache.kafka.common.serialization.Serializer;
 
-import java.nio.ByteBuffer;
+import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 /**
@@ -22,13 +20,12 @@ public class KafkaMsgSerializer implements Serializer<KafkaMsg> {
         if (data == null){
             return null;
         }
-        boolean isEmpty = TextUtil.isEmpty(data.getData());
-        ByteBuffer buf = ByteBuffer.allocate(isEmpty?8:8+data.getData().length);
-        buf.put(NumUtil.long2Bytes(data.getMsgId()));
-        if(!isEmpty){
-            buf.put(data.getData());
+
+        try {
+            return data.toJsonString().getBytes("UTF-8");
+        } catch (UnsupportedEncodingException cannotHappen) {
+            return null;
         }
-        return buf.array();
     }
 
     @Override

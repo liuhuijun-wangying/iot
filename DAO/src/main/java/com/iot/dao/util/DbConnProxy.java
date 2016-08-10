@@ -5,7 +5,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -13,13 +12,18 @@ import java.io.InputStream;
  */
 public class DbConnProxy {
 
+    public static void main(String[] args) {
+        DbConnProxy.getSession();
+        DbConnProxy.closeSession();
+    }
+
     private static final SqlSessionFactory sqlSessionFactory;
     static{
         String resource = "mybatis-config.xml";
         try {
             InputStream inputStream = Resources.getResourceAsStream(resource);
             sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("load mybatis-config.xml failed");
         }

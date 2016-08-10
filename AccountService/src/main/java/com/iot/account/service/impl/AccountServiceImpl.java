@@ -3,7 +3,7 @@ package com.iot.account.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.iot.account.service.AccountService;
 import com.iot.common.util.TextUtil;
-import com.iot.dao.mapper.UserMapper;
+import com.iot.dao.UserMapper;
 import com.iot.dao.model.User;
 import com.iot.dao.model.UserExample;
 import com.iot.dao.util.DbConnProxy;
@@ -22,13 +22,12 @@ public class AccountServiceImpl implements AccountService{
         JSONObject json = new JSONObject();
         if(TextUtil.isEmpty(username) || TextUtil.isEmpty(password)){
             json.put("status","cannot be null");
-            json.put("code",2);
+            json.put("code",(byte)3);
             return json;
         }
+        SqlSession session = DbConnProxy.getSession();
+        UserMapper mapper = session.getMapper(UserMapper.class);
         try{
-            SqlSession session = DbConnProxy.getSession();
-            UserMapper mapper = session.getMapper(UserMapper.class);
-
             UserExample example = new UserExample();
             example.or().andUsernameEqualTo(username);
             List<User> users = mapper.selectByExample(example);
@@ -39,15 +38,17 @@ public class AccountServiceImpl implements AccountService{
                 user.setRegtime(new Date());
                 mapper.insert(user);
                 json.put("status","ok");
-                json.put("code",0);
+                json.put("code",(byte)1);
             }else{
                 json.put("status","user exists");
-                json.put("code",1);
+                json.put("code",(byte)2);
             }
+            session.commit();
         }catch (Exception e){
             e.printStackTrace();
             json.put("status","error:"+e.getMessage());
-            json.put("code",3);
+            json.put("code",(byte)4);
+            session.rollback();
         }finally {
             DbConnProxy.closeSession();
         }
@@ -59,30 +60,31 @@ public class AccountServiceImpl implements AccountService{
         JSONObject json = new JSONObject();
         if(TextUtil.isEmpty(username) || TextUtil.isEmpty(password)){
             json.put("status","cannot be null");
-            json.put("code",2);
+            json.put("code",(byte)3);
             return json;
         }
+        SqlSession session = DbConnProxy.getSession();
+        UserMapper mapper = session.getMapper(UserMapper.class);
         try{
-            SqlSession session = DbConnProxy.getSession();
-            UserMapper mapper = session.getMapper(UserMapper.class);
-
             UserExample example = new UserExample();
             example.or().andUsernameEqualTo(username).andPasswordEqualTo(password);
             List<User> users = mapper.selectByExample(example);
             if(users==null || users.isEmpty()){//
-                json.put("status","user not exists");
-                json.put("code",1);
+                json.put("status","username or password wrong");
+                json.put("code",(byte)2);
             }else{
                 User user = users.get(0);
-                json.put("status","user exists");
-                json.put("code",0);
-                json.put("group",user.getGroup());
+                json.put("status","ok");
+                json.put("code",(byte)1);
+                json.put("group",user.getUsergroup());
                 json.put("extraInfo",user.getExtrainfo());
             }
+            session.commit();
         }catch (Exception e){
             e.printStackTrace();
             json.put("status","error:"+e.getMessage());
-            json.put("code",3);
+            json.put("code",(byte)4);
+            session.rollback();
         }finally {
             DbConnProxy.closeSession();
         }

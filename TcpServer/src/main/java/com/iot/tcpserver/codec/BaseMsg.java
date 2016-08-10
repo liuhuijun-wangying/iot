@@ -14,9 +14,9 @@ public class BaseMsg {
     private boolean isEncrypt;
     private byte[] data;
 
-    public BaseMsg(short cmd, byte[] data) {
+    public BaseMsg(short cmd, long msgId, byte[] data) {
         this.cmd = cmd;
-        this.msgId = 0;
+        this.msgId = msgId;
         this.compressType = COMPRESS_NONE;
         this.isEncrypt = false;
         this.data = data;

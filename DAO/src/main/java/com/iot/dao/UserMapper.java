@@ -1,4 +1,4 @@
-package com.iot.dao.mapper;
+package com.iot.dao;
 
 import com.iot.dao.model.User;
 import com.iot.dao.model.UserExample;

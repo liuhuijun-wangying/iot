@@ -395,73 +395,73 @@ public class UserExample {
             return (Criteria) this;
         }
 
-        public Criteria andGroupIsNull() {
-            addCriterion("group is null");
+        public Criteria andUsergroupIsNull() {
+            addCriterion("userGroup is null");
             return (Criteria) this;
         }
 
-        public Criteria andGroupIsNotNull() {
-            addCriterion("group is not null");
+        public Criteria andUsergroupIsNotNull() {
+            addCriterion("userGroup is not null");
             return (Criteria) this;
         }
 
-        public Criteria andGroupEqualTo(String value) {
-            addCriterion("group =", value, "group");
+        public Criteria andUsergroupEqualTo(String value) {
+            addCriterion("userGroup =", value, "usergroup");
             return (Criteria) this;
         }
 
-        public Criteria andGroupNotEqualTo(String value) {
-            addCriterion("group <>", value, "group");
+        public Criteria andUsergroupNotEqualTo(String value) {
+            addCriterion("userGroup <>", value, "usergroup");
             return (Criteria) this;
         }
 
-        public Criteria andGroupGreaterThan(String value) {
-            addCriterion("group >", value, "group");
+        public Criteria andUsergroupGreaterThan(String value) {
+            addCriterion("userGroup >", value, "usergroup");
             return (Criteria) this;
         }
 
-        public Criteria andGroupGreaterThanOrEqualTo(String value) {
-            addCriterion("group >=", value, "group");
+        public Criteria andUsergroupGreaterThanOrEqualTo(String value) {
+            addCriterion("userGroup >=", value, "usergroup");
             return (Criteria) this;
         }
 
-        public Criteria andGroupLessThan(String value) {
-            addCriterion("group <", value, "group");
+        public Criteria andUsergroupLessThan(String value) {
+            addCriterion("userGroup <", value, "usergroup");
             return (Criteria) this;
         }
 
-        public Criteria andGroupLessThanOrEqualTo(String value) {
-            addCriterion("group <=", value, "group");
+        public Criteria andUsergroupLessThanOrEqualTo(String value) {
+            addCriterion("userGroup <=", value, "usergroup");
             return (Criteria) this;
         }
 
-        public Criteria andGroupLike(String value) {
-            addCriterion("group like", value, "group");
+        public Criteria andUsergroupLike(String value) {
+            addCriterion("userGroup like", value, "usergroup");
             return (Criteria) this;
         }
 
-        public Criteria andGroupNotLike(String value) {
-            addCriterion("group not like", value, "group");
+        public Criteria andUsergroupNotLike(String value) {
+            addCriterion("userGroup not like", value, "usergroup");
             return (Criteria) this;
         }
 
-        public Criteria andGroupIn(List<String> values) {
-            addCriterion("group in", values, "group");
+        public Criteria andUsergroupIn(List<String> values) {
+            addCriterion("userGroup in", values, "usergroup");
             return (Criteria) this;
         }
 
-        public Criteria andGroupNotIn(List<String> values) {
-            addCriterion("group not in", values, "group");
+        public Criteria andUsergroupNotIn(List<String> values) {
+            addCriterion("userGroup not in", values, "usergroup");
             return (Criteria) this;
         }
 
-        public Criteria andGroupBetween(String value1, String value2) {
-            addCriterion("group between", value1, value2, "group");
+        public Criteria andUsergroupBetween(String value1, String value2) {
+            addCriterion("userGroup between", value1, value2, "usergroup");
             return (Criteria) this;
         }
 
-        public Criteria andGroupNotBetween(String value1, String value2) {
-            addCriterion("group not between", value1, value2, "group");
+        public Criteria andUsergroupNotBetween(String value1, String value2) {
+            addCriterion("userGroup not between", value1, value2, "usergroup");
             return (Criteria) this;
         }
 

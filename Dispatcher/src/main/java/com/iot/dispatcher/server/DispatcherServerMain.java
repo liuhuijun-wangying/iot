@@ -33,10 +33,10 @@ public class DispatcherServerMain {
     private static void initZk() throws Exception {
         String zkAddr = ConfigUtil.getProp().getProperty("zk_addr");
         ZkHelper.getInstance().connect(zkAddr,ZK_ROOT_PATH,listener);
-        onDataCahnged();
+        onDataChanged();
     }
 
-    private static void onDataCahnged(){
+    private static void onDataChanged(){
         try{
             List<String> list = ZkHelper.getInstance().getAllData(ZK_ROOT_PATH);
             List<ServerInfo> sis = new ArrayList<>();
@@ -56,7 +56,7 @@ public class DispatcherServerMain {
     private static ZkHelper.ChildChangeListener listener = new ZkHelper.ChildChangeListener() {
         @Override
         public void onChanged() {
-            onDataCahnged();
+            onDataChanged();
         }
     };
 

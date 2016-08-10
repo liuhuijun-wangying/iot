@@ -2,6 +2,7 @@
 - 物联网通信框架,连接人与设备
 
 ## Run
+- (每个服务的启动方法在对应的服务下的README.md中有说明)
 - 配置、启动zookeeper
 - 配置、启动kafka
 - 配置、启动mariadb

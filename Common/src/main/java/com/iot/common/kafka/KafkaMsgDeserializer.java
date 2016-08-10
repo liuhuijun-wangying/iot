@@ -1,10 +1,9 @@
 package com.iot.common.kafka;
 
-import com.iot.common.util.NumUtil;
-import org.apache.kafka.common.errors.SerializationException;
+import com.alibaba.fastjson.JSON;
+import com.iot.common.util.TextUtil;
 import org.apache.kafka.common.serialization.Deserializer;
 
-import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -19,27 +18,16 @@ public class KafkaMsgDeserializer implements Deserializer<KafkaMsg> {
 
     @Override
     public KafkaMsg deserialize(String topic, byte[] data) {
-        if (data == null){
+        if (TextUtil.isEmpty(data)){
             return null;
         }
 
-        if (data.length < 8) {
-            throw new SerializationException("Size of data received by KafkaMsgDeserializer is < 8");
+        try {
+            return JSON.parseObject(new String(data,"UTF-8"),KafkaMsg.class);
+        } catch (Exception e) {
+            return null;
         }
 
-        KafkaMsg result = new KafkaMsg();
-        result.setMsgId(NumUtil.bytes2Long(data));
-
-        if(data.length>8){
-            result.setData(Arrays.copyOfRange(data,8,data.length));
-        }
-        return result;
-    }
-
-    public static byte[] subBytes(byte[] src, int begin, int count) {
-        byte[] bs = new byte[count];
-        for (int i=begin; i<begin+count; i++) bs[i-begin] = src[i];
-        return bs;
     }
 
     @Override

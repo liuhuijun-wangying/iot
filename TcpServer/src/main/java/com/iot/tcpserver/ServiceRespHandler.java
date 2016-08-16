@@ -21,24 +21,28 @@ public class ServiceRespHandler implements BaseKafkaConsumer.KafkaProcessor{
         if(key==null || value==null){
             return;
         }
+
+        //不是此server
+        ChannelHandlerContext ctx = ClientManager.getInstance().getContext(value.getChannelId());
+        if(ctx==null){
+            return;
+        }
+
         switch (key){
             case Cmds.CMD_APP_AUTH:
-                doAppAuth(value);
+                doAppAuth(value,ctx);
                 break;
             case Cmds.CMD_APP_REGISTER:
-                doAppRegist(value);
+                doAppRegist(value,ctx);
                 break;
         }
     }
 
-    private void doAppAuth(KafkaMsg value){
+    private void doAppAuth(KafkaMsg value, ChannelHandlerContext ctx){
         if(TextUtil.isEmpty(value.getData())){
             return;
         }
-        ChannelHandlerContext ctx = ClientManager.getInstance().getContext(value.getChannelId());
-        if(ctx==null){//TODO
-            return;
-        }
+
         try {
             JSONObject json = JSON.parseObject(new String(value.getData(),"UTF-8"));
             byte statusCode = json.getByteValue("code");
@@ -70,12 +74,8 @@ public class ServiceRespHandler implements BaseKafkaConsumer.KafkaProcessor{
         }
     }
 
-    private void doAppRegist(KafkaMsg value){
+    private void doAppRegist(KafkaMsg value,ChannelHandlerContext ctx){
         if(TextUtil.isEmpty(value.getData())){
-            return;
-        }
-        ChannelHandlerContext ctx = ClientManager.getInstance().getContext(value.getChannelId());
-        if(ctx==null){//TODO
             return;
         }
         try {

@@ -1,19 +1,25 @@
 package com.iot.tcpserver;
 
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.iot.common.constant.Cmds;
+import com.iot.common.constant.RespCode;
 import com.iot.common.constant.Topics;
 import com.iot.common.kafka.BaseKafkaProducer;
 import com.iot.common.kafka.KafkaMsg;
 import com.iot.common.util.CryptUtil;
 import com.iot.common.util.TextUtil;
+import com.iot.tcpserver.client.AppClient;
+import com.iot.tcpserver.client.Client;
 import com.iot.tcpserver.client.ClientManager;
+import com.iot.tcpserver.client.DeviceClient;
 import com.iot.tcpserver.codec.BaseMsg;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
 
 public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
 
@@ -30,9 +36,10 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        String clientId = ctx.channel().attr(ServerEnv.ID).get();
-        String username = ctx.channel().attr(ServerEnv.USERNAME).get();
-        ClientManager.getInstance().onLogout(username,clientId);
+        Client client = ctx.channel().attr(ServerEnv.CLIENT).get();
+        if (client instanceof AppClient){
+            ClientManager.getInstance().onLogout(((AppClient)client).getUsername(),client.getId());
+        }
         ClientManager.getInstance().removeContext(ctx.channel().id().asLongText());
     }
 
@@ -43,54 +50,63 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
                 ctx.writeAndFlush(HEARTBEAT_MSG);
                 break;
             case Cmds.CMD_SEND_AES_KEY:
-                doDiscussKey(ctx,baseMsg);
+                doDiscussKey(ctx, baseMsg);
                 break;
             case Cmds.CMD_DEVICE_AUTH:
-                doDeviceAuth(ctx,baseMsg);
+                doDeviceAuth(ctx, baseMsg);
                 break;
             default:
-                //log.info("========recv::"+baseMsg.toString());
-                KafkaMsg kafkaMsg = new KafkaMsg(baseMsg.getMsgId(),ctx.channel().id().asLongText(),baseMsg.getData());
-                //log.info("========send kafka::"+kafkaMsg.toString());
-                BaseKafkaProducer.getInstance().send(getTopic(baseMsg.getCmd()),baseMsg.getCmd(),kafkaMsg);
+                KafkaMsg kafkaMsg = new KafkaMsg(ctx.channel().id().asLongText(),baseMsg.getMsgId(),baseMsg.getData());
+                BaseKafkaProducer.getInstance().send(getTopic(baseMsg.getCmd()), baseMsg.getCmd(),kafkaMsg);
                 break;
         }
     }
 
-    private void doDiscussKey(ChannelHandlerContext ctx, BaseMsg baseMsg) throws Exception {
-        byte[] aesKey = CryptUtil.rsaDecryptByPrivate(baseMsg.getData(),ServerEnv.PRIVATE_KEY);
-        //密钥协商完毕,成功返回1,否则返回2
-        if(aesKey!=null && aesKey.length!=0){
-            ctx.channel().attr(ServerEnv.KEY).set(aesKey);
-            ctx.writeAndFlush(new BaseMsg(Cmds.CMD_SEND_AES_KEY,baseMsg.getMsgId(),new byte[]{1}));
-        }else{
-            ctx.writeAndFlush(new BaseMsg(Cmds.CMD_SEND_AES_KEY,baseMsg.getMsgId(),new byte[]{2}));
+    private static void doDiscussKey(ChannelHandlerContext ctx, BaseMsg baseMsg) {
+        JSONObject json = new JSONObject();
+        try{
+            byte[] aesKey = CryptUtil.rsaDecryptByPrivate(baseMsg.getData(),ServerEnv.PRIVATE_KEY);
+            if(!TextUtil.isEmpty(aesKey)){
+                ctx.channel().attr(ServerEnv.KEY).set(aesKey);
+                json.put("code", RespCode.COMMON_OK);
+                json.put("msg", "ok");
+            }else{
+                json.put("code", RespCode.COMMON_INVALID);
+                json.put("msg", "aes key is null");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            json.put("code", RespCode.COMMON_EXCEPTION);
+            json.put("msg", e.getMessage());
         }
+        ctx.writeAndFlush(new BaseMsg(Cmds.CMD_SEND_AES_KEY, baseMsg.getMsgId()).setJsonData(json));
     }
 
     //由于这个暂时还没有DB操作，所以直接在这处理了
-    private void doDeviceAuth(ChannelHandlerContext ctx, BaseMsg baseMsg) throws Exception {
-        if(TextUtil.isEmpty(baseMsg.getData())){
+    private static void doDeviceAuth(ChannelHandlerContext ctx, BaseMsg baseMsg) {
+        JSONObject deviceAuthJson = baseMsg.getJsonData();
+        if(deviceAuthJson==null){
             //ctx.close();
             return;
         }
 
-        JSONObject deviceAuthJson = JSON.parseObject(new String(baseMsg.getData()));
+        JSONObject json = new JSONObject();
+
         String id = deviceAuthJson.getString("id");
         if(TextUtil.isEmpty(id)){
-            ctx.writeAndFlush(new BaseMsg(Cmds.CMD_DEVICE_AUTH,baseMsg.getMsgId(),new byte[]{2}));
-            return;
-        }
-        String oldId = ctx.channel().attr(ServerEnv.ID).get();
-        if(oldId!=null){//has authed
-            ctx.writeAndFlush(new BaseMsg(Cmds.CMD_DEVICE_AUTH,baseMsg.getMsgId(),new byte[]{2}));
-            return;
-        }
+            json.put("code",RespCode.COMMON_INVALID);
+            json.put("msg","id is null");
+        }else{
+            //TODO should we handle with old client???
+            //Client oldClient = ctx.channel().attr(ServerEnv.CLIENT).get();
 
-        ctx.channel().attr(ServerEnv.ID).set(id);
-        ctx.channel().attr(ServerEnv.VERSION).set(deviceAuthJson.getString("version"));
-        ctx.channel().attr(ServerEnv.TYPE).set(ServerEnv.CLIENT_TYPE_DEVICE);
-        ctx.writeAndFlush(new BaseMsg(Cmds.CMD_DEVICE_AUTH,baseMsg.getMsgId(),new byte[]{1}));//auth ok
+            JSONArray abilites = deviceAuthJson.getJSONArray("abilities");
+            Client client = new DeviceClient(id,deviceAuthJson.getString("version"),Arrays.asList(abilites.toArray(new String[]{})));
+            ctx.channel().attr(ServerEnv.CLIENT).set(client);
+            json.put("code",RespCode.COMMON_OK);
+            json.put("msg","ok");
+        }
+        ctx.writeAndFlush(new BaseMsg(Cmds.CMD_DEVICE_AUTH, baseMsg.getMsgId()).setJsonData(json));
     }
 
     private static String getTopic(short cmd){

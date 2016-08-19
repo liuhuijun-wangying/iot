@@ -2,7 +2,9 @@ package com.iot.common.kafka;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.iot.common.util.TextUtil;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
 /**
@@ -10,17 +12,44 @@ import java.util.Arrays;
  */
 public class KafkaMsg {
 
-    private long msgId;
     private String channelId;
+    private long msgId;//BaseMsg里面的msgId
     private byte[] data;
 
     public KafkaMsg() {
     }
 
-    public KafkaMsg(long msgId, String channelId, byte[] data) {
+    public KafkaMsg(String channelId, long msgId) {
+        this.msgId = msgId;
+        this.channelId = channelId;
+    }
+
+    public KafkaMsg(String channelId, long msgId, byte[] data) {
         this.msgId = msgId;
         this.channelId = channelId;
         this.data = data;
+    }
+
+    public KafkaMsg setJsonData(JSONObject json){
+        if(json==null){
+            return this;
+        }
+        try {
+            this.data = json.toJSONString().getBytes("UTF-8");
+        } catch (UnsupportedEncodingException cannotHappen) {
+        }
+        return this;
+    }
+
+    public JSONObject getJsonData(){
+        if (TextUtil.isEmpty(data)){
+            return null;
+        }
+        try {
+            return JSON.parseObject(new String(data,"UTF-8"));
+        } catch (UnsupportedEncodingException cannotHappen) {
+            return null;
+        }
     }
 
     public long getMsgId() {

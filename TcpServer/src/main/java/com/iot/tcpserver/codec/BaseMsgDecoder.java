@@ -32,7 +32,7 @@ public class BaseMsgDecoder extends ByteToMessageDecoder {
         byte compressType = byteBuf.readByte();
         byte isEncrypt = byteBuf.readByte();
 
-        BaseMsg result = new BaseMsg(cmd, msgId, compressType, isEncrypt==1?true:false);
+        BaseMsg result = new BaseMsg(cmd, msgId, compressType, isEncrypt==1?true:false, null);
 
         if(count>12){//has jsonStr
             byte[] dataBytes = new byte[count-12];

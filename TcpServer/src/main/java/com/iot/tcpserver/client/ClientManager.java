@@ -27,10 +27,7 @@ public class ClientManager {
         return instance;
     }
 
-    //private Map<String,Client> devices = new HashMap<>();
-    private Map<String,List<ChannelHandlerContext>> apps = new ConcurrentHashMap<>();
-    private Map<String,ChannelHandlerContext> contexts = new ConcurrentHashMap<>();
-    //private ReadWriteLock lock = new ReentrantReadWriteLock();
+    private Map<String,ChannelHandlerContext> contexts = new ConcurrentHashMap<>();//channelId -> context
 
     public void putContext(ChannelHandlerContext ctx){
         if(ctx==null){
@@ -53,19 +50,17 @@ public class ClientManager {
         contexts.remove(id);
     }
 
+    //private Map<String,Client> devices = new HashMap<>();
+    //private ReadWriteLock lock = new ReentrantReadWriteLock();
+    private Map<String,List<ChannelHandlerContext>> apps = new ConcurrentHashMap<>();
+
     public void onLogin(String username, ChannelHandlerContext ctx){
         if(TextUtil.isEmpty(username)){
             return;
         }
         List<ChannelHandlerContext> list = apps.get(username);
         if(list!=null){
-            /*for(ChannelHandlerContext oldCtx: list){
-                if(oldCtx.channel().attr(ServerEnv.ID).get().equals(c.getClientId())){
-                    //不需要再close了，上面已经close过了，同一个对象
-                    appClients.remove(oldAppClient);
-                    break;
-                }
-            }*/
+            //TODO should we remove old ctx with the same id??
             list.add(ctx);
         }else{
             list = new ArrayList<>();
@@ -83,7 +78,7 @@ public class ClientManager {
             return;
         }
         for(ChannelHandlerContext ctx: list){
-            if(ctx.channel().attr(ServerEnv.ID).get().equals(clientId)){
+            if(ctx.channel().attr(ServerEnv.CLIENT).get().getId().equals(clientId)){
                 list.remove(ctx);
                 break;
             }

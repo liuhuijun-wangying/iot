@@ -3,6 +3,7 @@ package com.iot.common.kafka;
 import org.apache.kafka.common.serialization.Serializer;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.util.Map;
 
 /**
@@ -22,7 +23,14 @@ public class KafkaMsgSerializer implements Serializer<KafkaMsg> {
         }
 
         try {
-            return data.toJsonString().getBytes("UTF-8");
+            byte[] channelIdBytes = data.getChannelId().getBytes("UTF-8");
+            ByteBuffer buf = ByteBuffer.allocate(4+channelIdBytes.length+8+data.getData().length);
+            buf.putInt(channelIdBytes.length);
+            buf.put(channelIdBytes);
+            buf.putLong(data.getMsgId());
+            buf.put(data.getData());
+            //return data.toJsonString().getBytes("UTF-8");
+            return buf.array();
         } catch (UnsupportedEncodingException cannotHappen) {
             return null;
         }

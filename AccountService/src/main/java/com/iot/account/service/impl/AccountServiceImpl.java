@@ -2,6 +2,8 @@ package com.iot.account.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.iot.account.service.AccountService;
+import com.iot.common.constant.Cmds;
+import com.iot.common.constant.RespCode;
 import com.iot.common.util.TextUtil;
 import com.iot.dao.UserMapper;
 import com.iot.dao.model.User;
@@ -21,8 +23,8 @@ public class AccountServiceImpl implements AccountService{
     public JSONObject regist(String username, String password) {
         JSONObject json = new JSONObject();
         if(TextUtil.isEmpty(username) || TextUtil.isEmpty(password)){
-            json.put("status","cannot be null");
-            json.put("code",(byte)3);
+            json.put("msg","msg or psw is null");
+            json.put("code", RespCode.COMMON_INVALID);
             return json;
         }
         SqlSession session = DbConnProxy.getSession();
@@ -37,17 +39,17 @@ public class AccountServiceImpl implements AccountService{
                 user.setPassword(password);
                 user.setRegtime(new Date());
                 mapper.insert(user);
-                json.put("status","ok");
-                json.put("code",(byte)1);
+                json.put("msg","ok");
+                json.put("code",RespCode.COMMON_OK);
             }else{
-                json.put("status","user exists");
-                json.put("code",(byte)2);
+                json.put("msg","user exists");
+                json.put("code",RespCode.REG_USER_EXISTS);
             }
             session.commit();
         }catch (Exception e){
             e.printStackTrace();
-            json.put("status","error:"+e.getMessage());
-            json.put("code",(byte)4);
+            json.put("msg",e.getMessage());
+            json.put("code",RespCode.COMMON_EXCEPTION);
             session.rollback();
         }finally {
             DbConnProxy.closeSession();
@@ -56,11 +58,16 @@ public class AccountServiceImpl implements AccountService{
     }
 
     @Override
-    public JSONObject login(String username, String password) {
+    public JSONObject login(String username, String password, String clientId) {
         JSONObject json = new JSONObject();
         if(TextUtil.isEmpty(username) || TextUtil.isEmpty(password)){
-            json.put("status","cannot be null");
-            json.put("code",(byte)3);
+            json.put("msg","msg or psw is null");
+            json.put("code", RespCode.COMMON_INVALID);
+            return json;
+        }
+        if(TextUtil.isEmpty(clientId)){//id is null
+            json.put("msg","clientId is null");
+            json.put("code", RespCode.COMMON_INVALID);
             return json;
         }
         SqlSession session = DbConnProxy.getSession();
@@ -70,20 +77,20 @@ public class AccountServiceImpl implements AccountService{
             example.or().andUsernameEqualTo(username).andPasswordEqualTo(password);
             List<User> users = mapper.selectByExample(example);
             if(users==null || users.isEmpty()){//
-                json.put("status","username or password wrong");
-                json.put("code",(byte)2);
+                json.put("msg","username or password wrong");
+                json.put("code",RespCode.LOGIN_WRONG_ACCOUNT);
             }else{
                 User user = users.get(0);
-                json.put("status","ok");
-                json.put("code",(byte)1);
+                json.put("msg","ok");
+                json.put("code",RespCode.COMMON_OK);
                 json.put("group",user.getUsergroup());
                 json.put("extraInfo",user.getExtrainfo());
             }
             session.commit();
         }catch (Exception e){
             e.printStackTrace();
-            json.put("status","error:"+e.getMessage());
-            json.put("code",(byte)4);
+            json.put("msg",e.getMessage());
+            json.put("code",RespCode.COMMON_EXCEPTION);
             session.rollback();
         }finally {
             DbConnProxy.closeSession();

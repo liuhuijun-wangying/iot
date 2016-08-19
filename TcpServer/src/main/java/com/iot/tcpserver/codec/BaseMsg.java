@@ -1,5 +1,9 @@
 package com.iot.tcpserver.codec;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.iot.common.util.TextUtil;
+
 import java.io.UnsupportedEncodingException;
 
 public class BaseMsg {
@@ -14,27 +18,12 @@ public class BaseMsg {
     private boolean isEncrypt;
     private byte[] data;
 
+    public BaseMsg(short cmd, long msgId) {
+        this(cmd,msgId,COMPRESS_NONE,false,null);
+    }
+
     public BaseMsg(short cmd, long msgId, byte[] data) {
-        this.cmd = cmd;
-        this.msgId = msgId;
-        this.compressType = COMPRESS_NONE;
-        this.isEncrypt = false;
-        this.data = data;
-    }
-
-    public BaseMsg(short cmd, long msgId, byte compressType, boolean isEncrypt) {
-        this.cmd = cmd;
-        this.msgId = msgId;
-        this.compressType = compressType;
-        this.isEncrypt = isEncrypt;
-    }
-
-    public BaseMsg(short cmd, boolean isEncrypt, byte[] data) {
-        this.cmd = cmd;
-        this.msgId = 0;
-        this.compressType = COMPRESS_NONE;
-        this.isEncrypt = isEncrypt;
-        this.data = data;
+        this(cmd,msgId,COMPRESS_NONE,false,data);
     }
 
     public BaseMsg(short cmd, long msgId, byte compressType, boolean isEncrypt, byte[] data) {
@@ -43,6 +32,28 @@ public class BaseMsg {
         this.compressType = compressType;
         this.isEncrypt = isEncrypt;
         this.data = data;
+    }
+
+    public JSONObject getJsonData(){
+        if(TextUtil.isEmpty(data)){
+            return null;
+        }
+        try {
+            return JSON.parseObject(new String(data,"UTF-8"));
+        } catch (UnsupportedEncodingException cannotHappen) {
+            return null;
+        }
+    }
+
+    public BaseMsg setJsonData(JSONObject json){
+        if(json==null){
+            return this;
+        }
+        try {
+            this.data = json.toJSONString().getBytes("UTF-8");
+        } catch (UnsupportedEncodingException cannotHappen) {
+        }
+        return this;
     }
 
     public short getCmd() {

@@ -1,15 +1,20 @@
 package com.iot.client;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.iot.client.codec.BaseMsg;
 import com.iot.common.constant.Cmds;
+import com.iot.common.constant.RespCode;
 import com.iot.common.util.CryptUtil;
 import com.iot.common.util.TextUtil;
+
+import java.io.UnsupportedEncodingException;
 
 /**
  * Created by zc on 16-8-10.
  */
-public class MyHandler implements ChannelHandler<ClientSocketChannel,BaseMsg> {
+//模拟app的client
+public class AppHandler implements ChannelHandler<ClientSocketChannel,BaseMsg> {
 
     private static final BaseMsg HEARTBEAT_MSG = new BaseMsg(Cmds.CMD_HEARTBEAT,null);
 
@@ -64,14 +69,15 @@ public class MyHandler implements ChannelHandler<ClientSocketChannel,BaseMsg> {
             return;
         }
 
-        //1代表密钥协商成功
-        //2 failed
-        if(msg.getData()[0]==1){
+        JSONObject json = JSON.parseObject(new String(msg.getData(),"UTF-8"));
+        int statusCode = json.getIntValue("code");
+
+        if(statusCode== RespCode.COMMON_OK){
             //为了测试 先注册个账号
             System.out.println("=====>discuss key ok");
             doAppReg(ctx);
         }else{
-            System.err.println("=====>discuss key failed");
+            System.err.println("=====>discuss key failed, err code:"+statusCode);
         }
     }
 
@@ -81,33 +87,33 @@ public class MyHandler implements ChannelHandler<ClientSocketChannel,BaseMsg> {
             return;
         }
 
-        //1 注册ok
-        //2 用户已经存在
-        //3 发送过去的用户名和密码为empty(为了防止客户端没有做判断)
-        //4 服务器端抛异常
-        if(msg.getData()[0]==1 || msg.getData()[0]==2){
+        JSONObject json = JSON.parseObject(new String(msg.getData(),"UTF-8"));
+        int statusCode = json.getIntValue("code");
+
+        //测试环境下，为了方便，用户已存在也处理为注册成功
+        //生产环境下，用户已存在要提示用户
+        if(statusCode==RespCode.COMMON_OK || statusCode==RespCode.REG_USER_EXISTS){
             //reg成功后进行认证
             System.out.println("=====>reg ok");
             doAppAuth(ctx);
         }else{
-            System.err.println("=====>on reg resp::errCode::"+msg.getData()[0]);
+            System.err.println("=====>on reg resp::errCode::"+statusCode);
         }
     }
 
-    private void onAppAuthResp(ClientSocketChannel ctx, BaseMsg msg) {
+    private void onAppAuthResp(ClientSocketChannel ctx, BaseMsg msg) throws UnsupportedEncodingException {
         if(TextUtil.isEmpty(msg.getData())){
             System.err.println("=====>app auth resp msg is empty");
             return;
         }
 
-        //1 login ok
-        //2 用户名或者密码错误
-        //3 发送过去的用户名和密码为empty(为了防止客户端没有做判断)
-        //4 服务器端抛异常
-        if(msg.getData()[0]==1){
+        JSONObject json = JSON.parseObject(new String(msg.getData(),"UTF-8"));
+        int statusCode = json.getIntValue("code");
+
+        if(statusCode==RespCode.COMMON_OK){
             System.out.println("=====>login ok");
         }else{
-            System.err.println("=====>onDiscussKeyResp::errCode::"+msg.getData()[0]);
+            System.err.println("=====>onDiscussKeyResp::errCode::"+statusCode);
         }
     }
 
@@ -125,11 +131,5 @@ public class MyHandler implements ChannelHandler<ClientSocketChannel,BaseMsg> {
         json.put("username","zc_usr");
         json.put("password",CryptUtil.md5("zc_psw"));
         ctx.send(new BaseMsg(Cmds.CMD_APP_AUTH,true,json.toJSONString().getBytes("UTF-8")));
-    }
-    private void doDeviceAuth(ClientSocketChannel ctx) throws Exception {
-        JSONObject json = new JSONObject();
-        json.put("version","1.0");
-        json.put("id","device1234567890");
-        ctx.send(new BaseMsg(Cmds.CMD_APP_AUTH,false,json.toJSONString().getBytes("UTF-8")));
     }
 }

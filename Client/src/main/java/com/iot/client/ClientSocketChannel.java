@@ -1,7 +1,12 @@
 package com.iot.client;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.iot.client.codec.BaseMsg;
 import com.iot.client.codec.ClientPipeline;
+import com.iot.client.utils.HttpUtil;
+import com.iot.common.constant.RespCode;
+import com.iot.common.util.TextUtil;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -54,12 +59,7 @@ public class ClientSocketChannel {
 		this.handler = handler;
 	}
 	
-	public ClientSocketChannel(String ip, int port){
-		if(ip==null || "".equals(ip.trim()) || port<=0 || port > 65535){
-			throw new IllegalArgumentException();
-		}
-		this.ip = ip;
-		this.port = port;
+	public ClientSocketChannel(){
 	}
 
 	private int idleTime = 30;
@@ -150,11 +150,32 @@ public class ClientSocketChannel {
 		}
 	}
 
+	private boolean initAddr(){
+		String result = HttpUtil.get(ClientEnv.DISPATCHER_ADDR+ClientEnv.CLIENT_ID);
+		if(TextUtil.isEmpty(result)){
+			logE("get tcp server addr result is null");
+			return false;
+		}
+		JSONObject json = JSON.parseObject(result);
+		int statusCode = json.getIntValue("code");
+		if(statusCode != RespCode.COMMON_OK){
+			logE("get tcp server addr err::"+json.getString("msg"));
+			return false;
+		}
+		this.ip = json.getString("ip");
+		this.port = json.getIntValue("port");
+		return true;
+	}
+
 	public int start(){
 		if(!isRunning.compareAndSet(false, true)){
 			throw new IllegalStateException("has started");
 		}
-		
+
+		if(!initAddr()){
+			return -1;
+		}
+
 		if (selector == null || !selector.isOpen()) {
 			try {
 				selector = Selector.open();
@@ -260,6 +281,7 @@ public class ClientSocketChannel {
 			logI("----RECONNECTING----time:"+System.currentTimeMillis()/1000+"s");
 			reconnRetryCount++;
 			closeSocket();
+			initAddr();
 			addCmd(new Cmd(CONNECT));
 		}
 	}

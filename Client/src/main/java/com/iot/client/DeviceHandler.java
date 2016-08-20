@@ -97,7 +97,7 @@ public class DeviceHandler implements ChannelHandler<ClientSocketChannel,BaseMsg
     private void doDeviceAuth(ClientSocketChannel ctx) throws Exception {
         JSONObject json = new JSONObject();
         json.put("version","1.0");
-        json.put("id","device1234567890");
+        json.put("id",ClientEnv.CLIENT_ID);
         JSONArray jsonArray = new JSONArray();
         //add some abilities
         jsonArray.add("camera");

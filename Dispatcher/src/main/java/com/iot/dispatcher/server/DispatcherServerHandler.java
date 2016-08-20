@@ -1,6 +1,7 @@
 package com.iot.dispatcher.server;
 
 import com.alibaba.fastjson.JSONObject;
+import com.iot.common.constant.RespCode;
 import com.iot.common.util.TextUtil;
 import com.iot.dispatcher.ConsistentHash;
 import com.iot.dispatcher.ServerInfo;
@@ -41,21 +42,20 @@ public class DispatcherServerHandler extends ChannelInboundHandlerAdapter {
     private String getRespResult(String clientId){
         JSONObject jsonObject = new JSONObject();
         if(TextUtil.isEmpty(clientId)){
-            jsonObject.put("status","param invalid");
-            jsonObject.put("code",1);//1:client param error
+            jsonObject.put("msg","param invalid");
+            jsonObject.put("code", RespCode.COMMON_INVALID);//1:client param error
             return jsonObject.toJSONString();
         }
         ServerInfo si = ConsistentHash.getInstance().get(clientId);
         if(si==null){
-            jsonObject.put("status","no available server");
-            jsonObject.put("code",2);//2:server error
+            jsonObject.put("msg","no available server");
+            jsonObject.put("code",RespCode.COMMON_EXCEPTION);//2:server error
             return jsonObject.toJSONString();
         }
-        jsonObject.put("status","ok");
-        jsonObject.put("code",0);//0:success
-        jsonObject.put("serverIp",si.getIp());
-        //jsonObject.put("serverName",si.getIp());
-        jsonObject.put("serverPort",si.getPort());
+        jsonObject.put("msg","ok");
+        jsonObject.put("code",RespCode.COMMON_OK);//0:success
+        jsonObject.put("ip",si.getIp());
+        jsonObject.put("port",si.getPort());
         return jsonObject.toJSONString();
     }
 

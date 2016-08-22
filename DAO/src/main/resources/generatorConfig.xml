@@ -50,7 +50,7 @@
 
         <!-- 生成mapxml对应client，也就是接口dao -->
         <javaClientGenerator targetPackage="com.iot.dao"
-                             targetProject="${project_name}" type="XMLMAPPER" >
+                             targetProject="${project_name}" type="ANNOTATEDMAPPER" >
             <!-- 是否在当前路径下新加一层schema -->
             <property name="enableSubPackages" value="false" />
         </javaClientGenerator>
@@ -64,7 +64,7 @@
                enableSelectByExample="true"
                enableUpdateByExample="true">
             <property name="useActualColumnNames" value="false"/>
-            <generatedKey column="ID" sqlStatement="JDBC" identity="true" />
+            <generatedKey column="id" sqlStatement="JDBC" identity="true" />
         </table>
 
     </context>

@@ -1,12 +1,7 @@
 package com.iot.client;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.iot.client.codec.BaseMsg;
-import com.iot.client.utils.HttpUtil;
-import com.iot.common.constant.RespCode;
 import com.iot.common.util.CryptUtil;
-import com.iot.common.util.TextUtil;
 
 //用于测试server
 //稍加修改，也可用于android

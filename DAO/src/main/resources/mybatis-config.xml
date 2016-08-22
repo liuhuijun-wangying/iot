@@ -19,7 +19,7 @@
     </environments>
 
     <mappers>
-        <mapper resource="mapper/UserMapper.xml"/>
+        <package name="com.iot.dao"/>
     </mappers>
 
 </configuration>

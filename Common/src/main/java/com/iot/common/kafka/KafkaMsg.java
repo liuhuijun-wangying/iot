@@ -4,8 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.iot.common.util.TextUtil;
 
-import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Created by zc on 16-8-8.
@@ -34,10 +33,7 @@ public class KafkaMsg {
         if(json==null){
             return this;
         }
-        try {
-            this.data = json.toJSONString().getBytes("UTF-8");
-        } catch (UnsupportedEncodingException cannotHappen) {
-        }
+        this.data = json.toJSONString().getBytes(StandardCharsets.UTF_8);
         return this;
     }
 
@@ -45,11 +41,7 @@ public class KafkaMsg {
         if (TextUtil.isEmpty(data)){
             return null;
         }
-        try {
-            return JSON.parseObject(new String(data,"UTF-8"));
-        } catch (UnsupportedEncodingException cannotHappen) {
-            return null;
-        }
+        return JSON.parseObject(new String(data,StandardCharsets.UTF_8));
     }
 
     public long getMsgId() {

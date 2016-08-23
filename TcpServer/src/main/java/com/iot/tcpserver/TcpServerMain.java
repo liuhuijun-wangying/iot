@@ -10,6 +10,7 @@ import com.iot.tcpserver.util.ConfigUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.util.Properties;
 
@@ -50,12 +51,12 @@ public class TcpServerMain {
     private static void initZk(ServerInfo si) throws Exception {
         String zkAddr = ConfigUtil.getProp().getProperty("zk_addr");
         ZkHelper.getInstance().connect(zkAddr,ZK_ROOT_PATH,null);
-        ZkHelper.getInstance().createChildPath(ZK_ROOT_PATH,si.getName(),si.toJsonString().getBytes("UTF-8"));
+        ZkHelper.getInstance().createChildPath(ZK_ROOT_PATH,si.getName(),si.toJsonString().getBytes(StandardCharsets.UTF_8));
     }
 
     private static void initRsaKey(){
         KeyPair keyPair = CryptUtil.generateKeyPair();
-        ServerEnv.PUBLIC_KEY = CryptUtil.key2Str(keyPair.getPublic());
+        ServerEnv.PUBLIC_KEY = keyPair.getPublic().getEncoded();
         ServerEnv.PRIVATE_KEY = keyPair.getPrivate();
     }
 

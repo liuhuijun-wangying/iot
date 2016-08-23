@@ -8,7 +8,7 @@ import com.iot.common.constant.RespCode;
 import com.iot.common.util.CryptUtil;
 import com.iot.common.util.TextUtil;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Created by zc on 16-8-10.
@@ -32,7 +32,7 @@ public class AppHandler implements ChannelHandler<ClientSocketChannel,BaseMsg> {
                 onRegResp(ctx,msg);
                 break;
             case Cmds.CMD_APP_AUTH://resp
-                onAppAuthResp(ctx,msg);
+                onAppAuthResp(msg);
                 break;
         }
     }
@@ -45,12 +45,6 @@ public class AppHandler implements ChannelHandler<ClientSocketChannel,BaseMsg> {
     @Override
     public void onConnected(ClientSocketChannel ctx){
         System.out.println("----onConnected----");
-        //对于一些没有RSA计算能力的设备,可以不进行密钥协商,直接doAuth
-        /*try {
-            doDeviceAuth(ctx);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
     }
 
     @Override
@@ -59,17 +53,17 @@ public class AppHandler implements ChannelHandler<ClientSocketChannel,BaseMsg> {
     }
 
     private void sendAesKey(ClientSocketChannel ctx, BaseMsg msg) throws Exception {
-        byte[] b = CryptUtil.rsaEncryptByPublicKey(ClientEnv.AES_KEY,new String(msg.getData(),"UTF-8"));
+        byte[] b = CryptUtil.rsaEncryptByPublicKey(ClientEnv.AES_KEY,CryptUtil.bytes2PublicKey(msg.getData()));
         ctx.send(new BaseMsg(Cmds.CMD_SEND_AES_KEY,b));
     }
 
-    private void onDiscussKeyResp(ClientSocketChannel ctx, BaseMsg msg) throws Exception {
+    private void onDiscussKeyResp(ClientSocketChannel ctx, BaseMsg msg){
         if(TextUtil.isEmpty(msg.getData())){
             System.err.println("=====>discuss key resp msg is empty");
             return;
         }
 
-        JSONObject json = JSON.parseObject(new String(msg.getData(),"UTF-8"));
+        JSONObject json = JSON.parseObject(new String(msg.getData(),StandardCharsets.UTF_8));
         int statusCode = json.getIntValue("code");
 
         if(statusCode== RespCode.COMMON_OK){
@@ -81,13 +75,13 @@ public class AppHandler implements ChannelHandler<ClientSocketChannel,BaseMsg> {
         }
     }
 
-    private void onRegResp(ClientSocketChannel ctx, BaseMsg msg) throws Exception {
+    private void onRegResp(ClientSocketChannel ctx, BaseMsg msg) {
         if(TextUtil.isEmpty(msg.getData())){
             System.err.println("=====>reg resp msg is empty");
             return;
         }
 
-        JSONObject json = JSON.parseObject(new String(msg.getData(),"UTF-8"));
+        JSONObject json = JSON.parseObject(new String(msg.getData(),StandardCharsets.UTF_8));
         int statusCode = json.getIntValue("code");
 
         //测试环境下，为了方便，用户已存在也处理为注册成功
@@ -101,13 +95,13 @@ public class AppHandler implements ChannelHandler<ClientSocketChannel,BaseMsg> {
         }
     }
 
-    private void onAppAuthResp(ClientSocketChannel ctx, BaseMsg msg) throws UnsupportedEncodingException {
+    private void onAppAuthResp(BaseMsg msg){
         if(TextUtil.isEmpty(msg.getData())){
             System.err.println("=====>app auth resp msg is empty");
             return;
         }
 
-        JSONObject json = JSON.parseObject(new String(msg.getData(),"UTF-8"));
+        JSONObject json = JSON.parseObject(new String(msg.getData(),StandardCharsets.UTF_8));
         int statusCode = json.getIntValue("code");
 
         if(statusCode==RespCode.COMMON_OK){
@@ -117,19 +111,19 @@ public class AppHandler implements ChannelHandler<ClientSocketChannel,BaseMsg> {
         }
     }
 
-    private void doAppReg(ClientSocketChannel ctx) throws Exception{
+    private void doAppReg(ClientSocketChannel ctx) {
         JSONObject json = new JSONObject();
         json.put("username","zc_usr");
         json.put("password",CryptUtil.md5("zc_psw"));
-        ctx.send(new BaseMsg(Cmds.CMD_APP_REGISTER,true,json.toJSONString().getBytes("UTF-8")));
+        ctx.send(new BaseMsg(Cmds.CMD_APP_REGISTER,true,json.toJSONString().getBytes(StandardCharsets.UTF_8)));
     }
 
-    private void doAppAuth(ClientSocketChannel ctx) throws Exception {
+    private void doAppAuth(ClientSocketChannel ctx){
         JSONObject json = new JSONObject();
         json.put("version","1.0");
         json.put("id",ClientEnv.CLIENT_ID);
         json.put("username","zc_usr");
         json.put("password",CryptUtil.md5("zc_psw"));
-        ctx.send(new BaseMsg(Cmds.CMD_APP_AUTH,true,json.toJSONString().getBytes("UTF-8")));
+        ctx.send(new BaseMsg(Cmds.CMD_APP_AUTH,true,json.toJSONString().getBytes(StandardCharsets.UTF_8)));
     }
 }

@@ -6,6 +6,7 @@ import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -89,7 +90,7 @@ public class ZkHelper {
         for(String childPath: childPaths){
             byte[] data = zk.getData(rootPath+"/"+childPath,false,null);
             if(!TextUtil.isEmpty(data)){
-                result.add(new String(data,"UTF-8"));
+                result.add(new String(data, StandardCharsets.UTF_8));
             }
         }
         return result;

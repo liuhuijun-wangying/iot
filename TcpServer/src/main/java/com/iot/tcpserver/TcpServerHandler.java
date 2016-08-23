@@ -19,6 +19,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
@@ -30,7 +31,7 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         ClientManager.getInstance().putContext(ctx);
         //客户端连接之后推送RSA的公钥
-        BaseMsg msg = new BaseMsg(Cmds.CMD_PUSH_RSA_PUB_KEY,0,ServerEnv.PUBLIC_KEY.getBytes("UTF-8"));
+        BaseMsg msg = new BaseMsg(Cmds.CMD_PUSH_RSA_PUB_KEY,0,ServerEnv.PUBLIC_KEY);
         ctx.writeAndFlush(msg);
     }
 

@@ -9,7 +9,7 @@ import com.iot.common.constant.RespCode;
 import com.iot.common.util.CryptUtil;
 import com.iot.common.util.TextUtil;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Created by zc on 16-8-10.
@@ -30,7 +30,7 @@ public class DeviceHandler implements ChannelHandler<ClientSocketChannel,BaseMsg
                 onDiscussKeyResp(ctx,msg);
                 break;
             case Cmds.CMD_DEVICE_AUTH://resp
-                onDeviceAuthResp(ctx,msg);
+                onDeviceAuthResp(msg);
                 break;
         }
     }
@@ -57,17 +57,17 @@ public class DeviceHandler implements ChannelHandler<ClientSocketChannel,BaseMsg
     }
 
     private void sendAesKey(ClientSocketChannel ctx, BaseMsg msg) throws Exception {
-        byte[] b = CryptUtil.rsaEncryptByPublicKey(ClientEnv.AES_KEY,new String(msg.getData(),"UTF-8"));
+        byte[] b = CryptUtil.rsaEncryptByPublicKey(ClientEnv.AES_KEY,CryptUtil.bytes2PublicKey(msg.getData()));
         ctx.send(new BaseMsg(Cmds.CMD_SEND_AES_KEY,b));
     }
 
-    private void onDiscussKeyResp(ClientSocketChannel ctx, BaseMsg msg) throws Exception {
+    private void onDiscussKeyResp(ClientSocketChannel ctx, BaseMsg msg) {
         if(TextUtil.isEmpty(msg.getData())){
             System.err.println("=====>discuss key resp msg is empty");
             return;
         }
 
-        JSONObject json = JSON.parseObject(new String(msg.getData(),"UTF-8"));
+        JSONObject json = JSON.parseObject(new String(msg.getData(),StandardCharsets.UTF_8));
         int statusCode = json.getIntValue("code");
 
         if(statusCode== RespCode.COMMON_OK){
@@ -78,13 +78,13 @@ public class DeviceHandler implements ChannelHandler<ClientSocketChannel,BaseMsg
         }
     }
 
-    private void onDeviceAuthResp(ClientSocketChannel ctx, BaseMsg msg) throws UnsupportedEncodingException {
+    private void onDeviceAuthResp(BaseMsg msg) {
         if(TextUtil.isEmpty(msg.getData())){
             System.err.println("=====>app auth resp msg is empty");
             return;
         }
 
-        JSONObject json = JSON.parseObject(new String(msg.getData(),"UTF-8"));
+        JSONObject json = JSON.parseObject(new String(msg.getData(),StandardCharsets.UTF_8));
         int statusCode = json.getIntValue("code");
 
         if(statusCode== RespCode.COMMON_OK){
@@ -94,7 +94,7 @@ public class DeviceHandler implements ChannelHandler<ClientSocketChannel,BaseMsg
         }
     }
 
-    private void doDeviceAuth(ClientSocketChannel ctx) throws Exception {
+    private void doDeviceAuth(ClientSocketChannel ctx) {
         JSONObject json = new JSONObject();
         json.put("version","1.0");
         json.put("id",ClientEnv.CLIENT_ID);
@@ -103,6 +103,6 @@ public class DeviceHandler implements ChannelHandler<ClientSocketChannel,BaseMsg
         jsonArray.add("camera");
         jsonArray.add("fly");// -_-
         json.put("abilities",jsonArray);
-        ctx.send(new BaseMsg(Cmds.CMD_DEVICE_AUTH,false,json.toJSONString().getBytes("UTF-8")));
+        ctx.send(new BaseMsg(Cmds.CMD_DEVICE_AUTH,false,json.toJSONString().getBytes(StandardCharsets.UTF_8)));
     }
 }

@@ -1,6 +1,6 @@
 package com.iot.client.codec;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 public class BaseMsg {
 
@@ -91,12 +91,7 @@ public class BaseMsg {
         if(data==null || data.length==0){
             dataStr = "null";
         }else{
-            try {
-                dataStr = new String(data,"UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                dataStr = "null";
-                e.printStackTrace();
-            }
+            dataStr = new String(data, StandardCharsets.UTF_8);
         }
         return "BaseMsg{" +
                 "cmd=" + cmd +

@@ -1,8 +1,5 @@
 package com.iot.common.util;
 
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
-
 import java.math.BigInteger;
 import java.security.*;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -11,6 +8,9 @@ import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 
 public class CryptUtil {
+
+    private static final String RSA = "RSA/ECB/PKCS1Padding";
+    private static final String AES = "AES/ECB/PKCS5Padding";
 
     public static byte[] generateAESKey(){
         try{
@@ -36,20 +36,20 @@ public class CryptUtil {
 
     public static byte[] aesEncrypt(byte[] content, byte[] key)throws Exception{
         SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
-        return encrypt(content,keySpec,"AES");
+        return encrypt(content,keySpec,AES);
     }
 
     public static byte[] aesDecrypt(byte[] data, byte[] key)throws Exception{
         SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
-        return decrypt(data,keySpec,"AES");
+        return decrypt(data,keySpec,AES);
     }
 
     public static byte[] rsaDecryptByPrivate(byte[] data, PrivateKey privateKey)throws Exception{
-        return decrypt(data,privateKey,"RSA");
+        return decrypt(data,privateKey,RSA);
     }
 
-    public static byte[] rsaEncryptByPublicKey(byte[] data, String rsaPubKey) throws Exception{
-        return encrypt(data,str2PublicKey(rsaPubKey),"RSA");
+    public static byte[] rsaEncryptByPublicKey(byte[] data, PublicKey pubKey) throws Exception{
+        return encrypt(data,pubKey,RSA);
     }
 
     private static byte[] encrypt(byte[] content, Key key, String algorithm) throws Exception {
@@ -64,25 +64,20 @@ public class CryptUtil {
         return cipher.doFinal(content);
     }
 
-    private static PublicKey str2PublicKey(String key) throws Exception {
-        byte[] keyBytes = new BASE64Decoder().decodeBuffer(key);
-        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
+    public static PublicKey bytes2PublicKey(byte[] key) throws Exception {
+        //byte[] keyBytes = Base64.getDecoder().decode(key);
+        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(key);
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         PublicKey publicKey = keyFactory.generatePublic(keySpec);
         return publicKey;
     }
 
-    private static PrivateKey str2PrivateKey(String key) throws Exception{
-        byte[] keyBytes = new BASE64Decoder().decodeBuffer(key);
-        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
+    public static PrivateKey bytes2PrivateKey(byte[] key) throws Exception{
+        //byte[] keyBytes = Base64.getDecoder().decode(key);
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(key);
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         PrivateKey privateKey = keyFactory.generatePrivate(keySpec);
         return privateKey;
-    }
-
-    public static String key2Str(Key key){
-        byte[] keyBytes = key.getEncoded();
-        return new BASE64Encoder().encode(keyBytes);
     }
 
     public static String md5(String str){

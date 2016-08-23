@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.iot.common.util.TextUtil;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 public class BaseMsg {
 
@@ -38,21 +38,14 @@ public class BaseMsg {
         if(TextUtil.isEmpty(data)){
             return null;
         }
-        try {
-            return JSON.parseObject(new String(data,"UTF-8"));
-        } catch (UnsupportedEncodingException cannotHappen) {
-            return null;
-        }
+        return JSON.parseObject(new String(data, StandardCharsets.UTF_8));
     }
 
     public BaseMsg setJsonData(JSONObject json){
         if(json==null){
             return this;
         }
-        try {
-            this.data = json.toJSONString().getBytes("UTF-8");
-        } catch (UnsupportedEncodingException cannotHappen) {
-        }
+        this.data = json.toJSONString().getBytes(StandardCharsets.UTF_8);
         return this;
     }
 
@@ -102,12 +95,7 @@ public class BaseMsg {
         if(data==null || data.length==0){
             dataStr = "null";
         }else{
-            try {
-                dataStr = new String(data,"UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                dataStr = "null";
-                e.printStackTrace();
-            }
+            dataStr = new String(data,StandardCharsets.UTF_8);
         }
         return "BaseMsg{" +
                 "cmd=" + cmd +

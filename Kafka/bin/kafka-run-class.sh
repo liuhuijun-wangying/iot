@@ -145,7 +145,7 @@ fi
 
 # Log directory to use
 if [ "x$LOG_DIR" = "x" ]; then
-    LOG_DIR="$base_dir/logs"
+    LOG_DIR="/data/iot/logs/kafka"
 fi
 
 # Log4j settings

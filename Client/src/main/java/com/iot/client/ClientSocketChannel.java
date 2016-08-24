@@ -62,6 +62,13 @@ public class ClientSocketChannel {
 	public ClientSocketChannel(){
 	}
 
+	public ClientSocketChannel(String ip, int port){
+		if(ClientEnv.DEBUG){
+			this.ip = ip;
+			this.port = port;
+		}
+	}
+
 	private int idleTime = 30;
 	public void setIdleTimeSecond(int second){
 		if(second<=0){
@@ -151,6 +158,9 @@ public class ClientSocketChannel {
 	}
 
 	private boolean initAddr(){
+		if(ClientEnv.DEBUG){
+			return true;
+		}
 		String result = HttpUtil.get(ClientEnv.DISPATCHER_ADDR+ClientEnv.CLIENT_ID);
 		if(TextUtil.isEmpty(result)){
 			logE("get tcp server addr result is null");

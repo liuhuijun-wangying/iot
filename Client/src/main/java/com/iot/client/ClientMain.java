@@ -16,7 +16,7 @@ public class ClientMain {
     }
 
     private static void startClient(){
-        ClientSocketChannel client = new ClientSocketChannel();
+        ClientSocketChannel client = new ClientSocketChannel("127.0.0.1",8888);
         client.setHandler(handler);
         //读写idle时间,idle时发心跳包
         //实际可调整为30s

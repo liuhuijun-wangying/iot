@@ -34,7 +34,13 @@ fi
 mvn clean package -Dmaven.test.skip=ture
 
 #start dispatcher
-#need not start when dev
+dispatcher_status=$(ps ax | grep nohup | grep -i 'Dispatcher' | grep java | grep -v grep | awk '{print $1}')
+if [ -n "$dispatcher_status" ]; then
+    echo "======>:killing dispatcher server"
+    sudo kill -s TERM $dispatcher_status
+fi
+echo "======>:starting dispatcher server"
+sudo nohup java -jar ./Dispatcher/target/Dispatcher-1.0.0.jar >/dev/null 2>&1 &
 
 #start tcp server
 tcpserver_status=$(ps ax | grep nohup | grep -i 'TcpServer' | grep java | grep -v grep | awk '{print $1}')

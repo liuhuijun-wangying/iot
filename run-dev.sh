@@ -31,7 +31,7 @@ if [ -z "$kafka_status" ]; then
 fi
 
 #build java project
-#mvn clean package -Dmaven.test.skip=ture
+mvn clean package -Dmaven.test.skip=ture
 
 #start dispatcher
 #need not start when dev

@@ -1,8 +1,6 @@
 #!/bin/bash
 
 #仅用于测试
-set -e
-
 #stop zk
 #sudo ./Zookeeper/bin/zkServer.sh stop
 #stop kafka
@@ -17,7 +15,6 @@ fi
 
 #start kafka if not started
 kafka_status=$(ps ax | grep -i 'kafka\.Kafka' | grep java | grep -v grep | awk '{print $1}')
-
 if [ -z "$kafka_status" ]; then
     echo "======>:starting kafka broker..."
     sudo ./Kafka/bin/kafka-server-start.sh -daemon ./Kafka/config/server.properties
@@ -26,8 +23,7 @@ if [ -z "$kafka_status" ]; then
     #create topics if not exists
     sudo ./Kafka/bin/kafka-topics.sh --if-not-exists --create --zookeeper localhost:2181 --replication-factor 1 --partitions 3 --topic test
     sudo ./Kafka/bin/kafka-topics.sh --if-not-exists --create --zookeeper localhost:2181 --replication-factor 1 --partitions 3 --topic topic-service-resp
-    sudo ./Kafka/bin/kafka-topics.sh --if-not-exists --create --zookeeper localhost:2181 --replication-factor 1 --partitions 3 --topic topic-account
-    sudo ./Kafka/bin/kafka-topics.sh --if-not-exists --create --zookeeper localhost:2181 --replication-factor 1 --partitions 3 --topic topic-im
+    sudo ./Kafka/bin/kafka-topics.sh --if-not-exists --create --zookeeper localhost:2181 --replication-factor 1 --partitions 3 --topic topic-service
 fi
 
 #build java project
@@ -40,7 +36,7 @@ if [ -n "$dispatcher_status" ]; then
     sudo kill -s TERM $dispatcher_status
 fi
 echo "======>:starting dispatcher server"
-sudo nohup java -jar ./Dispatcher/target/Dispatcher-1.0.0.jar >/dev/null 2>&1 &
+sudo nohup java -jar ./Dispatcher/target/Dispatcher-1.0.0-jar-with-dependencies.jar >/dev/null 2>&1 &
 
 #start tcp server
 tcpserver_status=$(ps ax | grep nohup | grep -i 'TcpServer' | grep java | grep -v grep | awk '{print $1}')
@@ -49,22 +45,13 @@ if [ -n "$tcpserver_status" ]; then
     sudo kill -s TERM $tcpserver_status
 fi
 echo "======>:starting tcp server"
-sudo nohup java -jar ./TcpServer/target/TcpServer-1.0.0.jar >/dev/null 2>&1 &
+sudo nohup java -jar ./TcpServer/target/TcpServer-1.0.0-jar-with-dependencies.jar >/dev/null 2>&1 &
 
-#start account service
-account_status=$(ps ax | grep nohup | grep -i 'AccountService' | grep java | grep -v grep | awk '{print $1}')
-if [ -n "$account_status" ]; then
-    echo "======>:killing account service"
-    sudo kill -s TERM $account_status
+#start service
+common_status=$(ps ax | grep nohup | grep -i 'CommonService' | grep java | grep -v grep | awk '{print $1}')
+if [ -n "$common_status" ]; then
+    echo "======>:killing common service"
+    sudo kill -s TERM $common_status
 fi
-echo "======>:starting account service"
-sudo nohup java -jar ./AccountService/target/AccountService-1.0.0.jar >/dev/null 2>&1 &
-
-#start im service
-im_status=$(ps ax | grep nohup | grep -i 'IMService' | grep java | grep -v grep | awk '{print $1}')
-if [ -n "$im_status" ]; then
-    echo "======>:killing im service"
-    sudo kill -s TERM $im_status
-fi
-echo "======>:starting im service"
-sudo nohup java -jar ./IMService/target/IMService-1.0.0.jar >/dev/null 2>&1 &
+echo "======>:starting common service"
+sudo nohup java -jar ./CommonService/target/CommonService-1.0.0-jar-with-dependencies.jar >/dev/null 2>&1 &

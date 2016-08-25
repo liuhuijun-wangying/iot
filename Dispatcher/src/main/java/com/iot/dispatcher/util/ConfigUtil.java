@@ -10,7 +10,7 @@ public class ConfigUtil {
 
     static {
         try {
-            InputStream in = ConfigUtil.class.getClassLoader().getResourceAsStream("server.properties");
+            InputStream in = ConfigUtil.class.getClassLoader().getResourceAsStream("dispatcher.properties");
             prop.load(in);
         } catch (IOException e) {
             e.printStackTrace();

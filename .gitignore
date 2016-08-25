@@ -1,4 +1,3 @@
-/iot-parent.iml
 /Client/target/
 /Client/Client.iml
 /Common/target/
@@ -7,16 +6,7 @@
 /Dispatcher/Dispatcher.iml
 /TcpServer/target/
 /TcpServer/TcpServer.iml
-/AccountService/AccountService.iml
-/AccountService/target/
-/IMService/IMService.iml
-/IMService/target/
-/DAO/DAO.iml
-/DAO/target/
 /WebService/WebService.iml
 /WebService/target/
-/AccountService/dependency-reduced-pom.xml
-/Client/dependency-reduced-pom.xml
-/Dispatcher/dependency-reduced-pom.xml
-/IMService/dependency-reduced-pom.xml
-/TcpServer/dependency-reduced-pom.xml
+/CommonService/target/
+/CommonService/CommonService.iml

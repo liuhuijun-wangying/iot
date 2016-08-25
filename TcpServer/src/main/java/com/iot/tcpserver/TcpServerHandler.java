@@ -114,13 +114,7 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
         if(cmd<100){
             return null;
         }
-        if(cmd<200){
-            return Topics.TOPIC_ACCOUNT;
-        }
-        if(cmd<300){
-            return Topics.TOPIC_IM;
-        }
-        return null;
+        return Topics.TOPIC_SERVICE;
     }
 
     @Override

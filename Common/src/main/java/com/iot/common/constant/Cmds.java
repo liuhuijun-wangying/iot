@@ -17,7 +17,5 @@ public class Cmds {
     public static final short CMD_APP_REGISTER = 102;
 
     /* 200-300  im相关 */
-    public static final short CMD_IM = 200;
-    public static final short CMD_IM_GROUP = 201;//群聊
-    public static final short CMD_IM_VIDEO = 202;//发起视频聊天
+    public static final short CMD_ADD_FRIEND = 200;
 }

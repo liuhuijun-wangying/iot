@@ -31,7 +31,7 @@
         </javaTypeResolver>
 
         <!-- 生成实体类地址 -->
-        <javaModelGenerator targetPackage="com.iot.dao.model"
+        <javaModelGenerator targetPackage="com.iot.cs.model"
                             targetProject="${mybatis.generator.project.path}" >
             <!-- 是否在当前路径下新加一层schema -->
             <property name="enableSubPackages" value="false"/>
@@ -40,7 +40,7 @@
         </javaModelGenerator>
 
         <!-- 生成mapxml对应client，也就是接口dao -->
-        <javaClientGenerator targetPackage="com.iot.dao.mapper"
+        <javaClientGenerator targetPackage="com.iot.cs.dao"
                              targetProject="${mybatis.generator.project.path}" type="ANNOTATEDMAPPER" >
             <!-- 是否在当前路径下新加一层schema -->
             <property name="enableSubPackages" value="false" />

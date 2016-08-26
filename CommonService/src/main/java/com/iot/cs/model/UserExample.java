@@ -1,4 +1,4 @@
-package com.iot.dao.model;
+package com.iot.cs.model;
 
 import java.util.ArrayList;
 import java.util.Date;

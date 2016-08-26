@@ -8,6 +8,7 @@ import com.iot.common.constant.Topics;
 import com.iot.common.kafka.BaseKafkaProducer;
 import com.iot.common.kafka.KafkaMsg;
 import com.iot.common.util.CryptUtil;
+import com.iot.common.util.RespUtil;
 import com.iot.common.util.TextUtil;
 import com.iot.tcpserver.client.AppClient;
 import com.iot.tcpserver.client.Client;
@@ -57,6 +58,14 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
                 doDeviceAuth(ctx, baseMsg);
                 break;
             default:
+                Client oldClient = ctx.channel().attr(ServerEnv.CLIENT).get();
+                if(baseMsg.getCmd()>=200 && oldClient==null){//not login
+                    JSONObject respJson = RespUtil.buildCommonResp(RespCode.COMMON_NOT_LOGIN,"you need login first");
+                    BaseMsg respMsg = new BaseMsg(baseMsg.getCmd(), baseMsg.getMsgId(),
+                            respJson.toJSONString().getBytes(StandardCharsets.UTF_8));
+                    ctx.writeAndFlush(respMsg);
+                    return;
+                }
                 KafkaMsg kafkaMsg = new KafkaMsg(ctx.channel().id().asLongText(),baseMsg.getMsgId(),baseMsg.getData());
                 BaseKafkaProducer.getInstance().send(getTopic(baseMsg.getCmd()), baseMsg.getCmd(),kafkaMsg);
                 break;
@@ -64,21 +73,17 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
     }
 
     private static void doDiscussKey(ChannelHandlerContext ctx, BaseMsg baseMsg) {
-        JSONObject json = new JSONObject();
+        JSONObject json;
         try{
             byte[] aesKey = CryptUtil.rsaDecryptByPrivate(baseMsg.getData(),ServerEnv.PRIVATE_KEY);
             if(!TextUtil.isEmpty(aesKey)){
                 ctx.channel().attr(ServerEnv.KEY).set(aesKey);
-                json.put("code", RespCode.COMMON_OK);
-                json.put("msg", "ok");
+                json = RespUtil.buildCommonResp(RespCode.COMMON_OK,"ok");
             }else{
-                json.put("code", RespCode.COMMON_INVALID);
-                json.put("msg", "aes key is null");
+                json = RespUtil.buildCommonResp(RespCode.COMMON_INVALID,"aes key is null");
             }
         }catch (Exception e){
-            e.printStackTrace();
-            json.put("code", RespCode.COMMON_EXCEPTION);
-            json.put("msg", e.getMessage());
+            json = RespUtil.buildCommonResp(RespCode.COMMON_EXCEPTION,e.getMessage());
         }
         ctx.writeAndFlush(new BaseMsg(Cmds.CMD_SEND_AES_KEY, baseMsg.getMsgId()).setJsonData(json));
     }
@@ -91,12 +96,11 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
             return;
         }
 
-        JSONObject json = new JSONObject();
+        JSONObject json;
 
         String id = deviceAuthJson.getString("id");
         if(TextUtil.isEmpty(id)){
-            json.put("code",RespCode.COMMON_INVALID);
-            json.put("msg","id is null");
+            json = RespUtil.buildCommonResp(RespCode.COMMON_INVALID,"id is null");
         }else{
             //TODO should we handle with old client???
             //Client oldClient = ctx.channel().attr(ServerEnv.CLIENT).get();
@@ -104,8 +108,7 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
             JSONArray abilites = deviceAuthJson.getJSONArray("abilities");
             Client client = new DeviceClient(id,deviceAuthJson.getString("version"),Arrays.asList(abilites.toArray(new String[]{})));
             ctx.channel().attr(ServerEnv.CLIENT).set(client);
-            json.put("code",RespCode.COMMON_OK);
-            json.put("msg","ok");
+            json = RespUtil.buildCommonResp(RespCode.COMMON_OK,"ok");
         }
         ctx.writeAndFlush(new BaseMsg(Cmds.CMD_DEVICE_AUTH, baseMsg.getMsgId()).setJsonData(json));
     }

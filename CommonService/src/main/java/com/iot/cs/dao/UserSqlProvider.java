@@ -1,9 +1,9 @@
-package com.iot.dao.mapper;
+package com.iot.cs.dao;
 
-import com.iot.dao.model.User;
-import com.iot.dao.model.UserExample.Criteria;
-import com.iot.dao.model.UserExample.Criterion;
-import com.iot.dao.model.UserExample;
+import com.iot.cs.model.User;
+import com.iot.cs.model.UserExample.Criteria;
+import com.iot.cs.model.UserExample.Criterion;
+import com.iot.cs.model.UserExample;
 import java.util.List;
 import java.util.Map;
 import org.apache.ibatis.jdbc.SQL;

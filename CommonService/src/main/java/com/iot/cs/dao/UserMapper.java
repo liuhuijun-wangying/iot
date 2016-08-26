@@ -1,7 +1,7 @@
-package com.iot.dao.mapper;
+package com.iot.cs.dao;
 
-import com.iot.dao.model.User;
-import com.iot.dao.model.UserExample;
+import com.iot.cs.model.User;
+import com.iot.cs.model.UserExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.DeleteProvider;

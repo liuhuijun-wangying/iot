@@ -1,4 +1,4 @@
-package com.iot.dao.util;
+package com.iot.cs.util;
 
 import org.mybatis.generator.api.MyBatisGenerator;
 import org.mybatis.generator.config.Configuration;

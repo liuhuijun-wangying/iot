@@ -15,12 +15,10 @@ import java.util.Properties;
  */
 public class ServiceMain {
 
-    private static ApplicationContext ctx;
-
     public static void main(String[] args) {
         try {
-            initSpring();
-            initKafka();
+            ApplicationContext ctx = initSpring();
+            initKafka(ctx);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -29,11 +27,13 @@ public class ServiceMain {
         }
     }
 
-    private static void initSpring() {
-        ctx = new ClassPathXmlApplicationContext("classpath:spring.xml");
+    private static ApplicationContext initSpring() {
+        ApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:spring.xml");
+        ControllerScanner.scan(ctx);
+        return ctx;
     }
 
-    private static void initKafka() throws IOException {
+    private static void initKafka(ApplicationContext ctx) throws IOException {
         Properties producerProp = new Properties();
         InputStream producerIn = BaseKafkaProducer.class.getClassLoader().getResourceAsStream("producer.properties");
         producerProp.load(producerIn);

@@ -1,0 +1,15 @@
+/home/zc/Documents/wpsep/iot/BaseService/src/main/java/com/iot/basesvr/KafkaMsgReceiver.java
+/home/zc/Documents/wpsep/iot/BaseService/src/main/java/com/iot/basesvr/controller/AccountController.java
+/home/zc/Documents/wpsep/iot/BaseService/src/main/java/com/iot/basesvr/util/MBG.java
+/home/zc/Documents/wpsep/iot/BaseService/src/main/java/com/iot/basesvr/service/impl/AccountServiceImpl.java
+/home/zc/Documents/wpsep/iot/BaseService/src/main/java/com/iot/basesvr/service/IMService.java
+/home/zc/Documents/wpsep/iot/BaseService/src/main/java/com/iot/basesvr/dao/UserSqlProvider.java
+/home/zc/Documents/wpsep/iot/BaseService/src/main/java/com/iot/basesvr/service/AccountService.java
+/home/zc/Documents/wpsep/iot/BaseService/src/main/java/com/iot/basesvr/controller/IMController.java
+/home/zc/Documents/wpsep/iot/BaseService/src/main/java/com/iot/basesvr/ServiceMain.java
+/home/zc/Documents/wpsep/iot/BaseService/src/main/java/com/iot/basesvr/ControllerScanner.java
+/home/zc/Documents/wpsep/iot/BaseService/src/main/java/com/iot/basesvr/model/UserExample.java
+/home/zc/Documents/wpsep/iot/BaseService/src/main/java/com/iot/basesvr/service/impl/IMServiceImpl.java
+/home/zc/Documents/wpsep/iot/BaseService/src/main/java/com/iot/basesvr/dao/UserMapper.java
+/home/zc/Documents/wpsep/iot/BaseService/src/main/java/com/iot/basesvr/annotation/Cmd.java
+/home/zc/Documents/wpsep/iot/BaseService/src/main/java/com/iot/basesvr/model/User.java

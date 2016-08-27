@@ -31,7 +31,7 @@ fi
 mvn clean package -Dmaven.test.skip=ture
 
 #restart server modules in single mode
-modules=("Dispatcher" "TcpServer" "CommonService")
+modules=("Dispatcher" "TcpServer" "BaseService")
 for module in ${modules[@]}; do
     status=$(ps ax | grep nohup | grep ${module} | grep java | grep -v grep | awk '{print $1}')
     if [ -n "$status" ]; then

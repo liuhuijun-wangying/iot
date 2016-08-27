@@ -14,7 +14,7 @@
         <module>Dispatcher</module>
         <module>Client</module>
         <module>Common</module>
-        <module>CommonService</module>
+        <module>BaseService</module>
     </modules>
 
     <properties>

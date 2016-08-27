@@ -2,9 +2,9 @@ package com.iot.dispatcher.server;
 
 import com.alibaba.fastjson.JSONObject;
 import com.iot.common.constant.RespCode;
+import com.iot.common.model.ServerInfo;
 import com.iot.common.util.TextUtil;
 import com.iot.dispatcher.ConsistentHash;
-import com.iot.dispatcher.ServerInfo;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;

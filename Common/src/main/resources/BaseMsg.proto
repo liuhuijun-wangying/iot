@@ -1,0 +1,12 @@
+syntax = "proto3";
+package model;
+
+option java_package = "com.iot.common.model";
+option java_outer_classname = "BaseMsg";
+
+message BaseMsgPb {
+    int32 cmd = 1;
+    int64 msgId = 2;
+    bool isEncrypt = 3;
+    bytes data = 4;
+}

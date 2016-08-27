@@ -1,9 +1,9 @@
 package com.iot.dispatcher.server;
 
 import com.alibaba.fastjson.JSON;
+import com.iot.common.model.ServerInfo;
 import com.iot.common.zk.ZkHelper;
 import com.iot.dispatcher.ConsistentHash;
-import com.iot.dispatcher.ServerInfo;
 import com.iot.dispatcher.util.ConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ public class DispatcherServerMain {
     }
 
     private static void initZk() throws Exception {
-        String zkAddr = ConfigUtil.getProp().getProperty("zk_addr");
+        String zkAddr = ConfigUtil.getProp().getProperty("zk.addr");
         ZkHelper.getInstance().connect(zkAddr,ZK_ROOT_PATH,listener);
         onDataChanged();
     }
@@ -61,7 +61,7 @@ public class DispatcherServerMain {
     };
 
     private static int getPort(){
-        String serverPort = ConfigUtil.getProp().getProperty("server_port");
+        String serverPort = ConfigUtil.getProp().getProperty("server.port");
         return Integer.parseInt(serverPort);
     }
 

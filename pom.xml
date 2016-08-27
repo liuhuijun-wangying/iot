@@ -15,7 +15,6 @@
         <module>Client</module>
         <module>Common</module>
         <module>CommonService</module>
-        <module>WebService</module>
     </modules>
 
     <properties>

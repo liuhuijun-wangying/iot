@@ -1,5 +1,6 @@
 package com.iot.common.kafka;
 
+import com.iot.common.model.KafkaMsg;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -28,7 +29,7 @@ public class BaseKafkaConsumer implements Runnable{
         return instance;
     }
 
-    private KafkaConsumer<Short, KafkaMsg> consumer;
+    private KafkaConsumer<Integer, KafkaMsg.KafkaMsgPb> consumer;
     private boolean hasInited = false;
     private KafkaProcessor processor;
     private ExecutorService fixedThreadPool;
@@ -44,7 +45,7 @@ public class BaseKafkaConsumer implements Runnable{
             fixedThreadPool = Executors.newFixedThreadPool(threadNum);
         }
         this.processor = processor;
-        prop.setProperty("key.deserializer","com.iot.common.kafka.ShortDeserializer");
+        prop.setProperty("key.deserializer","com.iot.common.kafka.IntegerDeserializer");
         prop.setProperty("value.deserializer","com.iot.common.kafka.KafkaMsgDeserializer");
         consumer = new KafkaConsumer<>(prop);
         consumer.subscribe(Arrays.asList(topics));
@@ -52,7 +53,7 @@ public class BaseKafkaConsumer implements Runnable{
     }
 
     public interface KafkaProcessor{
-        void process(String topic,Short key,KafkaMsg value);
+        void process(String topic,Integer key,KafkaMsg.KafkaMsgPb value);
     }
 
     private boolean isRunning = false;
@@ -60,11 +61,11 @@ public class BaseKafkaConsumer implements Runnable{
     public void run(){
         isRunning = true;
         while (isRunning && !Thread.interrupted()) {
-            ConsumerRecords<Short, KafkaMsg> records = consumer.poll(100);
+            ConsumerRecords<Integer, KafkaMsg.KafkaMsgPb> records = consumer.poll(100);
             if(records.isEmpty()){
                 continue;
             }
-            for (ConsumerRecord<Short, KafkaMsg> record : records) {
+            for (ConsumerRecord<Integer, KafkaMsg.KafkaMsgPb> record : records) {
                 if(fixedThreadPool==null){
                     processor.process(record.topic(),record.key(),record.value());
                 }else{

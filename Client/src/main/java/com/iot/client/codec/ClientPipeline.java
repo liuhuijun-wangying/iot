@@ -1,5 +1,6 @@
 package com.iot.client.codec;
 
+import com.iot.common.model.BaseMsg;
 import com.iot.common.util.TextUtil;
 
 import java.util.ArrayList;
@@ -10,8 +11,8 @@ public class ClientPipeline {
 	private LengthFieldCodec stickPackCodec = new LengthFieldCodec();
 	private BaseMsgCodec serializeCodec = new BaseMsgCodec();
 	
-	public List<BaseMsg> decode(byte[] data) throws Exception {
-		List<BaseMsg> list = new ArrayList<>();
+	public List<BaseMsg.BaseMsgPb> decode(byte[] data) throws Exception {
+		List<BaseMsg.BaseMsgPb> list = new ArrayList<>();
 		if(TextUtil.isEmpty(data)){
 			return list;
 		}
@@ -38,7 +39,7 @@ public class ClientPipeline {
 		return list;
 	}
 	
-	public byte[] encode(BaseMsg obj) throws Exception {
+	public byte[] encode(BaseMsg.BaseMsgPbOrBuilder obj) throws Exception {
 		if(obj==null){
 			return null;
 		}

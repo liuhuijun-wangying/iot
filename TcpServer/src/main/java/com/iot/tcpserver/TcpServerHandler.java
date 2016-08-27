@@ -2,38 +2,45 @@ package com.iot.tcpserver;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.google.protobuf.ByteString;
 import com.iot.common.constant.Cmds;
 import com.iot.common.constant.RespCode;
 import com.iot.common.constant.Topics;
 import com.iot.common.kafka.BaseKafkaProducer;
-import com.iot.common.kafka.KafkaMsg;
+import com.iot.common.model.BaseMsg;
+import com.iot.common.model.KafkaMsg;
 import com.iot.common.util.CryptUtil;
-import com.iot.common.util.RespUtil;
+import com.iot.common.util.JsonUtil;
 import com.iot.common.util.TextUtil;
 import com.iot.tcpserver.client.AppClient;
 import com.iot.tcpserver.client.Client;
 import com.iot.tcpserver.client.ClientManager;
 import com.iot.tcpserver.client.DeviceClient;
-import com.iot.tcpserver.codec.BaseMsg;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
+public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg.BaseMsgPb> {
 
     private static final Logger log = LoggerFactory.getLogger(TcpServerHandler.class);
-    private static final BaseMsg HEARTBEAT_MSG = new BaseMsg(Cmds.CMD_HEARTBEAT,0,null);
+    private static BaseMsg.BaseMsgPb.Builder HEARTBEAT_MSG;
+
+    public TcpServerHandler(){
+        HEARTBEAT_MSG = BaseMsg.BaseMsgPb.newBuilder();
+        HEARTBEAT_MSG.setCmd(Cmds.CMD_HEARTBEAT);
+    }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        ClientManager.getInstance().putContext(ctx);
+        CtxPool.putContext(ctx);
         //客户端连接之后推送RSA的公钥
-        BaseMsg msg = new BaseMsg(Cmds.CMD_PUSH_RSA_PUB_KEY,0,ServerEnv.PUBLIC_KEY);
-        ctx.writeAndFlush(msg);
+        BaseMsg.BaseMsgPb.Builder result = BaseMsg.BaseMsgPb.newBuilder();
+        result.setCmd(Cmds.CMD_PUSH_RSA_PUB_KEY);
+        result.setData(ByteString.copyFrom(ServerEnv.PUBLIC_KEY));
+        ctx.writeAndFlush(result);
     }
 
     @Override
@@ -42,11 +49,11 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
         if (client instanceof AppClient){
             ClientManager.getInstance().onLogout(((AppClient)client).getUsername(),client.getId());
         }
-        ClientManager.getInstance().removeContext(ctx.channel().id().asLongText());
+        CtxPool.removeContext(ctx);
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, BaseMsg baseMsg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, BaseMsg.BaseMsgPb baseMsg) throws Exception {
         switch (baseMsg.getCmd()){
             case Cmds.CMD_HEARTBEAT://心跳包
                 ctx.writeAndFlush(HEARTBEAT_MSG);
@@ -58,39 +65,49 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
                 doDeviceAuth(ctx, baseMsg);
                 break;
             default:
-                Client oldClient = ctx.channel().attr(ServerEnv.CLIENT).get();
-                if(baseMsg.getCmd()>=200 && oldClient==null){//not login
-                    JSONObject respJson = RespUtil.buildCommonResp(RespCode.COMMON_NOT_LOGIN,"you need login first");
-                    BaseMsg respMsg = new BaseMsg(baseMsg.getCmd(), baseMsg.getMsgId(),
-                            respJson.toJSONString().getBytes(StandardCharsets.UTF_8));
-                    ctx.writeAndFlush(respMsg);
+                Client client = ctx.channel().attr(ServerEnv.CLIENT).get();
+                if(baseMsg.getCmd()>=200 && client==null){//not login
+                    JSONObject respJson = JsonUtil.buildCommonResp(RespCode.COMMON_NOT_LOGIN,"you need login first");
+                    BaseMsg.BaseMsgPb.Builder result = BaseMsg.BaseMsgPb.newBuilder();
+                    result.setCmd(baseMsg.getCmd());
+                    result.setMsgId(baseMsg.getMsgId());
+                    result.setData(ByteString.copyFrom(JsonUtil.Json2Bytes(respJson)));
+                    ctx.writeAndFlush(result);
                     return;
                 }
-                KafkaMsg kafkaMsg = new KafkaMsg(ctx.channel().id().asLongText(),baseMsg.getMsgId(),baseMsg.getData());
-                BaseKafkaProducer.getInstance().send(getTopic(baseMsg.getCmd()), baseMsg.getCmd(),kafkaMsg);
+                KafkaMsg.KafkaMsgPb.Builder kafkaMsg = KafkaMsg.KafkaMsgPb.newBuilder();
+                kafkaMsg.setMsgId(baseMsg.getMsgId());
+                kafkaMsg.setData(baseMsg.getData());
+                kafkaMsg.addChannelId(ctx.channel().id().asLongText());//channelId
+                BaseKafkaProducer.getInstance().send(Topics.TOPIC_SERVICE,baseMsg.getCmd(),kafkaMsg);
                 break;
         }
     }
 
-    private static void doDiscussKey(ChannelHandlerContext ctx, BaseMsg baseMsg) {
+    private static void doDiscussKey(ChannelHandlerContext ctx, BaseMsg.BaseMsgPb baseMsg) {
         JSONObject json;
         try{
-            byte[] aesKey = CryptUtil.rsaDecryptByPrivate(baseMsg.getData(),ServerEnv.PRIVATE_KEY);
+            byte[] aesKey = CryptUtil.rsaDecryptByPrivate(baseMsg.getData().toByteArray(),ServerEnv.PRIVATE_KEY);
             if(!TextUtil.isEmpty(aesKey)){
                 ctx.channel().attr(ServerEnv.KEY).set(aesKey);
-                json = RespUtil.buildCommonResp(RespCode.COMMON_OK,"ok");
+                json = JsonUtil.buildCommonResp(RespCode.COMMON_OK,"ok");
             }else{
-                json = RespUtil.buildCommonResp(RespCode.COMMON_INVALID,"aes key is null");
+                json = JsonUtil.buildCommonResp(RespCode.COMMON_INVALID,"aes key is null");
             }
         }catch (Exception e){
-            json = RespUtil.buildCommonResp(RespCode.COMMON_EXCEPTION,e.getMessage());
+            json = JsonUtil.buildCommonResp(RespCode.COMMON_EXCEPTION,e.getMessage());
         }
-        ctx.writeAndFlush(new BaseMsg(Cmds.CMD_SEND_AES_KEY, baseMsg.getMsgId()).setJsonData(json));
+
+        BaseMsg.BaseMsgPb.Builder result = BaseMsg.BaseMsgPb.newBuilder();
+        result.setCmd(Cmds.CMD_SEND_AES_KEY);
+        result.setMsgId(baseMsg.getMsgId());
+        result.setData(ByteString.copyFrom(JsonUtil.Json2Bytes(json)));
+        ctx.writeAndFlush(result);
     }
 
     //由于这个暂时还没有DB操作，所以直接在这处理了
-    private static void doDeviceAuth(ChannelHandlerContext ctx, BaseMsg baseMsg) {
-        JSONObject deviceAuthJson = baseMsg.getJsonData();
+    private static void doDeviceAuth(ChannelHandlerContext ctx, BaseMsg.BaseMsgPb baseMsg) {
+        JSONObject deviceAuthJson = JsonUtil.Bytes2Json(baseMsg.getData().toByteArray());
         if(deviceAuthJson==null){
             //ctx.close();
             return;
@@ -100,7 +117,7 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
 
         String id = deviceAuthJson.getString("id");
         if(TextUtil.isEmpty(id)){
-            json = RespUtil.buildCommonResp(RespCode.COMMON_INVALID,"id is null");
+            json = JsonUtil.buildCommonResp(RespCode.COMMON_INVALID,"id is null");
         }else{
             //TODO should we handle with old client???
             //Client oldClient = ctx.channel().attr(ServerEnv.CLIENT).get();
@@ -108,16 +125,14 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
             JSONArray abilites = deviceAuthJson.getJSONArray("abilities");
             Client client = new DeviceClient(id,deviceAuthJson.getString("version"),Arrays.asList(abilites.toArray(new String[]{})));
             ctx.channel().attr(ServerEnv.CLIENT).set(client);
-            json = RespUtil.buildCommonResp(RespCode.COMMON_OK,"ok");
+            json = JsonUtil.buildCommonResp(RespCode.COMMON_OK,"ok");
         }
-        ctx.writeAndFlush(new BaseMsg(Cmds.CMD_DEVICE_AUTH, baseMsg.getMsgId()).setJsonData(json));
-    }
 
-    private static String getTopic(short cmd){
-        if(cmd<100){
-            return null;
-        }
-        return Topics.TOPIC_SERVICE;
+        BaseMsg.BaseMsgPb.Builder result = BaseMsg.BaseMsgPb.newBuilder();
+        result.setCmd(Cmds.CMD_DEVICE_AUTH);
+        result.setMsgId(baseMsg.getMsgId());
+        result.setData(ByteString.copyFrom(JsonUtil.Json2Bytes(json)));
+        ctx.writeAndFlush(result);
     }
 
     @Override

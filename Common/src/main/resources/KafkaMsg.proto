@@ -1,0 +1,11 @@
+syntax = "proto3";
+package model;
+
+option java_package = "com.iot.common.model";
+option java_outer_classname = "KafkaMsg";
+
+message KafkaMsgPb {
+    repeated string channelId = 1;//in proto3, [packed=true] is default
+    int64 msgId = 2;//BaseMsg里面的msgId
+    bytes data = 3;//BaseMsg里面的data
+}

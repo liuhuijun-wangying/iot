@@ -2,10 +2,10 @@ package com.iot.client;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.iot.client.codec.BaseMsg;
 import com.iot.client.codec.ClientPipeline;
 import com.iot.client.utils.HttpUtil;
 import com.iot.common.constant.RespCode;
+import com.iot.common.model.BaseMsg;
 import com.iot.common.util.TextUtil;
 
 import java.io.IOException;
@@ -54,8 +54,8 @@ public class ClientSocketChannel {
 
 	private ClientPipeline pipeline = new ClientPipeline();
 
-	private ChannelHandler<ClientSocketChannel,BaseMsg> handler;
-	public void setHandler(ChannelHandler<ClientSocketChannel,BaseMsg> handler){
+	private ChannelHandler<ClientSocketChannel,BaseMsg.BaseMsgPbOrBuilder> handler;
+	public void setHandler(ChannelHandler<ClientSocketChannel,BaseMsg.BaseMsgPbOrBuilder> handler){
 		this.handler = handler;
 	}
 	
@@ -78,7 +78,7 @@ public class ClientSocketChannel {
 	}
 
 	//api
-	public void send(BaseMsg obj) {//api
+	public void send(BaseMsg.BaseMsgPbOrBuilder obj) {//api
 		byte[] encoded = null;
 		try {
 			encoded = pipeline.encode(obj);
@@ -397,9 +397,9 @@ public class ClientSocketChannel {
 			} else if (count>0){
 				sendOrRecvDataTime = System.nanoTime()/1000000;
 				heartbeatCount = 0;
-				List<BaseMsg> msg = pipeline.decode(Arrays.copyOfRange(buf.array(), 0, count));
+				List<BaseMsg.BaseMsgPb> msg = pipeline.decode(Arrays.copyOfRange(buf.array(), 0, count));
 				if(handler!=null && !msg.isEmpty()){
-					for(BaseMsg obj: msg){
+					for(BaseMsg.BaseMsgPb obj: msg){
 						handler.onRead(this,obj);
 					}
 				}

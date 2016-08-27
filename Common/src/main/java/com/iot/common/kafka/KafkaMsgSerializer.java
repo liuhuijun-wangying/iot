@@ -1,15 +1,14 @@
 package com.iot.common.kafka;
 
+import com.iot.common.model.KafkaMsg;
 import org.apache.kafka.common.serialization.Serializer;
 
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
  * Created by zc on 16-8-8.
  */
-public class KafkaMsgSerializer implements Serializer<KafkaMsg> {
+public class KafkaMsgSerializer implements Serializer<KafkaMsg.KafkaMsgPbOrBuilder> {
 
     @Override
     public void configure(Map<String, ?> configs, boolean isKey) {
@@ -17,18 +16,17 @@ public class KafkaMsgSerializer implements Serializer<KafkaMsg> {
     }
 
     @Override
-    public byte[] serialize(String topic, KafkaMsg data) {
+    public byte[] serialize(String topic, KafkaMsg.KafkaMsgPbOrBuilder data) {
         if (data == null){
             return null;
         }
 
-        byte[] channelIdBytes = data.getChannelId().getBytes(StandardCharsets.UTF_8);
-        ByteBuffer buf = ByteBuffer.allocate(4+channelIdBytes.length+8+data.getData().length);
-        buf.putInt(channelIdBytes.length);
-        buf.put(channelIdBytes);
-        buf.putLong(data.getMsgId());
-        buf.put(data.getData());
-        return buf.array();
+        if (data instanceof KafkaMsg.KafkaMsgPb){
+            return ((KafkaMsg.KafkaMsgPb)data).toByteArray();
+        }else if (data instanceof KafkaMsg.KafkaMsgPb.Builder){
+            return ((KafkaMsg.KafkaMsgPb.Builder)data).build().toByteArray();
+        }
+        return null;
     }
 
     @Override

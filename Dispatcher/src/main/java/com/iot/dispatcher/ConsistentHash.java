@@ -1,5 +1,6 @@
 package com.iot.dispatcher;
 
+import com.iot.common.model.ServerInfo;
 import com.iot.common.util.CryptUtil;
 
 import java.util.ArrayList;

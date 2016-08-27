@@ -1,25 +1,25 @@
 package com.iot.client;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.iot.client.codec.BaseMsg;
+import com.google.protobuf.ByteString;
 import com.iot.common.constant.Cmds;
 import com.iot.common.constant.RespCode;
+import com.iot.common.model.BaseMsg;
 import com.iot.common.util.CryptUtil;
-import com.iot.common.util.TextUtil;
-
-import java.nio.charset.StandardCharsets;
+import com.iot.common.util.JsonUtil;
 
 /**
  * Created by zc on 16-8-10.
  */
 //模拟app的client
-public class AppHandler implements ChannelHandler<ClientSocketChannel,BaseMsg> {
+public class AppHandler extends AbstractHandler {
 
-    private static final BaseMsg HEARTBEAT_MSG = new BaseMsg(Cmds.CMD_HEARTBEAT,null);
+    public AppHandler(){
+        super();
+    }
 
     @Override
-    public void onRead(ClientSocketChannel ctx, BaseMsg msg)throws Exception {
+    public void onRead(ClientSocketChannel ctx, BaseMsg.BaseMsgPbOrBuilder msg)throws Exception {
         //System.out.println("======client recv::::" + msg.toString());
         switch (msg.getCmd()){
             case Cmds.CMD_PUSH_RSA_PUB_KEY:
@@ -37,33 +37,13 @@ public class AppHandler implements ChannelHandler<ClientSocketChannel,BaseMsg> {
         }
     }
 
-    @Override
-    public void onIdle(ClientSocketChannel ctx){//send heartbeat pack
-        ctx.send(HEARTBEAT_MSG);
-    }
-
-    @Override
-    public void onConnected(ClientSocketChannel ctx){
-        System.out.println("----onConnected----");
-    }
-
-    @Override
-    public void onClosed(){
-        System.out.println("----onClosed----");
-    }
-
-    private void sendAesKey(ClientSocketChannel ctx, BaseMsg msg) throws Exception {
-        byte[] b = CryptUtil.rsaEncryptByPublicKey(ClientEnv.AES_KEY,CryptUtil.bytes2PublicKey(msg.getData()));
-        ctx.send(new BaseMsg(Cmds.CMD_SEND_AES_KEY,b));
-    }
-
-    private void onDiscussKeyResp(ClientSocketChannel ctx, BaseMsg msg){
-        if(TextUtil.isEmpty(msg.getData())){
+    private void onDiscussKeyResp(ClientSocketChannel ctx, BaseMsg.BaseMsgPbOrBuilder msg){
+        if(msg.getData().isEmpty()){
             System.err.println("=====>discuss key resp msg is empty");
             return;
         }
 
-        JSONObject json = JSON.parseObject(new String(msg.getData(),StandardCharsets.UTF_8));
+        JSONObject json = JsonUtil.Bytes2Json(msg.getData().toByteArray());
         int statusCode = json.getIntValue("code");
 
         if(statusCode== RespCode.COMMON_OK){
@@ -75,13 +55,13 @@ public class AppHandler implements ChannelHandler<ClientSocketChannel,BaseMsg> {
         }
     }
 
-    private void onRegResp(ClientSocketChannel ctx, BaseMsg msg) {
-        if(TextUtil.isEmpty(msg.getData())){
+    private void onRegResp(ClientSocketChannel ctx, BaseMsg.BaseMsgPbOrBuilder msg) {
+        if(msg.getData().isEmpty()){
             System.err.println("=====>reg resp msg is empty");
             return;
         }
 
-        JSONObject json = JSON.parseObject(new String(msg.getData(),StandardCharsets.UTF_8));
+        JSONObject json = JsonUtil.Bytes2Json(msg.getData().toByteArray());
         int statusCode = json.getIntValue("code");
 
         //测试环境下，为了方便，用户已存在也处理为注册成功
@@ -95,13 +75,13 @@ public class AppHandler implements ChannelHandler<ClientSocketChannel,BaseMsg> {
         }
     }
 
-    private void onAppAuthResp(BaseMsg msg){
-        if(TextUtil.isEmpty(msg.getData())){
+    private void onAppAuthResp(BaseMsg.BaseMsgPbOrBuilder msg){
+        if(msg.getData().isEmpty()){
             System.err.println("=====>app auth resp msg is empty");
             return;
         }
 
-        JSONObject json = JSON.parseObject(new String(msg.getData(),StandardCharsets.UTF_8));
+        JSONObject json = JsonUtil.Bytes2Json(msg.getData().toByteArray());
         int statusCode = json.getIntValue("code");
 
         if(statusCode==RespCode.COMMON_OK){
@@ -115,7 +95,12 @@ public class AppHandler implements ChannelHandler<ClientSocketChannel,BaseMsg> {
         JSONObject json = new JSONObject();
         json.put("username","zc_usr");
         json.put("password",CryptUtil.md5("zc_psw"));
-        ctx.send(new BaseMsg(Cmds.CMD_APP_REGISTER,true,json.toJSONString().getBytes(StandardCharsets.UTF_8)));
+
+        BaseMsg.BaseMsgPb.Builder builder = BaseMsg.BaseMsgPb.newBuilder();
+        builder.setCmd(Cmds.CMD_APP_REGISTER);
+        builder.setIsEncrypt(true);
+        builder.setData(ByteString.copyFrom(JsonUtil.Json2Bytes(json)));
+        ctx.send(builder);
     }
 
     private void doAppAuth(ClientSocketChannel ctx){
@@ -124,6 +109,11 @@ public class AppHandler implements ChannelHandler<ClientSocketChannel,BaseMsg> {
         json.put("id",ClientEnv.CLIENT_ID);
         json.put("username","zc_usr");
         json.put("password",CryptUtil.md5("zc_psw"));
-        ctx.send(new BaseMsg(Cmds.CMD_APP_AUTH,true,json.toJSONString().getBytes(StandardCharsets.UTF_8)));
+
+        BaseMsg.BaseMsgPb.Builder builder = BaseMsg.BaseMsgPb.newBuilder();
+        builder.setCmd(Cmds.CMD_APP_AUTH);
+        builder.setIsEncrypt(true);
+        builder.setData(ByteString.copyFrom(JsonUtil.Json2Bytes(json)));
+        ctx.send(builder);
     }
 }

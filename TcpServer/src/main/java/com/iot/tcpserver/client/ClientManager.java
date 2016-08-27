@@ -27,29 +27,6 @@ public class ClientManager {
         return instance;
     }
 
-    private Map<String,ChannelHandlerContext> contexts = new ConcurrentHashMap<>();//channelId -> context
-
-    public void putContext(ChannelHandlerContext ctx){
-        if(ctx==null){
-            return;
-        }
-        contexts.put(ctx.channel().id().asLongText(),ctx);
-    }
-
-    public ChannelHandlerContext getContext(String id){
-        if(TextUtil.isEmpty(id)){
-            return null;
-        }
-        return contexts.get(id);
-    }
-
-    public void removeContext(String id){
-        if(TextUtil.isEmpty(id)){
-            return;
-        }
-        contexts.remove(id);
-    }
-
     //private Map<String,Client> devices = new HashMap<>();
     //private ReadWriteLock lock = new ReentrantReadWriteLock();
     private Map<String,List<ChannelHandlerContext>> apps = new ConcurrentHashMap<>();

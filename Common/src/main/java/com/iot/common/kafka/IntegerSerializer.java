@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * Created by zc on 16-8-8.
  */
-public class ShortSerializer implements Serializer<Short> {
+public class IntegerSerializer implements Serializer<Integer> {
 
     @Override
     public void configure(Map<String, ?> configs, boolean isKey) {
@@ -16,11 +16,11 @@ public class ShortSerializer implements Serializer<Short> {
     }
 
     @Override
-    public byte[] serialize(String topic, Short data) {
+    public byte[] serialize(String topic, Integer data) {
         if (data == null){
             return null;
         }
-        return NumUtil.short2Bytes(data);
+        return NumUtil.int2Bytes(data);
     }
 
     @Override

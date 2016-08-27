@@ -1,14 +1,14 @@
 package com.iot.client;
 
-import com.iot.client.codec.BaseMsg;
+import com.iot.common.model.BaseMsg;
 import com.iot.common.util.CryptUtil;
 
 //用于测试server
 //稍加修改，也可用于android
 public class ClientMain {
 
-    //private static final ChannelHandler<ClientSocketChannel,BaseMsg> handler = new DeviceHandler();
-    private static final ChannelHandler<ClientSocketChannel,BaseMsg> handler = new AppHandler();
+    //private static final ChannelHandler<ClientSocketChannel,BaseMsg.BaseMsgPbOrBuilder> handler = new DeviceHandler();
+    private static final ChannelHandler<ClientSocketChannel,BaseMsg.BaseMsgPbOrBuilder> handler = new AppHandler();
 
     public static void main(String[] args){
         initAesKey();

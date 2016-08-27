@@ -1,26 +1,26 @@
 package com.iot.client;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.iot.client.codec.BaseMsg;
+import com.google.protobuf.ByteString;
 import com.iot.common.constant.Cmds;
 import com.iot.common.constant.RespCode;
-import com.iot.common.util.CryptUtil;
-import com.iot.common.util.TextUtil;
-
-import java.nio.charset.StandardCharsets;
+import com.iot.common.model.BaseMsg;
+import com.iot.common.util.JsonUtil;
 
 /**
  * Created by zc on 16-8-10.
  */
 //模拟device的client
-public class DeviceHandler implements ChannelHandler<ClientSocketChannel,BaseMsg> {
+public class DeviceHandler extends AbstractHandler {
 
-    private static final BaseMsg HEARTBEAT_MSG = new BaseMsg(Cmds.CMD_HEARTBEAT,null);
+
+    public DeviceHandler(){
+        super();
+    }
 
     @Override
-    public void onRead(ClientSocketChannel ctx, BaseMsg msg)throws Exception {
+    public void onRead(ClientSocketChannel ctx, BaseMsg.BaseMsgPbOrBuilder msg)throws Exception {
         //System.out.println("======client recv::::" + msg.toString());
         switch (msg.getCmd()){
             case Cmds.CMD_PUSH_RSA_PUB_KEY:
@@ -35,39 +35,13 @@ public class DeviceHandler implements ChannelHandler<ClientSocketChannel,BaseMsg
         }
     }
 
-    @Override
-    public void onIdle(ClientSocketChannel ctx){//send heartbeat pack
-        ctx.send(HEARTBEAT_MSG);
-    }
-
-    @Override
-    public void onConnected(ClientSocketChannel ctx){
-        System.out.println("----onConnected----");
-        //对于一些没有RSA计算能力的设备,可以不进行密钥协商,直接doAuth
-        /*try {
-            doDeviceAuth(ctx);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
-    }
-
-    @Override
-    public void onClosed(){
-        System.out.println("----onClosed----");
-    }
-
-    private void sendAesKey(ClientSocketChannel ctx, BaseMsg msg) throws Exception {
-        byte[] b = CryptUtil.rsaEncryptByPublicKey(ClientEnv.AES_KEY,CryptUtil.bytes2PublicKey(msg.getData()));
-        ctx.send(new BaseMsg(Cmds.CMD_SEND_AES_KEY,b));
-    }
-
-    private void onDiscussKeyResp(ClientSocketChannel ctx, BaseMsg msg) {
-        if(TextUtil.isEmpty(msg.getData())){
+    private void onDiscussKeyResp(ClientSocketChannel ctx, BaseMsg.BaseMsgPbOrBuilder msg) {
+        if(msg.getData().isEmpty()){
             System.err.println("=====>discuss key resp msg is empty");
             return;
         }
 
-        JSONObject json = JSON.parseObject(new String(msg.getData(),StandardCharsets.UTF_8));
+        JSONObject json = JsonUtil.Bytes2Json(msg.getData().toByteArray());
         int statusCode = json.getIntValue("code");
 
         if(statusCode== RespCode.COMMON_OK){
@@ -78,13 +52,13 @@ public class DeviceHandler implements ChannelHandler<ClientSocketChannel,BaseMsg
         }
     }
 
-    private void onDeviceAuthResp(BaseMsg msg) {
-        if(TextUtil.isEmpty(msg.getData())){
+    private void onDeviceAuthResp(BaseMsg.BaseMsgPbOrBuilder msg) {
+        if(msg.getData().isEmpty()){
             System.err.println("=====>app auth resp msg is empty");
             return;
         }
 
-        JSONObject json = JSON.parseObject(new String(msg.getData(),StandardCharsets.UTF_8));
+        JSONObject json = JsonUtil.Bytes2Json(msg.getData().toByteArray());
         int statusCode = json.getIntValue("code");
 
         if(statusCode== RespCode.COMMON_OK){
@@ -103,6 +77,11 @@ public class DeviceHandler implements ChannelHandler<ClientSocketChannel,BaseMsg
         jsonArray.add("camera");
         jsonArray.add("fly");// -_-
         json.put("abilities",jsonArray);
-        ctx.send(new BaseMsg(Cmds.CMD_DEVICE_AUTH,false,json.toJSONString().getBytes(StandardCharsets.UTF_8)));
+
+        BaseMsg.BaseMsgPb.Builder builder = BaseMsg.BaseMsgPb.newBuilder();
+        builder.setCmd(Cmds.CMD_DEVICE_AUTH);
+        builder.setIsEncrypt(true);
+        builder.setData(ByteString.copyFrom(JsonUtil.Json2Bytes(json)));
+        ctx.send(builder);
     }
 }

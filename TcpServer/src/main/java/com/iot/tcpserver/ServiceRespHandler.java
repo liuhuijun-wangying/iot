@@ -3,13 +3,13 @@ package com.iot.tcpserver;
 import com.alibaba.fastjson.JSONObject;
 import com.iot.common.constant.Cmds;
 import com.iot.common.constant.RespCode;
-import com.iot.common.kafka.KafkaMsg;
 import com.iot.common.kafka.BaseKafkaConsumer;
-import com.iot.common.util.TextUtil;
+import com.iot.common.model.BaseMsg;
+import com.iot.common.model.KafkaMsg;
+import com.iot.common.util.JsonUtil;
 import com.iot.tcpserver.client.AppClient;
 import com.iot.tcpserver.client.Client;
 import com.iot.tcpserver.client.ClientManager;
-import com.iot.tcpserver.codec.BaseMsg;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
@@ -18,32 +18,37 @@ import io.netty.channel.ChannelHandlerContext;
 public class ServiceRespHandler implements BaseKafkaConsumer.KafkaProcessor{
 
     @Override
-    public void process(String topic, Short key, KafkaMsg value) {
+    public void process(String topic, Integer key, KafkaMsg.KafkaMsgPb value) {
         if(key==null || value==null){
             return;
         }
 
-        //不是此server
-        ChannelHandlerContext ctx = ClientManager.getInstance().getContext(value.getChannelId());
-        if(ctx==null){
-            return;
-        }
-
-        if(key == Cmds.CMD_APP_AUTH){
-            //server需要特殊处理，记录app auth信息
-            doAppAuth(value,ctx);
-        }else{
-            //原样返回
-            ctx.writeAndFlush(new BaseMsg(key,value.getMsgId(),value.getData()));
+        for(int i=0;i<value.getChannelIdCount();i++){
+            //channelId
+            ChannelHandlerContext ctx = CtxPool.getContext(value.getChannelId(i));
+            if(ctx==null){//不是此server
+                continue;
+            }
+            if(key == Cmds.CMD_APP_AUTH){
+                //server需要特殊处理，记录app auth信息
+                doAppAuth(value,ctx);
+            }else{
+                //原样返回
+                BaseMsg.BaseMsgPb.Builder baseMsg = BaseMsg.BaseMsgPb.newBuilder();
+                baseMsg.setMsgId(value.getMsgId());
+                baseMsg.setCmd(key);
+                baseMsg.setData(value.getData());
+                ctx.writeAndFlush(baseMsg);
+            }
         }
     }
 
-    private void doAppAuth(KafkaMsg value, ChannelHandlerContext ctx){
-        if(TextUtil.isEmpty(value.getData())){
+    private void doAppAuth(KafkaMsg.KafkaMsgPb value, ChannelHandlerContext ctx){
+        if(value.getData().isEmpty()){
             return;
         }
 
-        JSONObject json = value.getJsonData();
+        JSONObject json = JsonUtil.Bytes2Json(value.getData().toByteArray());
         int statusCode = json.getIntValue("code");
         if(statusCode == RespCode.COMMON_OK){//login ok
             //TODO should we handle with old client???
@@ -58,6 +63,10 @@ public class ServiceRespHandler implements BaseKafkaConsumer.KafkaProcessor{
             json.remove("version");
             json.remove("username");
         }
-        ctx.writeAndFlush(new BaseMsg(Cmds.CMD_APP_AUTH,value.getMsgId(),value.getData()));
+        BaseMsg.BaseMsgPb.Builder baseMsg = BaseMsg.BaseMsgPb.newBuilder();
+        baseMsg.setMsgId(value.getMsgId());
+        baseMsg.setCmd(Cmds.CMD_APP_AUTH);
+        baseMsg.setData(value.getData());
+        ctx.writeAndFlush(baseMsg);
     }
 }

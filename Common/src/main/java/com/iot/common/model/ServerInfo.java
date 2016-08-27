@@ -1,8 +1,6 @@
-package com.iot.dispatcher;
+package com.iot.common.model;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.JSONPObject;
 
 /**
  * Created by zc on 16-8-5.

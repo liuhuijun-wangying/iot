@@ -2,7 +2,7 @@ package com.iot.cs.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.iot.common.constant.RespCode;
-import com.iot.common.util.RespUtil;
+import com.iot.common.util.JsonUtil;
 import com.iot.common.util.TextUtil;
 import com.iot.cs.dao.UserMapper;
 import com.iot.cs.model.User;
@@ -26,7 +26,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public JSONObject regist(String username, String password) {
         if(TextUtil.isEmpty(username) || TextUtil.isEmpty(password)){
-            return RespUtil.buildCommonResp(RespCode.COMMON_INVALID,"msg or psw is null");
+            return JsonUtil.buildCommonResp(RespCode.COMMON_INVALID,"msg or psw is null");
         }
         try{
             UserExample example = new UserExample();
@@ -38,38 +38,38 @@ public class AccountServiceImpl implements AccountService {
                 user.setPassword(password);
                 user.setRegtime(new Date());
                 userMapper.insert(user);
-                return RespUtil.buildCommonResp(RespCode.COMMON_OK,"ok");
+                return JsonUtil.buildCommonResp(RespCode.COMMON_OK,"ok");
             }else{
-                return RespUtil.buildCommonResp(RespCode.REG_USER_EXISTS,"user exists");
+                return JsonUtil.buildCommonResp(RespCode.REG_USER_EXISTS,"user exists");
             }
         }catch (Exception e){
-            return RespUtil.buildCommonResp(RespCode.COMMON_EXCEPTION, e.getMessage());
+            return JsonUtil.buildCommonResp(RespCode.COMMON_EXCEPTION, e.getMessage());
         }
     }
 
     @Override
     public JSONObject login(String username, String password, String clientId) {
         if(TextUtil.isEmpty(username) || TextUtil.isEmpty(password)){
-            return RespUtil.buildCommonResp(RespCode.COMMON_INVALID,"msg or psw is null");
+            return JsonUtil.buildCommonResp(RespCode.COMMON_INVALID,"msg or psw is null");
         }
         if(TextUtil.isEmpty(clientId)){//id is null
-            return RespUtil.buildCommonResp(RespCode.COMMON_INVALID,"clientId is null");
+            return JsonUtil.buildCommonResp(RespCode.COMMON_INVALID,"clientId is null");
         }
         try{
             UserExample example = new UserExample();
             example.or().andUsernameEqualTo(username).andPasswordEqualTo(password);
             List<User> users = userMapper.selectByExample(example);
             if(users==null || users.isEmpty()){
-                return RespUtil.buildCommonResp(RespCode.LOGIN_WRONG_ACCOUNT,"username or password wrong");
+                return JsonUtil.buildCommonResp(RespCode.LOGIN_WRONG_ACCOUNT,"username or password wrong");
             }else{
                 User user = users.get(0);
-                JSONObject json = RespUtil.buildCommonResp(RespCode.COMMON_OK,"ok");
+                JSONObject json = JsonUtil.buildCommonResp(RespCode.COMMON_OK,"ok");
                 json.put("group",user.getUsergroup());
                 json.put("extraInfo",user.getExtrainfo());
                 return json;
             }
         }catch (Exception e){
-            return RespUtil.buildCommonResp(RespCode.COMMON_EXCEPTION, e.getMessage());
+            return JsonUtil.buildCommonResp(RespCode.COMMON_EXCEPTION, e.getMessage());
         }
     }
 

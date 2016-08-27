@@ -6,5 +6,5 @@
 /Dispatcher/Dispatcher.iml
 /TcpServer/target/
 /TcpServer/TcpServer.iml
-/CommonService/target/
-/CommonService/CommonService.iml
+/BaseService/target/
+/BaseService/BaseService.iml

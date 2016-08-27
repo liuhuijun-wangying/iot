@@ -5,7 +5,7 @@
 ## Run
 - modify zk/kafka config file
 - modify dispatcher/tcpserver config file
-- init db(详情见CommonService下的README.md)
+- init db(详情见BaseService下的README.md)
 - run run-dev.sh
 
 ## TODO list

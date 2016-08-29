@@ -36,10 +36,6 @@ public class UserSqlProvider {
             sql.VALUES("password", "#{password,jdbcType=VARCHAR}");
         }
         
-        if (record.getUsergroup() != null) {
-            sql.VALUES("userGroup", "#{usergroup,jdbcType=VARCHAR}");
-        }
-        
         if (record.getExtrainfo() != null) {
             sql.VALUES("extraInfo", "#{extrainfo,jdbcType=VARCHAR}");
         }
@@ -60,7 +56,6 @@ public class UserSqlProvider {
         }
         sql.SELECT("username");
         sql.SELECT("password");
-        sql.SELECT("userGroup");
         sql.SELECT("extraInfo");
         sql.SELECT("regTime");
         sql.FROM("user");
@@ -92,10 +87,6 @@ public class UserSqlProvider {
             sql.SET("password = #{record.password,jdbcType=VARCHAR}");
         }
         
-        if (record.getUsergroup() != null) {
-            sql.SET("userGroup = #{record.usergroup,jdbcType=VARCHAR}");
-        }
-        
         if (record.getExtrainfo() != null) {
             sql.SET("extraInfo = #{record.extrainfo,jdbcType=VARCHAR}");
         }
@@ -115,7 +106,6 @@ public class UserSqlProvider {
         sql.SET("id = #{record.id,jdbcType=INTEGER}");
         sql.SET("username = #{record.username,jdbcType=VARCHAR}");
         sql.SET("password = #{record.password,jdbcType=VARCHAR}");
-        sql.SET("userGroup = #{record.usergroup,jdbcType=VARCHAR}");
         sql.SET("extraInfo = #{record.extrainfo,jdbcType=VARCHAR}");
         sql.SET("regTime = #{record.regtime,jdbcType=TIMESTAMP}");
         
@@ -134,10 +124,6 @@ public class UserSqlProvider {
         
         if (record.getPassword() != null) {
             sql.SET("password = #{password,jdbcType=VARCHAR}");
-        }
-        
-        if (record.getUsergroup() != null) {
-            sql.SET("userGroup = #{usergroup,jdbcType=VARCHAR}");
         }
         
         if (record.getExtrainfo() != null) {

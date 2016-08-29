@@ -17,31 +17,28 @@ public class JsonUtil {
         return json;
     }
 
-    public static JSONObject Bytes2Json(byte[] bs){
+    public static JSONObject bytes2Json(byte[] bs){
         if(TextUtil.isEmpty(bs)){
-            return new JSONObject();
+            return null;
         }
         return JSON.parseObject(new String(bs, StandardCharsets.UTF_8));
     }
 
-    public static JSONObject String2Json(String str){
-        if(TextUtil.isEmpty(str)){
-            return new JSONObject();
-        }
-        return JSON.parseObject(str);
-    }
-
-    public static byte[] Json2Bytes(JSONObject jsonObject){
+    public static byte[] json2Bytes(JSONObject jsonObject){
         if (jsonObject==null){
             return new byte[]{};
         }
         return jsonObject.toJSONString().getBytes(StandardCharsets.UTF_8);
     }
 
-    public static String Json2String(JSONObject jsonObject){
+    /*public static JSONObject string2Json(String str){
+        return JSON.parseObject(str);
+    }
+
+    public static String json2String(JSONObject jsonObject){
         if (jsonObject==null){
             return "";
         }
         return jsonObject.toJSONString();
-    }
+    }*/
 }

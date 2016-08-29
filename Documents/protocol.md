@@ -25,6 +25,7 @@ resp json格式为：{"code":code,"msg":msg}，code 100/200分别代表ok/解密
 - 客户端收到响应后，若成功，进行auth(app为登录，设备为汇报自己信息)
 
 ## 设备认证
+- 同一个id同时只能在同一个客户端auth,否则前面的会收到提示,提示cmd=103,无内容,然后被clsoe
 - 请求：cmd=101, isEncrypt=true, data=req json
 - req json:{"version":version,"id":id,"abilities": jsonArray}
 - 响应: cmd=101, isEncrypt=false, data=resp json
@@ -39,8 +40,9 @@ code 100/200分别代表ok/异常
 code 100/200/1001分别代表ok/异常/用户已经存在
 
 ## APP登录
+- 同一个id同时只能在同一个客户端login,否则前面的会收到提示,提示cmd=103,无内容,然后被clsoe
 - 请求：cmd=100, isEncrypt=true, data=req json
-- req json:{"version":version,"id":id,username":username,"password":password(进行md5)}
+- req json:{"version":version,username":username,"password":password(进行md5)}
 - 响应: cmd=100, isEncrypt=false, data=resp json
 - resp json：{"code":code,"msg":msg}
 code 100/200/1002分别代表ok/异常/用户名或密码错误

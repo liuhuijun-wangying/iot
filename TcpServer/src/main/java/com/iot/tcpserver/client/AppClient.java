@@ -5,18 +5,7 @@ package com.iot.tcpserver.client;
  */
 public class AppClient extends Client {
 
-    private String username;
-
-    public AppClient(String id, String version, String username) {
+    public AppClient(String id, String version) {
         super(id, version);
-        this.username = username;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 }

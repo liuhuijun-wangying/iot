@@ -7,5 +7,5 @@ import com.alibaba.fastjson.JSONObject;
  */
 public interface AccountService {
     JSONObject regist(String username, String password) throws Exception;
-    JSONObject login(String username, String password, String clientId) throws Exception;
+    JSONObject login(String username, String password) throws Exception;
 }

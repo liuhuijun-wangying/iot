@@ -12,8 +12,12 @@ public class RespCode {
 
     //dispatcher
     public static final int DISPATCHER_NO_SERVER = 1000;
-    //reg
-    public static final int REG_USER_EXISTS = 1001;
-    //login
-    public static final int LOGIN_WRONG_ACCOUNT = 1002;
+
+    //account
+    public static final int REG_USER_EXISTS = 1001;//注册，用户已存在
+    public static final int LOGIN_WRONG_ACCOUNT = 1002;//登录，用户名或密码错误
+
+    //im
+    public static final int ADD_FRIEND_ALREADY = 2001;//添加好友,已经是好友
+    public static final int DEL_FRIEND_NOT_EXISTS = 2002;//删除好友，还不是好友
 }

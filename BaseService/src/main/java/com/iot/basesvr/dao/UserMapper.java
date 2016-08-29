@@ -32,11 +32,9 @@ public interface UserMapper {
 
     @Insert({
         "insert into user (username, password, ",
-        "userGroup, extraInfo, ",
-        "regTime)",
+        "extraInfo, regTime)",
         "values (#{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, ",
-        "#{usergroup,jdbcType=VARCHAR}, #{extrainfo,jdbcType=VARCHAR}, ",
-        "#{regtime,jdbcType=TIMESTAMP})"
+        "#{extrainfo,jdbcType=VARCHAR}, #{regtime,jdbcType=TIMESTAMP})"
     })
     @Options(useGeneratedKeys=true,keyProperty="id")
     int insert(User record);
@@ -50,7 +48,6 @@ public interface UserMapper {
         @Result(column="id", property="id", jdbcType=JdbcType.INTEGER, id=true),
         @Result(column="username", property="username", jdbcType=JdbcType.VARCHAR),
         @Result(column="password", property="password", jdbcType=JdbcType.VARCHAR),
-        @Result(column="userGroup", property="usergroup", jdbcType=JdbcType.VARCHAR),
         @Result(column="extraInfo", property="extrainfo", jdbcType=JdbcType.VARCHAR),
         @Result(column="regTime", property="regtime", jdbcType=JdbcType.TIMESTAMP)
     })
@@ -58,7 +55,7 @@ public interface UserMapper {
 
     @Select({
         "select",
-        "id, username, password, userGroup, extraInfo, regTime",
+        "id, username, password, extraInfo, regTime",
         "from user",
         "where id = #{id,jdbcType=INTEGER}"
     })
@@ -66,7 +63,6 @@ public interface UserMapper {
         @Result(column="id", property="id", jdbcType=JdbcType.INTEGER, id=true),
         @Result(column="username", property="username", jdbcType=JdbcType.VARCHAR),
         @Result(column="password", property="password", jdbcType=JdbcType.VARCHAR),
-        @Result(column="userGroup", property="usergroup", jdbcType=JdbcType.VARCHAR),
         @Result(column="extraInfo", property="extrainfo", jdbcType=JdbcType.VARCHAR),
         @Result(column="regTime", property="regtime", jdbcType=JdbcType.TIMESTAMP)
     })
@@ -85,7 +81,6 @@ public interface UserMapper {
         "update user",
         "set username = #{username,jdbcType=VARCHAR},",
           "password = #{password,jdbcType=VARCHAR},",
-          "userGroup = #{usergroup,jdbcType=VARCHAR},",
           "extraInfo = #{extrainfo,jdbcType=VARCHAR},",
           "regTime = #{regtime,jdbcType=TIMESTAMP}",
         "where id = #{id,jdbcType=INTEGER}"

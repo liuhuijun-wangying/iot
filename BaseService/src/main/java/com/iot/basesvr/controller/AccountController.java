@@ -2,10 +2,10 @@ package com.iot.basesvr.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.iot.common.constant.Cmds;
+import com.iot.common.constant.RespCode;
 import com.iot.common.util.JsonUtil;
 import com.iot.basesvr.annotation.Cmd;
 import com.iot.basesvr.service.AccountService;
-import com.iot.common.util.TextUtil;
 import org.springframework.stereotype.Controller;
 
 import javax.annotation.Resource;
@@ -21,34 +21,32 @@ public class AccountController {
 
     @Cmd(value = Cmds.CMD_APP_REGISTER)
     public byte[] doAppRegist(byte[] param) throws Exception {
-        if(TextUtil.isEmpty(param)){
-            throw new NullPointerException("param is empty");
-        }
-        JSONObject data = JsonUtil.Bytes2Json(param);
+        JSONObject data = JsonUtil.bytes2Json(param);
         JSONObject appRegResult;
         if (data != null) {
             appRegResult = accountService.regist(data.getString("username"), data.getString("password"));
         } else {
             appRegResult = accountService.regist(null, null);
         }
-        return JsonUtil.Json2Bytes(appRegResult);
+        return JsonUtil.json2Bytes(appRegResult);
     }
 
     @Cmd(value = Cmds.CMD_APP_AUTH)
     public byte[] doAppAuth(byte[] param) throws Exception {
-        if(TextUtil.isEmpty(param)){
-            throw new NullPointerException("param is empty");
-        }
-        JSONObject data = JsonUtil.Bytes2Json(param);
+        JSONObject data = JsonUtil.bytes2Json(param);
         JSONObject appAuthResult;
         if (data != null) {
-            appAuthResult = accountService.login(data.getString("username"), data.getString("password"), data.getString("id"));
-            appAuthResult.put("id",data.getString("id"));
+            appAuthResult = accountService.login(data.getString("username"), data.getString("password"));
             appAuthResult.put("version",data.getString("version"));
             appAuthResult.put("username",data.getString("username"));
         } else {
-            appAuthResult = accountService.login(null, null, null);
+            appAuthResult = accountService.login(null, null);
         }
-        return JsonUtil.Json2Bytes(appAuthResult);
+
+        //TODO offline msg
+        if (appAuthResult.getIntValue("code")== RespCode.COMMON_OK){//login ok
+
+        }
+        return JsonUtil.json2Bytes(appAuthResult);
     }
 }

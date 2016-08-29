@@ -9,8 +9,6 @@ public class User {
 
     private String password;
 
-    private String usergroup;
-
     private String extrainfo;
 
     private Date regtime;
@@ -37,14 +35,6 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password == null ? null : password.trim();
-    }
-
-    public String getUsergroup() {
-        return usergroup;
-    }
-
-    public void setUsergroup(String usergroup) {
-        this.usergroup = usergroup == null ? null : usergroup.trim();
     }
 
     public String getExtrainfo() {

@@ -1,5 +1,7 @@
 package com.iot.tcpserver.client;
 
+import io.netty.channel.ChannelHandlerContext;
+
 /**
  * Created by zc on 16-8-19.
  */

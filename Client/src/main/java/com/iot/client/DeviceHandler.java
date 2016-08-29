@@ -41,7 +41,7 @@ public class DeviceHandler extends AbstractHandler {
             return;
         }
 
-        JSONObject json = JsonUtil.Bytes2Json(msg.getData().toByteArray());
+        JSONObject json = JsonUtil.bytes2Json(msg.getData().toByteArray());
         int statusCode = json.getIntValue("code");
 
         if(statusCode== RespCode.COMMON_OK){
@@ -58,7 +58,7 @@ public class DeviceHandler extends AbstractHandler {
             return;
         }
 
-        JSONObject json = JsonUtil.Bytes2Json(msg.getData().toByteArray());
+        JSONObject json = JsonUtil.bytes2Json(msg.getData().toByteArray());
         int statusCode = json.getIntValue("code");
 
         if(statusCode== RespCode.COMMON_OK){
@@ -81,7 +81,7 @@ public class DeviceHandler extends AbstractHandler {
         BaseMsg.BaseMsgPb.Builder builder = BaseMsg.BaseMsgPb.newBuilder();
         builder.setCmd(Cmds.CMD_DEVICE_AUTH);
         builder.setIsEncrypt(true);
-        builder.setData(ByteString.copyFrom(JsonUtil.Json2Bytes(json)));
+        builder.setData(ByteString.copyFrom(JsonUtil.json2Bytes(json)));
         ctx.send(builder);
     }
 }

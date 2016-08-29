@@ -25,9 +25,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public JSONObject regist(String username, String password) throws Exception {
-        if(TextUtil.isEmpty(username) || TextUtil.isEmpty(password)){
-            throw new NullPointerException("msg or psw is null");
-        }
+        TextUtil.check(username,password);
         UserExample example = new UserExample();
         example.or().andUsernameEqualTo(username);
         List<User> users = userMapper.selectByExample(example);
@@ -44,22 +42,16 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public JSONObject login(String username, String password, String clientId) throws Exception {
-        if(TextUtil.isEmpty(username) || TextUtil.isEmpty(password)){
-            throw new NullPointerException("msg or psw is null");
-        }
-        if(TextUtil.isEmpty(clientId)){//id is null
-            throw new NullPointerException("msg or psw is null");
-        }
+    public JSONObject login(String username, String password) throws Exception {
+        TextUtil.check(username,password);
         UserExample example = new UserExample();
         example.or().andUsernameEqualTo(username).andPasswordEqualTo(password);
         List<User> users = userMapper.selectByExample(example);
-        if(users==null || users.isEmpty()){
+        if(TextUtil.isEmpty(users)){
             return JsonUtil.buildCommonResp(RespCode.LOGIN_WRONG_ACCOUNT,"username or password wrong");
         }else{
             User user = users.get(0);
             JSONObject json = JsonUtil.buildCommonResp(RespCode.COMMON_OK,"ok");
-            json.put("group",user.getUsergroup());
             json.put("extraInfo",user.getExtrainfo());
             return json;
         }

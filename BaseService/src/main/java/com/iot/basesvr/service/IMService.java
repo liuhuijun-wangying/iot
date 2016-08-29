@@ -7,6 +7,9 @@ import com.alibaba.fastjson.JSONObject;
  */
 public interface IMService {
 
-    JSONObject addFriend(String username1, String username2)throws Exception;
+    //TODO add user friend
+    //JSONObject addFriend(String username1, String username2)throws Exception;
+
     JSONObject addDevice(String username, String deviceId)throws Exception;
+    JSONObject delDevice(String username, String deviceId)throws Exception;
 }

@@ -43,7 +43,7 @@ public class AppHandler extends AbstractHandler {
             return;
         }
 
-        JSONObject json = JsonUtil.Bytes2Json(msg.getData().toByteArray());
+        JSONObject json = JsonUtil.bytes2Json(msg.getData().toByteArray());
         int statusCode = json.getIntValue("code");
 
         if(statusCode== RespCode.COMMON_OK){
@@ -61,7 +61,7 @@ public class AppHandler extends AbstractHandler {
             return;
         }
 
-        JSONObject json = JsonUtil.Bytes2Json(msg.getData().toByteArray());
+        JSONObject json = JsonUtil.bytes2Json(msg.getData().toByteArray());
         int statusCode = json.getIntValue("code");
 
         //测试环境下，为了方便，用户已存在也处理为注册成功
@@ -81,7 +81,7 @@ public class AppHandler extends AbstractHandler {
             return;
         }
 
-        JSONObject json = JsonUtil.Bytes2Json(msg.getData().toByteArray());
+        JSONObject json = JsonUtil.bytes2Json(msg.getData().toByteArray());
         int statusCode = json.getIntValue("code");
 
         if(statusCode==RespCode.COMMON_OK){
@@ -99,21 +99,20 @@ public class AppHandler extends AbstractHandler {
         BaseMsg.BaseMsgPb.Builder builder = BaseMsg.BaseMsgPb.newBuilder();
         builder.setCmd(Cmds.CMD_APP_REGISTER);
         builder.setIsEncrypt(true);
-        builder.setData(ByteString.copyFrom(JsonUtil.Json2Bytes(json)));
+        builder.setData(ByteString.copyFrom(JsonUtil.json2Bytes(json)));
         ctx.send(builder);
     }
 
     private void doAppAuth(ClientSocketChannel ctx){
         JSONObject json = new JSONObject();
         json.put("version","1.0");
-        json.put("id",ClientEnv.CLIENT_ID);
         json.put("username","zc_usr");
         json.put("password",CryptUtil.md5("zc_psw"));
 
         BaseMsg.BaseMsgPb.Builder builder = BaseMsg.BaseMsgPb.newBuilder();
         builder.setCmd(Cmds.CMD_APP_AUTH);
         builder.setIsEncrypt(true);
-        builder.setData(ByteString.copyFrom(JsonUtil.Json2Bytes(json)));
+        builder.setData(ByteString.copyFrom(JsonUtil.json2Bytes(json)));
         ctx.send(builder);
     }
 }

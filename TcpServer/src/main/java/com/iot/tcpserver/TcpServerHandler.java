@@ -12,9 +12,7 @@ import com.iot.common.model.KafkaMsg;
 import com.iot.common.util.CryptUtil;
 import com.iot.common.util.JsonUtil;
 import com.iot.common.util.TextUtil;
-import com.iot.tcpserver.client.AppClient;
 import com.iot.tcpserver.client.Client;
-import com.iot.tcpserver.client.ClientManager;
 import com.iot.tcpserver.client.DeviceClient;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -45,11 +43,8 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg.BaseMs
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        Client client = ctx.channel().attr(ServerEnv.CLIENT).get();
-        if (client instanceof AppClient){
-            ClientManager.getInstance().onLogout(((AppClient)client).getUsername(),client.getId());
-        }
         CtxPool.removeContext(ctx);
+        CtxPool.removeClient(ctx);
     }
 
     @Override
@@ -64,6 +59,9 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg.BaseMs
             case Cmds.CMD_DEVICE_AUTH:
                 doDeviceAuth(ctx, baseMsg);
                 break;
+            case Cmds.CMD_LOGOUT:
+                ctx.close();
+                break;
             default:
                 Client client = ctx.channel().attr(ServerEnv.CLIENT).get();
                 if(baseMsg.getCmd()>=200 && client==null){//not login
@@ -71,14 +69,15 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg.BaseMs
                     BaseMsg.BaseMsgPb.Builder result = BaseMsg.BaseMsgPb.newBuilder();
                     result.setCmd(baseMsg.getCmd());
                     result.setMsgId(baseMsg.getMsgId());
-                    result.setData(ByteString.copyFrom(JsonUtil.Json2Bytes(respJson)));
+                    result.setData(ByteString.copyFrom(JsonUtil.json2Bytes(respJson)));
                     ctx.writeAndFlush(result);
                     return;
                 }
+
                 KafkaMsg.KafkaMsgPb.Builder kafkaMsg = KafkaMsg.KafkaMsgPb.newBuilder();
                 kafkaMsg.setMsgId(baseMsg.getMsgId());
                 kafkaMsg.setData(baseMsg.getData());
-                kafkaMsg.addChannelId(ctx.channel().id().asLongText());//channelId
+                kafkaMsg.addChannelId(ctx.channel().id().asLongText());//clientId
                 BaseKafkaProducer.getInstance().send(Topics.TOPIC_SERVICE,baseMsg.getCmd(),kafkaMsg);
                 break;
         }
@@ -101,15 +100,14 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg.BaseMs
         BaseMsg.BaseMsgPb.Builder result = BaseMsg.BaseMsgPb.newBuilder();
         result.setCmd(Cmds.CMD_SEND_AES_KEY);
         result.setMsgId(baseMsg.getMsgId());
-        result.setData(ByteString.copyFrom(JsonUtil.Json2Bytes(json)));
+        result.setData(ByteString.copyFrom(JsonUtil.json2Bytes(json)));
         ctx.writeAndFlush(result);
     }
 
     //由于这个暂时还没有DB操作，所以直接在这处理了
     private static void doDeviceAuth(ChannelHandlerContext ctx, BaseMsg.BaseMsgPb baseMsg) {
-        JSONObject deviceAuthJson = JsonUtil.Bytes2Json(baseMsg.getData().toByteArray());
+        JSONObject deviceAuthJson = JsonUtil.bytes2Json(baseMsg.getData().toByteArray());
         if(deviceAuthJson==null){
-            //ctx.close();
             return;
         }
 
@@ -119,25 +117,34 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg.BaseMs
         if(TextUtil.isEmpty(id)){
             json = JsonUtil.buildCommonResp(RespCode.COMMON_EXCEPTION,"id is null");
         }else{
-            //TODO should we deal with old client???
-            //Client oldClient = ctx.channel().attr(ServerEnv.CLIENT).get();
+            ChannelHandlerContext oldCtx = CtxPool.getClient(id);
+            if(oldCtx!=null && !oldCtx.channel().id().asLongText().equals(ctx.channel().id().asLongText())){
+                oldCtx.writeAndFlush(BaseMsg.BaseMsgPb.newBuilder().setCmd(Cmds.CMD_ANOTHOR_LOGIN));
+                oldCtx.close();
+            }
 
             JSONArray abilites = deviceAuthJson.getJSONArray("abilities");
             Client client = new DeviceClient(id,deviceAuthJson.getString("version"),Arrays.asList(abilites.toArray(new String[]{})));
             ctx.channel().attr(ServerEnv.CLIENT).set(client);
             json = JsonUtil.buildCommonResp(RespCode.COMMON_OK,"ok");
+            CtxPool.putClient(id,ctx);
         }
 
         BaseMsg.BaseMsgPb.Builder result = BaseMsg.BaseMsgPb.newBuilder();
         result.setCmd(Cmds.CMD_DEVICE_AUTH);
         result.setMsgId(baseMsg.getMsgId());
-        result.setData(ByteString.copyFrom(JsonUtil.Json2Bytes(json)));
+        result.setData(ByteString.copyFrom(JsonUtil.json2Bytes(json)));
         ctx.writeAndFlush(result);
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         log.error("exceptionCaught",cause);
+        BaseMsg.BaseMsgPb.Builder result = BaseMsg.BaseMsgPb.newBuilder();
+        result.setCmd(Cmds.CMD_EXP);
+        JSONObject json = JsonUtil.buildCommonResp(RespCode.COMMON_EXCEPTION,cause.getMessage());
+        result.setData(ByteString.copyFrom(JsonUtil.json2Bytes(json)));
+        ctx.writeAndFlush(result);
         ctx.close();
     }
 }

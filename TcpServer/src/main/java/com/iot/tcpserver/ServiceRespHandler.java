@@ -9,7 +9,6 @@ import com.iot.common.model.KafkaMsg;
 import com.iot.common.util.JsonUtil;
 import com.iot.tcpserver.client.AppClient;
 import com.iot.tcpserver.client.Client;
-import com.iot.tcpserver.client.ClientManager;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
@@ -44,22 +43,23 @@ public class ServiceRespHandler implements BaseKafkaConsumer.KafkaProcessor{
     }
 
     private void doAppAuth(KafkaMsg.KafkaMsgPb value, ChannelHandlerContext ctx){
-        if(value.getData().isEmpty()){
+        JSONObject json = JsonUtil.bytes2Json(value.getData().toByteArray());
+        if (json==null){
             return;
         }
-
-        JSONObject json = JsonUtil.Bytes2Json(value.getData().toByteArray());
         int statusCode = json.getIntValue("code");
         if(statusCode == RespCode.COMMON_OK){//login ok
-            //TODO should we deal with old client???
-            //Client oldClient = ctx.channel().attr(ServerEnv.CLIENT).get();
-
             String username = json.getString("username");
-            Client client = new AppClient(json.getString("id"),json.getString("version"),username);
-            ctx.channel().attr(ServerEnv.CLIENT).set(client);
-            ClientManager.getInstance().onLogin(username,ctx);
+            ChannelHandlerContext oldCtx = CtxPool.getClient(username);
+            if(oldCtx!=null && !oldCtx.channel().id().asLongText().equals(ctx.channel().id().asLongText())){
+                oldCtx.writeAndFlush(BaseMsg.BaseMsgPb.newBuilder().setCmd(Cmds.CMD_ANOTHOR_LOGIN));
+                oldCtx.close();
+            }
 
-            json.remove("id");
+            Client client = new AppClient(username,json.getString("version"));
+            ctx.channel().attr(ServerEnv.CLIENT).set(client);
+            CtxPool.putClient(username,ctx);
+
             json.remove("version");
             json.remove("username");
         }

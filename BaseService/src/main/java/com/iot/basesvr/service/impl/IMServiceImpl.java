@@ -13,10 +13,20 @@ import org.springframework.stereotype.Service;
 @Service
 public class IMServiceImpl implements IMService {
 
+
     @Override
-    public JSONObject addFriend(String from, String to) {
-        if(TextUtil.isEmpty(from) || TextUtil.isEmpty(to)){
-            return JsonUtil.buildCommonResp(RespCode.COMMON_INVALID,"target is null");
+    public JSONObject addFriend(String username1, String username2) throws Exception{
+        if(TextUtil.isEmpty(username1) || TextUtil.isEmpty(username2)){
+            throw new NullPointerException("param is null");
+        }
+
+        return null;
+    }
+
+    @Override
+    public JSONObject addDevice(String username, String deviceId) throws Exception {
+        if(TextUtil.isEmpty(username) || TextUtil.isEmpty(deviceId)){
+            throw new NullPointerException("param is null");
         }
 
         return null;

@@ -7,7 +7,7 @@
 # 获取服务器地址
 - 由于存在多台tcp server，所以先通过http get请求server地址
 - 请求 http://ip:port/?id=xx
-- 响应json,{"code":code,"msg":msg}，code 100/200/300分别代表ok/id为空/无可用server，
+- 响应json,{"code":code,"msg":msg}，code 100/200/1000分别代表ok/exception/no available server，
 当code=100时，带有server信息，{"ip":ip,"port":port}
 
 ## 心跳包
@@ -21,26 +21,26 @@ cmd=1, isEncrypt=false, data=rsa pub key
 cmd=2, isEncrypt=false, data=aes key
 - 服务器端收到之后，用rsa private key解密出client aes key，保存在会话中，给客户端响应
 cmd=2, isEncrypt=false, data=resp json
-resp json格式为：{"code":code,"msg":msg}，code 100/200/300分别代表ok/key为空/解密异常
+resp json格式为：{"code":code,"msg":msg}，code 100/200分别代表ok/解密异常
 - 客户端收到响应后，若成功，进行auth(app为登录，设备为汇报自己信息)
-
-## APP注册账号
-- 请求：cmd=102, isEncrypt=true, data=req json
-- req json:{"username":username,"password":password(进行md5)}
-- 响应：cmd=102, isEncrypt=false, data=resp json
-- resp json：{"code":code,"msg":msg}
-code 100/200/300/1001分别代表ok/信息为空/异常/用户已经存在
-
-## APP登录
-- 请求：cmd=100, isEncrypt=true, data=req json
-- req json:{"version":version,"id":id,username":username,"password":password(进行md5)}
-- 响应: cmd=100, isEncrypt=false, data=resp json
-- resp json：{"code":code,"msg":msg}
-code 100/200/300/1002分别代表ok/信息为空/异常/用户名或密码错误
 
 ## 设备认证
 - 请求：cmd=101, isEncrypt=true, data=req json
 - req json:{"version":version,"id":id,"abilities": jsonArray}
 - 响应: cmd=101, isEncrypt=false, data=resp json
 - resp json：{"code":code,"msg":msg}
-code 100/200/300分别代表ok/信息为空/异常
+code 100/200分别代表ok/异常
+
+## APP注册
+- 请求：cmd=102, isEncrypt=true, data=req json
+- req json:{"username":username,"password":password(进行md5)}
+- 响应：cmd=102, isEncrypt=false, data=resp json
+- resp json：{"code":code,"msg":msg}
+code 100/200/1001分别代表ok/异常/用户已经存在
+
+## APP登录
+- 请求：cmd=100, isEncrypt=true, data=req json
+- req json:{"version":version,"id":id,username":username,"password":password(进行md5)}
+- 响应: cmd=100, isEncrypt=false, data=resp json
+- resp json：{"code":code,"msg":msg}
+code 100/200/1002分别代表ok/异常/用户名或密码错误

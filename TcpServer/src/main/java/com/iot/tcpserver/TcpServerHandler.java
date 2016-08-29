@@ -92,7 +92,7 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg.BaseMs
                 ctx.channel().attr(ServerEnv.KEY).set(aesKey);
                 json = JsonUtil.buildCommonResp(RespCode.COMMON_OK,"ok");
             }else{
-                json = JsonUtil.buildCommonResp(RespCode.COMMON_INVALID,"aes key is null");
+                json = JsonUtil.buildCommonResp(RespCode.COMMON_EXCEPTION,"aes key is null");
             }
         }catch (Exception e){
             json = JsonUtil.buildCommonResp(RespCode.COMMON_EXCEPTION,e.getMessage());
@@ -117,9 +117,9 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg.BaseMs
 
         String id = deviceAuthJson.getString("id");
         if(TextUtil.isEmpty(id)){
-            json = JsonUtil.buildCommonResp(RespCode.COMMON_INVALID,"id is null");
+            json = JsonUtil.buildCommonResp(RespCode.COMMON_EXCEPTION,"id is null");
         }else{
-            //TODO should we handle with old client???
+            //TODO should we deal with old client???
             //Client oldClient = ctx.channel().attr(ServerEnv.CLIENT).get();
 
             JSONArray abilites = deviceAuthJson.getJSONArray("abilities");

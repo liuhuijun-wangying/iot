@@ -42,18 +42,18 @@ public class DispatcherServerHandler extends ChannelInboundHandlerAdapter {
     private String getRespResult(String clientId){
         JSONObject jsonObject = new JSONObject();
         if(TextUtil.isEmpty(clientId)){
-            jsonObject.put("msg","param invalid");
-            jsonObject.put("code", RespCode.COMMON_INVALID);//1:client param error
+            jsonObject.put("msg","is is null");
+            jsonObject.put("code", RespCode.COMMON_EXCEPTION);//client param error
             return jsonObject.toJSONString();
         }
         ServerInfo si = ConsistentHash.getInstance().get(clientId);
         if(si==null){
             jsonObject.put("msg","no available server");
-            jsonObject.put("code",RespCode.COMMON_EXCEPTION);//2:server error
+            jsonObject.put("code",RespCode.DISPATCHER_NO_SERVER);//no server
             return jsonObject.toJSONString();
         }
         jsonObject.put("msg","ok");
-        jsonObject.put("code",RespCode.COMMON_OK);//0:success
+        jsonObject.put("code",RespCode.COMMON_OK);//ok
         jsonObject.put("ip",si.getIp());
         jsonObject.put("port",si.getPort());
         return jsonObject.toJSONString();

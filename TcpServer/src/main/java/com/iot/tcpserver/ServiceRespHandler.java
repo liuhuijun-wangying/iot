@@ -51,7 +51,7 @@ public class ServiceRespHandler implements BaseKafkaConsumer.KafkaProcessor{
         JSONObject json = JsonUtil.Bytes2Json(value.getData().toByteArray());
         int statusCode = json.getIntValue("code");
         if(statusCode == RespCode.COMMON_OK){//login ok
-            //TODO should we handle with old client???
+            //TODO should we deal with old client???
             //Client oldClient = ctx.channel().attr(ServerEnv.CLIENT).get();
 
             String username = json.getString("username");

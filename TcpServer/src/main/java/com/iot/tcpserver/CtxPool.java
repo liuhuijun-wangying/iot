@@ -3,6 +3,8 @@ package com.iot.tcpserver;
 import com.iot.common.util.TextUtil;
 import com.iot.tcpserver.client.Client;
 import io.netty.channel.ChannelHandlerContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -12,6 +14,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class CtxPool {
 
+    private static Logger logger = LoggerFactory.getLogger(CtxPool.class);
+
     private static Map<String,ChannelHandlerContext> contexts = new ConcurrentHashMap<>();//channelId -> context
 
     public static void putContext(ChannelHandlerContext ctx){
@@ -19,6 +23,7 @@ public class CtxPool {
             return;
         }
         contexts.put(ctx.channel().id().asLongText(),ctx);
+        logger.info("put ctx, size="+contexts.size());
     }
 
     public static ChannelHandlerContext getContext(String id){
@@ -33,6 +38,7 @@ public class CtxPool {
             return;
         }
         contexts.remove(ctx.channel().id().asLongText());
+        logger.info("rm ctx, size="+contexts.size());
     }
 
     private static Map<String,ChannelHandlerContext> clients = new ConcurrentHashMap<>();//clientId -> context
@@ -42,6 +48,7 @@ public class CtxPool {
             return;
         }
         clients.put(clientId,ctx);
+        logger.info("put client, size="+clients.size());
     }
 
     public static void removeClient(ChannelHandlerContext ctx){
@@ -51,7 +58,10 @@ public class CtxPool {
         Client c = ctx.channel().attr(ServerEnv.CLIENT).get();
         if(c!=null){
             clients.remove(c.getId());
+        }else{
+            logger.warn("rm client, client in ctx is null");
         }
+        logger.info("rm client, size="+clients.size());
     }
 
     public static ChannelHandlerContext getClient(String id){

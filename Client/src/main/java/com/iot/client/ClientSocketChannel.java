@@ -92,7 +92,7 @@ public class ClientSocketChannel {
 		}
 	}
 
-	/*public void stop() {
+	public void stop() {
 		isRunning.compareAndSet(true, false);
 		if (selector != null && selector.isOpen()) {
 			selector.wakeup();
@@ -101,7 +101,7 @@ public class ClientSocketChannel {
 
 	public void disconnect() {
 		addCmd(new Cmd(DISCONNECT));
-	}*/
+	}
 
 	private void doCmd(){
 

@@ -20,6 +20,7 @@ public class Cmds {
     public static final int CMD_LOGOUT = 104;
 
     /* 200-300  im相关 */
-    public static final int CMD_ADD_DEVICE = 200;
-    public static final int CMD_DEL_DEVICE = 201;
+    public static final int CMD_IM = 200;
+    public static final int CMD_ADD_DEVICE = 201;
+    public static final int CMD_DEL_DEVICE = 202;
 }

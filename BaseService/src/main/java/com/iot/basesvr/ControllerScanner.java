@@ -16,7 +16,7 @@ public class ControllerScanner {
     private static Map<Integer,CtrlMethod> map = new ConcurrentHashMap<>();
 
     //scan methods od all controllers
-    //only methods with Cmd annotation, param count = 1, param type is byte[] and return type is byte[] are legal
+    //only methods with Cmd annotation, param count = 1, param type is KafkaMsg.KafkaMsgPb and return type is byte[] are legal
     static void scan(ApplicationContext ctx){
         Map<String, Object> controllers = ctx.getBeansWithAnnotation(Controller.class);
         for(Map.Entry<String,Object> entry: controllers.entrySet()){
@@ -25,7 +25,7 @@ public class ControllerScanner {
             for(Method method: methods){
                 Cmd cmd = method.getAnnotation(Cmd.class);
                 if (cmd!=null && cmd.value()!=-1 && method.getParameterCount()==1
-                        && (method.getParameters()[0]).getType().getSimpleName().equals("byte[]")
+                        && (method.getParameters()[0]).getType().getSimpleName().equals("KafkaMsgPb")
                         && method.getReturnType().getSimpleName().equals("byte[]")){
                     method.setAccessible(true);
                     map.put(cmd.value(),new CtrlMethod(method,entry.getValue()));

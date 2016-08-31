@@ -27,8 +27,7 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg.BaseMs
     private static BaseMsg.BaseMsgPb.Builder HEARTBEAT_MSG;
 
     public TcpServerHandler(){
-        HEARTBEAT_MSG = BaseMsg.BaseMsgPb.newBuilder();
-        HEARTBEAT_MSG.setCmd(Cmds.CMD_HEARTBEAT);
+        HEARTBEAT_MSG = BaseMsg.BaseMsgPb.newBuilder().setCmd(Cmds.CMD_HEARTBEAT);
     }
 
     @Override
@@ -63,24 +62,43 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg.BaseMs
                 ctx.close();
                 break;
             default:
-                Client client = ctx.channel().attr(ServerEnv.CLIENT).get();
-                if(baseMsg.getCmd()>=200 && client==null){//not login
-                    JSONObject respJson = JsonUtil.buildCommonResp(RespCode.COMMON_NOT_LOGIN,"you need login first");
-                    BaseMsg.BaseMsgPb.Builder result = BaseMsg.BaseMsgPb.newBuilder();
-                    result.setCmd(baseMsg.getCmd());
-                    result.setMsgId(baseMsg.getMsgId());
-                    result.setData(ByteString.copyFrom(JsonUtil.json2Bytes(respJson)));
-                    ctx.writeAndFlush(result);
-                    return;
-                }
-
-                KafkaMsg.KafkaMsgPb.Builder kafkaMsg = KafkaMsg.KafkaMsgPb.newBuilder();
-                kafkaMsg.setMsgId(baseMsg.getMsgId());
-                kafkaMsg.setData(baseMsg.getData());
-                kafkaMsg.addChannelId(ctx.channel().id().asLongText());//clientId
-                BaseKafkaProducer.getInstance().send(Topics.TOPIC_SERVICE,baseMsg.getCmd(),kafkaMsg);
+                handleDefault(ctx,baseMsg);
                 break;
         }
+    }
+
+    private static void handleDefault(ChannelHandlerContext ctx, BaseMsg.BaseMsgPb baseMsg){
+        Client client = ctx.channel().attr(ServerEnv.CLIENT).get();
+        if(baseMsg.getCmd()>=200 && client==null){//not login
+            JSONObject respJson = JsonUtil.buildCommonResp(RespCode.COMMON_NOT_LOGIN,"you need login first");
+            BaseMsg.BaseMsgPb.Builder result = BaseMsg.BaseMsgPb.newBuilder();
+            result.setCmd(baseMsg.getCmd());
+            result.setMsgId(baseMsg.getMsgId());
+            result.setData(ByteString.copyFrom(JsonUtil.json2Bytes(respJson)));
+            ctx.writeAndFlush(result);
+            log.warn("user not login when do cmd="+baseMsg.getCmd());
+            return;
+        }
+
+        if (baseMsg.getCmd()==Cmds.CMD_IM){//CMD_IM is 200
+            //1. resp to client directly
+            BaseMsg.BaseMsgPb.Builder imBuilder = BaseMsg.BaseMsgPb.newBuilder();
+            imBuilder.setCmd(Cmds.CMD_IM);
+            imBuilder.setMsgId(baseMsg.getMsgId());
+            ctx.writeAndFlush(imBuilder);
+            //2. send to im server
+
+            return;
+        }
+
+        KafkaMsg.KafkaMsgPb.Builder kafkaMsg = KafkaMsg.KafkaMsgPb.newBuilder();
+        kafkaMsg.setMsgId(baseMsg.getMsgId());
+        kafkaMsg.setData(baseMsg.getData());
+        kafkaMsg.setChannelId(ctx.channel().id().asLongText());
+        if (client!=null){
+            kafkaMsg.setClientId(client.getId());
+        }
+        BaseKafkaProducer.getInstance().send(Topics.TOPIC_SERVICE,baseMsg.getCmd(),kafkaMsg);
     }
 
     private static void doDiscussKey(ChannelHandlerContext ctx, BaseMsg.BaseMsgPb baseMsg) {
@@ -120,7 +138,13 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg.BaseMs
             ChannelHandlerContext oldCtx = CtxPool.getClient(id);
             if(oldCtx!=null && !oldCtx.channel().id().asLongText().equals(ctx.channel().id().asLongText())){
                 oldCtx.writeAndFlush(BaseMsg.BaseMsgPb.newBuilder().setCmd(Cmds.CMD_ANOTHOR_LOGIN));
-                oldCtx.close();
+                CtxPool.removeClient(oldCtx);
+                try {
+                    oldCtx.close().sync();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                log.warn("close old ctx due to new connect of device");
             }
 
             JSONArray abilites = deviceAuthJson.getJSONArray("abilities");

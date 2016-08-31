@@ -32,6 +32,14 @@ public class DeviceHandler extends AbstractHandler {
             case Cmds.CMD_DEVICE_AUTH://resp
                 onDeviceAuthResp(msg);
                 break;
+            case Cmds.CMD_ANOTHOR_LOGIN:
+                System.err.println("ctx is closed due to another login");
+                ctx.disconnect();
+                break;
+            case Cmds.CMD_EXP:
+                System.err.println("ctx is closed due to server internal exp");
+                ctx.disconnect();
+                break;
         }
     }
 

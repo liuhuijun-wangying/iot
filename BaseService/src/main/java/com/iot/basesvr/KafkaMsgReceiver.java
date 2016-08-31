@@ -35,17 +35,20 @@ public class KafkaMsgReceiver implements BaseKafkaConsumer.KafkaProcessor{
 
         KafkaMsg.KafkaMsgPb.Builder builder = KafkaMsg.KafkaMsgPb.newBuilder();
         builder.setMsgId(value.getMsgId());
-        builder.addAllChannelId(value.getChannelIdList());
+        builder.setChannelId(value.getChannelId());
 
         try {
-            Object obj = m.invoke(value.getData().toByteArray());
-            builder.setData(ByteString.copyFrom((byte[])obj));
+            Object obj = m.invoke(value);
+            if (obj!=null){
+                builder.setData(ByteString.copyFrom((byte[])obj));
+            }
         } catch (InvocationTargetException methodExp){
+            logger.error("invoke err: methos:"+m.obj+"--"+m.m.getName(),methodExp);
             JSONObject expJson = JsonUtil.buildCommonResp(RespCode.COMMON_EXCEPTION,methodExp.getMessage());
             builder.setData(ByteString.copyFrom(JsonUtil.json2Bytes(expJson)));
         } catch (Exception e) {
             logger.error("invoke err: methos:"+m.obj+"--"+m.m.getName(),e);
-            JSONObject expJson = JsonUtil.buildCommonResp(RespCode.COMMON_EXCEPTION,"server internal error");
+            JSONObject expJson = JsonUtil.buildCommonResp(RespCode.COMMON_EXCEPTION,"server internal error:"+e.getMessage());
             builder.setData(ByteString.copyFrom(JsonUtil.json2Bytes(expJson)));
         }
 

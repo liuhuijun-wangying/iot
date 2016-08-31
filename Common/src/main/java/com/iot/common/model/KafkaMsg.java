@@ -19,46 +19,31 @@ public final class KafkaMsg {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <pre>
-     *in proto3, [packed=true] is default
-     * </pre>
-     *
-     * <code>repeated string channelId = 1;</code>
+     * <code>optional string channelId = 1;</code>
      */
-    java.util.List<java.lang.String>
-        getChannelIdList();
+    java.lang.String getChannelId();
     /**
-     * <pre>
-     *in proto3, [packed=true] is default
-     * </pre>
-     *
-     * <code>repeated string channelId = 1;</code>
-     */
-    int getChannelIdCount();
-    /**
-     * <pre>
-     *in proto3, [packed=true] is default
-     * </pre>
-     *
-     * <code>repeated string channelId = 1;</code>
-     */
-    java.lang.String getChannelId(int index);
-    /**
-     * <pre>
-     *in proto3, [packed=true] is default
-     * </pre>
-     *
-     * <code>repeated string channelId = 1;</code>
+     * <code>optional string channelId = 1;</code>
      */
     com.google.protobuf.ByteString
-        getChannelIdBytes(int index);
+        getChannelIdBytes();
+
+    /**
+     * <code>optional string clientId = 2;</code>
+     */
+    java.lang.String getClientId();
+    /**
+     * <code>optional string clientId = 2;</code>
+     */
+    com.google.protobuf.ByteString
+        getClientIdBytes();
 
     /**
      * <pre>
      *BaseMsg里面的msgId
      * </pre>
      *
-     * <code>optional int64 msgId = 2;</code>
+     * <code>optional int64 msgId = 3;</code>
      */
     long getMsgId();
 
@@ -67,7 +52,7 @@ public final class KafkaMsg {
      *BaseMsg里面的data
      * </pre>
      *
-     * <code>optional bytes data = 3;</code>
+     * <code>optional bytes data = 4;</code>
      */
     com.google.protobuf.ByteString getData();
   }
@@ -83,7 +68,8 @@ public final class KafkaMsg {
       super(builder);
     }
     private KafkaMsgPb() {
-      channelId_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      channelId_ = "";
+      clientId_ = "";
       msgId_ = 0L;
       data_ = com.google.protobuf.ByteString.EMPTY;
     }
@@ -115,19 +101,22 @@ public final class KafkaMsg {
             }
             case 10: {
               java.lang.String s = input.readStringRequireUtf8();
-              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
-                channelId_ = new com.google.protobuf.LazyStringArrayList();
-                mutable_bitField0_ |= 0x00000001;
-              }
-              channelId_.add(s);
+
+              channelId_ = s;
               break;
             }
-            case 16: {
+            case 18: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              clientId_ = s;
+              break;
+            }
+            case 24: {
 
               msgId_ = input.readInt64();
               break;
             }
-            case 26: {
+            case 34: {
 
               data_ = input.readBytes();
               break;
@@ -140,9 +129,6 @@ public final class KafkaMsg {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
-          channelId_ = channelId_.getUnmodifiableView();
-        }
         makeExtensionsImmutable();
       }
     }
@@ -158,73 +144,95 @@ public final class KafkaMsg {
               com.iot.common.model.KafkaMsg.KafkaMsgPb.class, com.iot.common.model.KafkaMsg.KafkaMsgPb.Builder.class);
     }
 
-    private int bitField0_;
     public static final int CHANNELID_FIELD_NUMBER = 1;
-    private com.google.protobuf.LazyStringList channelId_;
+    private volatile java.lang.Object channelId_;
     /**
-     * <pre>
-     *in proto3, [packed=true] is default
-     * </pre>
-     *
-     * <code>repeated string channelId = 1;</code>
+     * <code>optional string channelId = 1;</code>
      */
-    public com.google.protobuf.ProtocolStringList
-        getChannelIdList() {
-      return channelId_;
+    public java.lang.String getChannelId() {
+      java.lang.Object ref = channelId_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        channelId_ = s;
+        return s;
+      }
     }
     /**
-     * <pre>
-     *in proto3, [packed=true] is default
-     * </pre>
-     *
-     * <code>repeated string channelId = 1;</code>
-     */
-    public int getChannelIdCount() {
-      return channelId_.size();
-    }
-    /**
-     * <pre>
-     *in proto3, [packed=true] is default
-     * </pre>
-     *
-     * <code>repeated string channelId = 1;</code>
-     */
-    public java.lang.String getChannelId(int index) {
-      return channelId_.get(index);
-    }
-    /**
-     * <pre>
-     *in proto3, [packed=true] is default
-     * </pre>
-     *
-     * <code>repeated string channelId = 1;</code>
+     * <code>optional string channelId = 1;</code>
      */
     public com.google.protobuf.ByteString
-        getChannelIdBytes(int index) {
-      return channelId_.getByteString(index);
+        getChannelIdBytes() {
+      java.lang.Object ref = channelId_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        channelId_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
-    public static final int MSGID_FIELD_NUMBER = 2;
+    public static final int CLIENTID_FIELD_NUMBER = 2;
+    private volatile java.lang.Object clientId_;
+    /**
+     * <code>optional string clientId = 2;</code>
+     */
+    public java.lang.String getClientId() {
+      java.lang.Object ref = clientId_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        clientId_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>optional string clientId = 2;</code>
+     */
+    public com.google.protobuf.ByteString
+        getClientIdBytes() {
+      java.lang.Object ref = clientId_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        clientId_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int MSGID_FIELD_NUMBER = 3;
     private long msgId_;
     /**
      * <pre>
      *BaseMsg里面的msgId
      * </pre>
      *
-     * <code>optional int64 msgId = 2;</code>
+     * <code>optional int64 msgId = 3;</code>
      */
     public long getMsgId() {
       return msgId_;
     }
 
-    public static final int DATA_FIELD_NUMBER = 3;
+    public static final int DATA_FIELD_NUMBER = 4;
     private com.google.protobuf.ByteString data_;
     /**
      * <pre>
      *BaseMsg里面的data
      * </pre>
      *
-     * <code>optional bytes data = 3;</code>
+     * <code>optional bytes data = 4;</code>
      */
     public com.google.protobuf.ByteString getData() {
       return data_;
@@ -242,14 +250,17 @@ public final class KafkaMsg {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      for (int i = 0; i < channelId_.size(); i++) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, channelId_.getRaw(i));
+      if (!getChannelIdBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, channelId_);
+      }
+      if (!getClientIdBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, clientId_);
       }
       if (msgId_ != 0L) {
-        output.writeInt64(2, msgId_);
+        output.writeInt64(3, msgId_);
       }
       if (!data_.isEmpty()) {
-        output.writeBytes(3, data_);
+        output.writeBytes(4, data_);
       }
     }
 
@@ -258,21 +269,19 @@ public final class KafkaMsg {
       if (size != -1) return size;
 
       size = 0;
-      {
-        int dataSize = 0;
-        for (int i = 0; i < channelId_.size(); i++) {
-          dataSize += computeStringSizeNoTag(channelId_.getRaw(i));
-        }
-        size += dataSize;
-        size += 1 * getChannelIdList().size();
+      if (!getChannelIdBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, channelId_);
+      }
+      if (!getClientIdBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, clientId_);
       }
       if (msgId_ != 0L) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(2, msgId_);
+          .computeInt64Size(3, msgId_);
       }
       if (!data_.isEmpty()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(3, data_);
+          .computeBytesSize(4, data_);
       }
       memoizedSize = size;
       return size;
@@ -290,8 +299,10 @@ public final class KafkaMsg {
       com.iot.common.model.KafkaMsg.KafkaMsgPb other = (com.iot.common.model.KafkaMsg.KafkaMsgPb) obj;
 
       boolean result = true;
-      result = result && getChannelIdList()
-          .equals(other.getChannelIdList());
+      result = result && getChannelId()
+          .equals(other.getChannelId());
+      result = result && getClientId()
+          .equals(other.getClientId());
       result = result && (getMsgId()
           == other.getMsgId());
       result = result && getData()
@@ -306,10 +317,10 @@ public final class KafkaMsg {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptorForType().hashCode();
-      if (getChannelIdCount() > 0) {
-        hash = (37 * hash) + CHANNELID_FIELD_NUMBER;
-        hash = (53 * hash) + getChannelIdList().hashCode();
-      }
+      hash = (37 * hash) + CHANNELID_FIELD_NUMBER;
+      hash = (53 * hash) + getChannelId().hashCode();
+      hash = (37 * hash) + CLIENTID_FIELD_NUMBER;
+      hash = (53 * hash) + getClientId().hashCode();
       hash = (37 * hash) + MSGID_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
           getMsgId());
@@ -433,8 +444,10 @@ public final class KafkaMsg {
       }
       public Builder clear() {
         super.clear();
-        channelId_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000001);
+        channelId_ = "";
+
+        clientId_ = "";
+
         msgId_ = 0L;
 
         data_ = com.google.protobuf.ByteString.EMPTY;
@@ -461,16 +474,10 @@ public final class KafkaMsg {
 
       public com.iot.common.model.KafkaMsg.KafkaMsgPb buildPartial() {
         com.iot.common.model.KafkaMsg.KafkaMsgPb result = new com.iot.common.model.KafkaMsg.KafkaMsgPb(this);
-        int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (((bitField0_ & 0x00000001) == 0x00000001)) {
-          channelId_ = channelId_.getUnmodifiableView();
-          bitField0_ = (bitField0_ & ~0x00000001);
-        }
         result.channelId_ = channelId_;
+        result.clientId_ = clientId_;
         result.msgId_ = msgId_;
         result.data_ = data_;
-        result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
@@ -512,14 +519,12 @@ public final class KafkaMsg {
 
       public Builder mergeFrom(com.iot.common.model.KafkaMsg.KafkaMsgPb other) {
         if (other == com.iot.common.model.KafkaMsg.KafkaMsgPb.getDefaultInstance()) return this;
-        if (!other.channelId_.isEmpty()) {
-          if (channelId_.isEmpty()) {
-            channelId_ = other.channelId_;
-            bitField0_ = (bitField0_ & ~0x00000001);
-          } else {
-            ensureChannelIdIsMutable();
-            channelId_.addAll(other.channelId_);
-          }
+        if (!other.getChannelId().isEmpty()) {
+          channelId_ = other.channelId_;
+          onChanged();
+        }
+        if (!other.getClientId().isEmpty()) {
+          clientId_ = other.clientId_;
           onChanged();
         }
         if (other.getMsgId() != 0L) {
@@ -553,134 +558,141 @@ public final class KafkaMsg {
         }
         return this;
       }
-      private int bitField0_;
 
-      private com.google.protobuf.LazyStringList channelId_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-      private void ensureChannelIdIsMutable() {
-        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
-          channelId_ = new com.google.protobuf.LazyStringArrayList(channelId_);
-          bitField0_ |= 0x00000001;
-         }
-      }
+      private java.lang.Object channelId_ = "";
       /**
-       * <pre>
-       *in proto3, [packed=true] is default
-       * </pre>
-       *
-       * <code>repeated string channelId = 1;</code>
+       * <code>optional string channelId = 1;</code>
        */
-      public com.google.protobuf.ProtocolStringList
-          getChannelIdList() {
-        return channelId_.getUnmodifiableView();
+      public java.lang.String getChannelId() {
+        java.lang.Object ref = channelId_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          channelId_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
       }
       /**
-       * <pre>
-       *in proto3, [packed=true] is default
-       * </pre>
-       *
-       * <code>repeated string channelId = 1;</code>
-       */
-      public int getChannelIdCount() {
-        return channelId_.size();
-      }
-      /**
-       * <pre>
-       *in proto3, [packed=true] is default
-       * </pre>
-       *
-       * <code>repeated string channelId = 1;</code>
-       */
-      public java.lang.String getChannelId(int index) {
-        return channelId_.get(index);
-      }
-      /**
-       * <pre>
-       *in proto3, [packed=true] is default
-       * </pre>
-       *
-       * <code>repeated string channelId = 1;</code>
+       * <code>optional string channelId = 1;</code>
        */
       public com.google.protobuf.ByteString
-          getChannelIdBytes(int index) {
-        return channelId_.getByteString(index);
+          getChannelIdBytes() {
+        java.lang.Object ref = channelId_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          channelId_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
       }
       /**
-       * <pre>
-       *in proto3, [packed=true] is default
-       * </pre>
-       *
-       * <code>repeated string channelId = 1;</code>
+       * <code>optional string channelId = 1;</code>
        */
       public Builder setChannelId(
-          int index, java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  ensureChannelIdIsMutable();
-        channelId_.set(index, value);
-        onChanged();
-        return this;
-      }
-      /**
-       * <pre>
-       *in proto3, [packed=true] is default
-       * </pre>
-       *
-       * <code>repeated string channelId = 1;</code>
-       */
-      public Builder addChannelId(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  ensureChannelIdIsMutable();
-        channelId_.add(value);
+  
+        channelId_ = value;
         onChanged();
         return this;
       }
       /**
-       * <pre>
-       *in proto3, [packed=true] is default
-       * </pre>
-       *
-       * <code>repeated string channelId = 1;</code>
-       */
-      public Builder addAllChannelId(
-          java.lang.Iterable<java.lang.String> values) {
-        ensureChannelIdIsMutable();
-        com.google.protobuf.AbstractMessageLite.Builder.addAll(
-            values, channelId_);
-        onChanged();
-        return this;
-      }
-      /**
-       * <pre>
-       *in proto3, [packed=true] is default
-       * </pre>
-       *
-       * <code>repeated string channelId = 1;</code>
+       * <code>optional string channelId = 1;</code>
        */
       public Builder clearChannelId() {
-        channelId_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000001);
+        
+        channelId_ = getDefaultInstance().getChannelId();
         onChanged();
         return this;
       }
       /**
-       * <pre>
-       *in proto3, [packed=true] is default
-       * </pre>
-       *
-       * <code>repeated string channelId = 1;</code>
+       * <code>optional string channelId = 1;</code>
        */
-      public Builder addChannelIdBytes(
+      public Builder setChannelIdBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
   checkByteStringIsUtf8(value);
-        ensureChannelIdIsMutable();
-        channelId_.add(value);
+        
+        channelId_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object clientId_ = "";
+      /**
+       * <code>optional string clientId = 2;</code>
+       */
+      public java.lang.String getClientId() {
+        java.lang.Object ref = clientId_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          clientId_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string clientId = 2;</code>
+       */
+      public com.google.protobuf.ByteString
+          getClientIdBytes() {
+        java.lang.Object ref = clientId_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          clientId_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string clientId = 2;</code>
+       */
+      public Builder setClientId(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        clientId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string clientId = 2;</code>
+       */
+      public Builder clearClientId() {
+        
+        clientId_ = getDefaultInstance().getClientId();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string clientId = 2;</code>
+       */
+      public Builder setClientIdBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        clientId_ = value;
         onChanged();
         return this;
       }
@@ -691,7 +703,7 @@ public final class KafkaMsg {
        *BaseMsg里面的msgId
        * </pre>
        *
-       * <code>optional int64 msgId = 2;</code>
+       * <code>optional int64 msgId = 3;</code>
        */
       public long getMsgId() {
         return msgId_;
@@ -701,7 +713,7 @@ public final class KafkaMsg {
        *BaseMsg里面的msgId
        * </pre>
        *
-       * <code>optional int64 msgId = 2;</code>
+       * <code>optional int64 msgId = 3;</code>
        */
       public Builder setMsgId(long value) {
         
@@ -714,7 +726,7 @@ public final class KafkaMsg {
        *BaseMsg里面的msgId
        * </pre>
        *
-       * <code>optional int64 msgId = 2;</code>
+       * <code>optional int64 msgId = 3;</code>
        */
       public Builder clearMsgId() {
         
@@ -729,7 +741,7 @@ public final class KafkaMsg {
        *BaseMsg里面的data
        * </pre>
        *
-       * <code>optional bytes data = 3;</code>
+       * <code>optional bytes data = 4;</code>
        */
       public com.google.protobuf.ByteString getData() {
         return data_;
@@ -739,7 +751,7 @@ public final class KafkaMsg {
        *BaseMsg里面的data
        * </pre>
        *
-       * <code>optional bytes data = 3;</code>
+       * <code>optional bytes data = 4;</code>
        */
       public Builder setData(com.google.protobuf.ByteString value) {
         if (value == null) {
@@ -755,7 +767,7 @@ public final class KafkaMsg {
        *BaseMsg里面的data
        * </pre>
        *
-       * <code>optional bytes data = 3;</code>
+       * <code>optional bytes data = 4;</code>
        */
       public Builder clearData() {
         
@@ -826,10 +838,10 @@ public final class KafkaMsg {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\016KafkaMsg.proto\022\005model\"<\n\nKafkaMsgPb\022\021\n" +
-      "\tchannelId\030\001 \003(\t\022\r\n\005msgId\030\002 \001(\003\022\014\n\004data\030" +
-      "\003 \001(\014B \n\024com.iot.common.modelB\010KafkaMsgb" +
-      "\006proto3"
+      "\n\016KafkaMsg.proto\022\005model\"N\n\nKafkaMsgPb\022\021\n" +
+      "\tchannelId\030\001 \001(\t\022\020\n\010clientId\030\002 \001(\t\022\r\n\005ms" +
+      "gId\030\003 \001(\003\022\014\n\004data\030\004 \001(\014B \n\024com.iot.commo" +
+      "n.modelB\010KafkaMsgb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -848,7 +860,7 @@ public final class KafkaMsg {
     internal_static_model_KafkaMsgPb_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_model_KafkaMsgPb_descriptor,
-        new java.lang.String[] { "ChannelId", "MsgId", "Data", });
+        new java.lang.String[] { "ChannelId", "ClientId", "MsgId", "Data", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

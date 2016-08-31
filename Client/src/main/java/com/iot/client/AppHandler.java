@@ -8,11 +8,16 @@ import com.iot.common.model.BaseMsg;
 import com.iot.common.util.CryptUtil;
 import com.iot.common.util.JsonUtil;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by zc on 16-8-10.
  */
 //模拟app的client
 public class AppHandler extends AbstractHandler {
+
+    private boolean isLogined = false;
 
     public AppHandler(){
         super();
@@ -32,10 +37,58 @@ public class AppHandler extends AbstractHandler {
                 onRegResp(ctx,msg);
                 break;
             case Cmds.CMD_APP_AUTH://resp
-                onAppAuthResp(msg);
+                onAppAuthResp(ctx,msg);
+                break;
+            case Cmds.CMD_ANOTHOR_LOGIN:
+                System.err.println("ctx is closed due to another login");
+                ctx.disconnect();
+                break;
+            case Cmds.CMD_EXP:
+                System.err.println("ctx is closed due to server internal exp");
+                ctx.disconnect();
+                break;
+            case Cmds.CMD_ADD_DEVICE:
+                onAddDeviceResp(ctx,msg);
+                break;
+            case Cmds.CMD_IM:
+                omImResp(msg);
                 break;
         }
     }
+
+    private long msgId = 1;
+    private Map<Long,BaseMsg.BaseMsgPb.Builder> imMap = new HashMap<>();
+    private void sendImMsg(ClientSocketChannel ctx){
+        JSONObject json = new JSONObject();
+        json.put("to",ClientEnv.CLIENT_ID);
+        json.put("msg","hello, im msg="+msgId);
+
+        BaseMsg.BaseMsgPb.Builder builder = BaseMsg.BaseMsgPb.newBuilder();
+        builder.setCmd(Cmds.CMD_IM);
+        builder.setIsEncrypt(true);
+        builder.setMsgId(msgId);
+        builder.setData(ByteString.copyFrom(JsonUtil.json2Bytes(json)));
+        //TODO deal with timeout msg
+        imMap.put(msgId,builder);
+        System.out.println("=====>send im msg, msgid="+msgId+",map size="+imMap.size());
+        msgId++;
+        ctx.send(builder);
+    }
+
+    private void omImResp(BaseMsg.BaseMsgPbOrBuilder msg){
+        System.out.println("=====>recv im resp::msgid="+msg.getMsgId()
+            +",map contains="+imMap.containsKey(msg.getMsgId()));
+        imMap.remove(msg.getMsgId());
+    }
+
+    @Override
+    public void onIdle(ClientSocketChannel ctx) {//send heartbeat pack
+        if (isLogined){//for test
+            sendImMsg(ctx);
+        }
+    }
+
+    /**************************************some base msg***********************************/
 
     private void onDiscussKeyResp(ClientSocketChannel ctx, BaseMsg.BaseMsgPbOrBuilder msg){
         if(msg.getData().isEmpty()){
@@ -75,7 +128,7 @@ public class AppHandler extends AbstractHandler {
         }
     }
 
-    private void onAppAuthResp(BaseMsg.BaseMsgPbOrBuilder msg){
+    private void onAppAuthResp(ClientSocketChannel ctx, BaseMsg.BaseMsgPbOrBuilder msg){
         if(msg.getData().isEmpty()){
             System.err.println("=====>app auth resp msg is empty");
             return;
@@ -86,8 +139,26 @@ public class AppHandler extends AbstractHandler {
 
         if(statusCode==RespCode.COMMON_OK){
             System.out.println("=====>login ok");
+            isLogined = true;
+            doAddDevice(ctx);
         }else{
             System.err.println("=====>onDiscussKeyResp::errCode::"+statusCode);
+        }
+    }
+
+    private void onAddDeviceResp(ClientSocketChannel ctx, BaseMsg.BaseMsgPbOrBuilder msg){
+        if(msg.getData().isEmpty()){
+            System.err.println("=====>onAddDeviceResp resp msg is empty");
+            return;
+        }
+
+        JSONObject json = JsonUtil.bytes2Json(msg.getData().toByteArray());
+        int statusCode = json.getIntValue("code");
+
+        if(statusCode==RespCode.COMMON_OK || statusCode==RespCode.ADD_FRIEND_ALREADY){
+            System.out.println("=====>add device ok");
+        }else{
+            System.err.println("=====>onAddDeviceResp::errCode::"+statusCode+"\nerrMsg:"+json.getString("msg"));
         }
     }
 
@@ -111,6 +182,18 @@ public class AppHandler extends AbstractHandler {
 
         BaseMsg.BaseMsgPb.Builder builder = BaseMsg.BaseMsgPb.newBuilder();
         builder.setCmd(Cmds.CMD_APP_AUTH);
+        builder.setIsEncrypt(true);
+        builder.setData(ByteString.copyFrom(JsonUtil.json2Bytes(json)));
+        ctx.send(builder);
+    }
+
+    private void doAddDevice(ClientSocketChannel ctx){
+        JSONObject json = new JSONObject();
+        json.put("deviceId",ClientEnv.CLIENT_ID);
+        //json.put("from","zc_usr");
+
+        BaseMsg.BaseMsgPb.Builder builder = BaseMsg.BaseMsgPb.newBuilder();
+        builder.setCmd(Cmds.CMD_ADD_DEVICE);
         builder.setIsEncrypt(true);
         builder.setData(ByteString.copyFrom(JsonUtil.json2Bytes(json)));
         ctx.send(builder);

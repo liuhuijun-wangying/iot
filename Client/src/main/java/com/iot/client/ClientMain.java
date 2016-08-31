@@ -20,7 +20,7 @@ public class ClientMain {
         client.setHandler(handler);
         //读写idle时间,idle时发心跳包
         //实际可调整为30s
-        client.setIdleTimeSecond(60);
+        client.setIdleTimeSecond(5);
         client.start();
     }
 

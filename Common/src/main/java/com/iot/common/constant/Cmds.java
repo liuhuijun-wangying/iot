@@ -21,6 +21,7 @@ public class Cmds {
 
     /* 200-300  im相关 */
     public static final int CMD_IM = 200;
-    public static final int CMD_ADD_DEVICE = 201;
-    public static final int CMD_DEL_DEVICE = 202;
+    public static final int CMD_IM_PUSH = 201;
+    public static final int CMD_ADD_DEVICE = 202;
+    public static final int CMD_DEL_DEVICE = 203;
 }

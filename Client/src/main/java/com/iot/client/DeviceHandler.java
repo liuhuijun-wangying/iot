@@ -40,7 +40,25 @@ public class DeviceHandler extends AbstractHandler {
                 System.err.println("ctx is closed due to server internal exp");
                 ctx.disconnect();
                 break;
+            case Cmds.CMD_IM_PUSH:
+                omImPush(ctx,msg);
+                break;
         }
+    }
+
+    private void omImPush(ClientSocketChannel ctx, BaseMsg.BaseMsgPbOrBuilder msg){
+        if(msg.getData().isEmpty()){
+            System.err.println("=====>omImPush msg is empty,msgid="+msg.getMsgId());
+            return;
+        }
+        JSONObject json = JsonUtil.bytes2Json(msg.getData().toByteArray());
+        System.out.println("=====>recv im,msgid="+msg.getMsgId()+",json="+json.toJSONString());
+
+        //resp
+        BaseMsg.BaseMsgPb.Builder builder = BaseMsg.BaseMsgPb.newBuilder();
+        builder.setCmd(Cmds.CMD_IM_PUSH);
+        builder.setMsgId(msg.getMsgId());
+        ctx.send(builder);
     }
 
     private void onDiscussKeyResp(ClientSocketChannel ctx, BaseMsg.BaseMsgPbOrBuilder msg) {

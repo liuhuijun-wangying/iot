@@ -87,7 +87,17 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg.BaseMs
             imBuilder.setMsgId(baseMsg.getMsgId());
             ctx.writeAndFlush(imBuilder);
             //2. send to im server
-
+            KafkaMsg.KafkaMsgPb.Builder imKafka = KafkaMsg.KafkaMsgPb.newBuilder();
+            imKafka.setClientId(client.getId());
+            imKafka.setData(baseMsg.getData());
+            BaseKafkaProducer.getInstance().send(Topics.TOPIC_IM,baseMsg.getCmd(),imKafka);
+            return;
+        }
+        if (baseMsg.getCmd()==Cmds.CMD_IM_PUSH){
+            //send to im server
+            KafkaMsg.KafkaMsgPb.Builder imKafka = KafkaMsg.KafkaMsgPb.newBuilder();
+            imKafka.setMsgId(baseMsg.getMsgId());
+            BaseKafkaProducer.getInstance().send(Topics.TOPIC_IM,baseMsg.getCmd(),imKafka);
             return;
         }
 

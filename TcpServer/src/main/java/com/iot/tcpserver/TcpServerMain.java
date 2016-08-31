@@ -44,7 +44,7 @@ public class TcpServerMain {
         InputStream consumerIn = BaseKafkaConsumer.class.getClassLoader().getResourceAsStream("consumer.properties");
         consumerProp.load(consumerIn);
         consumerProp.setProperty("group.id",consumerProp.getProperty("group.id","consumer-group-tcpserver")+"-"+si.getName());
-        BaseKafkaConsumer.getInstance().init(consumerProp, new String[]{Topics.TOPIC_SERVICE_RESP},new ServiceRespHandler());
+        BaseKafkaConsumer.getInstance().init(consumerProp, new String[]{Topics.TOPIC_SERVICE_RESP,Topics.TOPIC_IM_RESP},new ServiceRespHandler());
         Thread t = new Thread(BaseKafkaConsumer.getInstance());
         t.start();
     }

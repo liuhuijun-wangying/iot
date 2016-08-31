@@ -43,7 +43,7 @@ public class ServiceMain {
         Properties consumerProp = new Properties();
         InputStream consumerIn = BaseKafkaConsumer.class.getClassLoader().getResourceAsStream("consumer.properties");
         consumerProp.load(consumerIn);
-        BaseKafkaConsumer.getInstance().init(consumerProp, new String[]{Topics.TOPIC_SERVICE},ks);
+        BaseKafkaConsumer.getInstance().init(consumerProp, new String[]{Topics.TOPIC_SERVICE,Topics.TOPIC_IM},ks);
         BaseKafkaConsumer.getInstance().run();
     }
 }

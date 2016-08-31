@@ -3,6 +3,7 @@ package com.iot.tcpserver;
 import com.alibaba.fastjson.JSONObject;
 import com.iot.common.constant.Cmds;
 import com.iot.common.constant.RespCode;
+import com.iot.common.constant.Topics;
 import com.iot.common.kafka.BaseKafkaConsumer;
 import com.iot.common.model.BaseMsg;
 import com.iot.common.model.KafkaMsg;
@@ -27,22 +28,33 @@ public class ServiceRespHandler implements BaseKafkaConsumer.KafkaProcessor{
             return;
         }
 
-        //channelId
-        ChannelHandlerContext ctx = CtxPool.getContext(value.getChannelId());
+        ChannelHandlerContext ctx = null;
+        if (Topics.TOPIC_IM_RESP.equals(topic)){
+            ctx = CtxPool.getClient(value.getClientId());
+        }else if (Topics.TOPIC_SERVICE_RESP.equals(topic)){
+            ctx = CtxPool.getContext(value.getChannelId());
+        }
+
         if(ctx==null){//不是此server
             return;
         }
+
         if(key == Cmds.CMD_APP_AUTH){
             //server需要特殊处理，记录app auth信息
             doAppAuth(value,ctx);
-        }else{
-            //原样返回
-            BaseMsg.BaseMsgPb.Builder baseMsg = BaseMsg.BaseMsgPb.newBuilder();
-            baseMsg.setMsgId(value.getMsgId());
-            baseMsg.setCmd(key);
-            baseMsg.setData(value.getData());
-            ctx.writeAndFlush(baseMsg);
+            return;
         }
+
+        //原样返回
+        BaseMsg.BaseMsgPb.Builder baseMsg = BaseMsg.BaseMsgPb.newBuilder();
+        if (key == Cmds.CMD_IM_PUSH){
+            baseMsg.setIsEncrypt(true);
+        }
+        baseMsg.setMsgId(value.getMsgId());
+        baseMsg.setCmd(key);
+        baseMsg.setData(value.getData());
+        ctx.writeAndFlush(baseMsg);
+
     }
 
     private void doAppAuth(KafkaMsg.KafkaMsgPb value, ChannelHandlerContext ctx){

@@ -23,6 +23,8 @@ if [ -z "$kafka_status" ]; then
     sudo ./Kafka/bin/kafka-topics.sh --if-not-exists --create --zookeeper localhost:2181 --replication-factor 1 --partitions 3 --topic test
     sudo ./Kafka/bin/kafka-topics.sh --if-not-exists --create --zookeeper localhost:2181 --replication-factor 1 --partitions 3 --topic topic-service-resp
     sudo ./Kafka/bin/kafka-topics.sh --if-not-exists --create --zookeeper localhost:2181 --replication-factor 1 --partitions 3 --topic topic-service
+    sudo ./Kafka/bin/kafka-topics.sh --if-not-exists --create --zookeeper localhost:2181 --replication-factor 1 --partitions 3 --topic topic-im-resp
+    sudo ./Kafka/bin/kafka-topics.sh --if-not-exists --create --zookeeper localhost:2181 --replication-factor 1 --partitions 3 --topic topic-im
 fi
 #stop kafka
 #sudo ./Kafka/bin/kafka-server-stop.sh

@@ -28,10 +28,10 @@ public class ClientPipeline {
 		if(result.needContinue){
 			while(true){
 				result = stickPackCodec.decode(null);
-				if(result.data!=null){
+				if(result!=null && result.data!=null){
 					list.add(serializeCodec.decode(result.data));
 				}
-				if(!result.needContinue){
+				if(result==null || !result.needContinue){
 					break;
 				}
 			}

@@ -70,6 +70,10 @@ public class IMServiceImpl implements IMService {
     @Override
     public void putImMsg(String redisKey, String msgKey, String msgValue) {
         //TODO expire
+        if (hashOperations.hasKey(redisKey,msgKey)){
+            //avoid repeat msg
+            return;
+        }
         hashOperations.put(redisKey,msgKey,msgValue);
     }
 

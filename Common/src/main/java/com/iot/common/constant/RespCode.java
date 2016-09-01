@@ -18,6 +18,6 @@ public class RespCode {
     public static final int LOGIN_WRONG_ACCOUNT = 1002;//登录，用户名或密码错误
 
     //im
-    public static final int ADD_FRIEND_ALREADY = 2001;//添加好友,已经是好友
-    public static final int DEL_FRIEND_NOT_EXISTS = 2002;//删除好友，还不是好友
+    public static final int ADD_FRIEND_ALREADY = 2001;//添加好友/设备,已经是好友/设备
+    public static final int DEL_FRIEND_NOT_EXISTS = 2002;//删除好友/设备，还不是好友/设备
 }

@@ -29,6 +29,13 @@ fi
 #stop kafka
 #sudo ./Kafka/bin/kafka-server-stop.sh
 
+#start redis if not started
+redis_status=$(ps ax | grep -i 'redis-server' | grep -v grep | awk '{print $1}')
+if [ -z "$redis_status" ]; then
+    echo "======>:starting redis server..."
+    sudo redis-server /etc/redis/redis.conf
+fi
+
 #build java project
 mvn clean package -Dmaven.test.skip=ture
 

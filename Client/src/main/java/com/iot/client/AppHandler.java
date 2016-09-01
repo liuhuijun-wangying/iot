@@ -46,7 +46,7 @@ public class AppHandler extends AbstractHandler {
                 break;
             case Cmds.CMD_EXP:
                 System.err.println("ctx is closed due to server internal exp");
-                ctx.disconnect();
+                //ctx.disconnect();
                 break;
             case Cmds.CMD_ADD_DEVICE:
                 onAddDeviceResp(ctx,msg);
@@ -63,6 +63,7 @@ public class AppHandler extends AbstractHandler {
         json.put("to",ClientEnv.CLIENT_ID);
         String msgId = TextUtil.uuid();
         json.put("msg","hello");
+        //json.put("msgid",msgId);
 
         BaseMsg.BaseMsgPb.Builder builder = BaseMsg.BaseMsgPb.newBuilder();
         builder.setCmd(Cmds.CMD_IM);

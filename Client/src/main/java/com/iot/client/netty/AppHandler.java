@@ -1,32 +1,28 @@
-package com.iot.client;
+package com.iot.client.netty;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.protobuf.ByteString;
+import com.iot.client.ClientEnv;
 import com.iot.common.constant.Cmds;
 import com.iot.common.constant.RespCode;
 import com.iot.common.model.BaseMsg;
 import com.iot.common.util.CryptUtil;
 import com.iot.common.util.JsonUtil;
 import com.iot.common.util.TextUtil;
+import io.netty.channel.ChannelHandlerContext;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by zc on 16-8-10.
+ * Created by zc on 16-9-1.
  */
-//模拟app的client
 public class AppHandler extends AbstractHandler {
 
     private boolean isLogined = false;
 
-    public AppHandler(){
-        super();
-    }
-
     @Override
-    public void onRead(ClientSocketChannel ctx, BaseMsg.BaseMsgPbOrBuilder msg)throws Exception {
-        //System.out.println("======client recv::::" + msg.toString());
+    protected void channelRead0(ChannelHandlerContext ctx, BaseMsg.BaseMsgPb msg) throws Exception {
         switch (msg.getCmd()){
             case Cmds.CMD_PUSH_RSA_PUB_KEY:
                 sendAesKey(ctx,msg);
@@ -58,9 +54,9 @@ public class AppHandler extends AbstractHandler {
     }
 
     private Map<String,BaseMsg.BaseMsgPb.Builder> imMap = new HashMap<>();
-    private void sendImMsg(ClientSocketChannel ctx){
+    private void sendImMsg(ChannelHandlerContext ctx){
         JSONObject json = new JSONObject();
-        json.put("to",ClientEnv.CLIENT_ID);
+        json.put("to", ClientEnv.CLIENT_ID);
         String msgId = TextUtil.uuid();
         json.put("msg","hello");
         //json.put("msgid",msgId);
@@ -73,7 +69,7 @@ public class AppHandler extends AbstractHandler {
         //TODO deal with timeout msg
         imMap.put(msgId,builder);
         System.out.println("=====>send im msg, msgid="+msgId+",map size="+imMap.size());
-        ctx.send(builder);
+        ctx.writeAndFlush(builder);
     }
 
     private void omImResp(BaseMsg.BaseMsgPbOrBuilder msg){
@@ -82,16 +78,9 @@ public class AppHandler extends AbstractHandler {
         imMap.remove(msg.getMsgId());
     }
 
-    @Override
-    public void onIdle(ClientSocketChannel ctx) {//send heartbeat pack
-        if (isLogined){//for test
-            sendImMsg(ctx);
-        }
-    }
-
     /**************************************some base msg***********************************/
 
-    private void onDiscussKeyResp(ClientSocketChannel ctx, BaseMsg.BaseMsgPbOrBuilder msg){
+    private void onDiscussKeyResp(ChannelHandlerContext ctx, BaseMsg.BaseMsgPbOrBuilder msg){
         if(msg.getData().isEmpty()){
             System.err.println("=====>discuss key resp msg is empty");
             return;
@@ -109,7 +98,7 @@ public class AppHandler extends AbstractHandler {
         }
     }
 
-    private void onRegResp(ClientSocketChannel ctx, BaseMsg.BaseMsgPbOrBuilder msg) {
+    private void onRegResp(ChannelHandlerContext ctx, BaseMsg.BaseMsgPbOrBuilder msg) {
         if(msg.getData().isEmpty()){
             System.err.println("=====>reg resp msg is empty");
             return;
@@ -129,7 +118,7 @@ public class AppHandler extends AbstractHandler {
         }
     }
 
-    private void onAppAuthResp(ClientSocketChannel ctx, BaseMsg.BaseMsgPbOrBuilder msg){
+    private void onAppAuthResp(ChannelHandlerContext ctx, BaseMsg.BaseMsgPbOrBuilder msg){
         if(msg.getData().isEmpty()){
             System.err.println("=====>app auth resp msg is empty");
             return;
@@ -147,7 +136,7 @@ public class AppHandler extends AbstractHandler {
         }
     }
 
-    private void onAddDeviceResp(ClientSocketChannel ctx, BaseMsg.BaseMsgPbOrBuilder msg){
+    private void onAddDeviceResp(ChannelHandlerContext ctx, BaseMsg.BaseMsgPbOrBuilder msg){
         if(msg.getData().isEmpty()){
             System.err.println("=====>onAddDeviceResp resp msg is empty");
             return;
@@ -163,19 +152,19 @@ public class AppHandler extends AbstractHandler {
         }
     }
 
-    private void doAppReg(ClientSocketChannel ctx) {
+    private void doAppReg(ChannelHandlerContext ctx) {
         JSONObject json = new JSONObject();
         json.put("username","zc_usr");
-        json.put("password",CryptUtil.md5("zc_psw"));
+        json.put("password", CryptUtil.md5("zc_psw"));
 
         BaseMsg.BaseMsgPb.Builder builder = BaseMsg.BaseMsgPb.newBuilder();
         builder.setCmd(Cmds.CMD_APP_REGISTER);
         builder.setIsEncrypt(true);
         builder.setData(ByteString.copyFrom(JsonUtil.json2Bytes(json)));
-        ctx.send(builder);
+        ctx.writeAndFlush(builder);
     }
 
-    private void doAppAuth(ClientSocketChannel ctx){
+    private void doAppAuth(ChannelHandlerContext ctx){
         JSONObject json = new JSONObject();
         json.put("version","1.0");
         json.put("username","zc_usr");
@@ -185,10 +174,10 @@ public class AppHandler extends AbstractHandler {
         builder.setCmd(Cmds.CMD_APP_AUTH);
         builder.setIsEncrypt(true);
         builder.setData(ByteString.copyFrom(JsonUtil.json2Bytes(json)));
-        ctx.send(builder);
+        ctx.writeAndFlush(builder);
     }
 
-    private void doAddDevice(ClientSocketChannel ctx){
+    private void doAddDevice(ChannelHandlerContext ctx){
         JSONObject json = new JSONObject();
         json.put("deviceId",ClientEnv.CLIENT_ID);
 
@@ -196,6 +185,14 @@ public class AppHandler extends AbstractHandler {
         builder.setCmd(Cmds.CMD_ADD_DEVICE);
         builder.setIsEncrypt(true);
         builder.setData(ByteString.copyFrom(JsonUtil.json2Bytes(json)));
-        ctx.send(builder);
+        ctx.writeAndFlush(builder);
+    }
+
+    @Override
+    protected void onIdle(ChannelHandlerContext ctx) {
+        //ctx.writeAndFlush(HEARTBEAT_MSG);
+        if (isLogined){//for test
+            sendImMsg(ctx);
+        }
     }
 }

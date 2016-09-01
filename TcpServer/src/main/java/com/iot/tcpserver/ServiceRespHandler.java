@@ -47,9 +47,6 @@ public class ServiceRespHandler implements BaseKafkaConsumer.KafkaProcessor{
 
         //原样返回
         BaseMsg.BaseMsgPb.Builder baseMsg = BaseMsg.BaseMsgPb.newBuilder();
-        if (key == Cmds.CMD_IM_PUSH){
-            baseMsg.setIsEncrypt(true);
-        }
         baseMsg.setMsgId(value.getMsgId());
         baseMsg.setCmd(key);
         baseMsg.setData(value.getData());

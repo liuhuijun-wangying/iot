@@ -1,5 +1,7 @@
 package com.iot.client;
 
+import com.iot.common.util.CryptUtil;
+
 public class ClientEnv {
 
     public static final boolean DEBUG = true;
@@ -7,5 +9,5 @@ public class ClientEnv {
     public static final String CLIENT_ID = "1234567890";
     public static final String DISPATCHER_ADDR = "http://127.0.0.1:9999/?id=";
 
-    public static byte[] AES_KEY;
+    public static byte[] AES_KEY = CryptUtil.generateAESKey();
 }

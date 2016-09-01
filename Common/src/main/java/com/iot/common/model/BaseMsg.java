@@ -24,9 +24,14 @@ public final class BaseMsg {
     int getCmd();
 
     /**
-     * <code>optional int64 msgId = 2;</code>
+     * <code>optional string msgId = 2;</code>
      */
-    long getMsgId();
+    java.lang.String getMsgId();
+    /**
+     * <code>optional string msgId = 2;</code>
+     */
+    com.google.protobuf.ByteString
+        getMsgIdBytes();
 
     /**
      * <code>optional bool isEncrypt = 3;</code>
@@ -51,7 +56,7 @@ public final class BaseMsg {
     }
     private BaseMsgPb() {
       cmd_ = 0;
-      msgId_ = 0L;
+      msgId_ = "";
       isEncrypt_ = false;
       data_ = com.google.protobuf.ByteString.EMPTY;
     }
@@ -86,9 +91,10 @@ public final class BaseMsg {
               cmd_ = input.readInt32();
               break;
             }
-            case 16: {
+            case 18: {
+              java.lang.String s = input.readStringRequireUtf8();
 
-              msgId_ = input.readInt64();
+              msgId_ = s;
               break;
             }
             case 24: {
@@ -134,12 +140,37 @@ public final class BaseMsg {
     }
 
     public static final int MSGID_FIELD_NUMBER = 2;
-    private long msgId_;
+    private volatile java.lang.Object msgId_;
     /**
-     * <code>optional int64 msgId = 2;</code>
+     * <code>optional string msgId = 2;</code>
      */
-    public long getMsgId() {
-      return msgId_;
+    public java.lang.String getMsgId() {
+      java.lang.Object ref = msgId_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        msgId_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>optional string msgId = 2;</code>
+     */
+    public com.google.protobuf.ByteString
+        getMsgIdBytes() {
+      java.lang.Object ref = msgId_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        msgId_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
     public static final int ISENCRYPT_FIELD_NUMBER = 3;
@@ -175,8 +206,8 @@ public final class BaseMsg {
       if (cmd_ != 0) {
         output.writeInt32(1, cmd_);
       }
-      if (msgId_ != 0L) {
-        output.writeInt64(2, msgId_);
+      if (!getMsgIdBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, msgId_);
       }
       if (isEncrypt_ != false) {
         output.writeBool(3, isEncrypt_);
@@ -195,9 +226,8 @@ public final class BaseMsg {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(1, cmd_);
       }
-      if (msgId_ != 0L) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(2, msgId_);
+      if (!getMsgIdBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, msgId_);
       }
       if (isEncrypt_ != false) {
         size += com.google.protobuf.CodedOutputStream
@@ -225,8 +255,8 @@ public final class BaseMsg {
       boolean result = true;
       result = result && (getCmd()
           == other.getCmd());
-      result = result && (getMsgId()
-          == other.getMsgId());
+      result = result && getMsgId()
+          .equals(other.getMsgId());
       result = result && (getIsEncrypt()
           == other.getIsEncrypt());
       result = result && getData()
@@ -244,8 +274,7 @@ public final class BaseMsg {
       hash = (37 * hash) + CMD_FIELD_NUMBER;
       hash = (53 * hash) + getCmd();
       hash = (37 * hash) + MSGID_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-          getMsgId());
+      hash = (53 * hash) + getMsgId().hashCode();
       hash = (37 * hash) + ISENCRYPT_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
           getIsEncrypt());
@@ -371,7 +400,7 @@ public final class BaseMsg {
         super.clear();
         cmd_ = 0;
 
-        msgId_ = 0L;
+        msgId_ = "";
 
         isEncrypt_ = false;
 
@@ -447,8 +476,9 @@ public final class BaseMsg {
         if (other.getCmd() != 0) {
           setCmd(other.getCmd());
         }
-        if (other.getMsgId() != 0L) {
-          setMsgId(other.getMsgId());
+        if (!other.getMsgId().isEmpty()) {
+          msgId_ = other.msgId_;
+          onChanged();
         }
         if (other.getIsEncrypt() != false) {
           setIsEncrypt(other.getIsEncrypt());
@@ -508,28 +538,71 @@ public final class BaseMsg {
         return this;
       }
 
-      private long msgId_ ;
+      private java.lang.Object msgId_ = "";
       /**
-       * <code>optional int64 msgId = 2;</code>
+       * <code>optional string msgId = 2;</code>
        */
-      public long getMsgId() {
-        return msgId_;
+      public java.lang.String getMsgId() {
+        java.lang.Object ref = msgId_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          msgId_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
       }
       /**
-       * <code>optional int64 msgId = 2;</code>
+       * <code>optional string msgId = 2;</code>
        */
-      public Builder setMsgId(long value) {
-        
+      public com.google.protobuf.ByteString
+          getMsgIdBytes() {
+        java.lang.Object ref = msgId_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          msgId_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string msgId = 2;</code>
+       */
+      public Builder setMsgId(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
         msgId_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional int64 msgId = 2;</code>
+       * <code>optional string msgId = 2;</code>
        */
       public Builder clearMsgId() {
         
-        msgId_ = 0L;
+        msgId_ = getDefaultInstance().getMsgId();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string msgId = 2;</code>
+       */
+      public Builder setMsgIdBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        msgId_ = value;
         onChanged();
         return this;
       }
@@ -652,7 +725,7 @@ public final class BaseMsg {
   static {
     java.lang.String[] descriptorData = {
       "\n\rBaseMsg.proto\022\005model\"H\n\tBaseMsgPb\022\013\n\003c" +
-      "md\030\001 \001(\005\022\r\n\005msgId\030\002 \001(\003\022\021\n\tisEncrypt\030\003 \001" +
+      "md\030\001 \001(\005\022\r\n\005msgId\030\002 \001(\t\022\021\n\tisEncrypt\030\003 \001" +
       "(\010\022\014\n\004data\030\004 \001(\014B\037\n\024com.iot.common.model" +
       "B\007BaseMsgb\006proto3"
     };

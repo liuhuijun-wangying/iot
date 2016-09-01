@@ -74,6 +74,7 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg.BaseMs
             BaseMsg.BaseMsgPb.Builder result = BaseMsg.BaseMsgPb.newBuilder();
             result.setCmd(baseMsg.getCmd());
             result.setMsgId(baseMsg.getMsgId());
+            result.setIsEncrypt(baseMsg.getIsEncrypt());
             result.setData(ByteString.copyFrom(JsonUtil.json2Bytes(respJson)));
             ctx.writeAndFlush(result);
             log.warn("user not login when do cmd="+baseMsg.getCmd());
@@ -85,11 +86,13 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg.BaseMs
             BaseMsg.BaseMsgPb.Builder imBuilder = BaseMsg.BaseMsgPb.newBuilder();
             imBuilder.setCmd(Cmds.CMD_IM);
             imBuilder.setMsgId(baseMsg.getMsgId());
+            imBuilder.setIsEncrypt(baseMsg.getIsEncrypt());
             ctx.writeAndFlush(imBuilder);
             //2. send to im server
             KafkaMsg.KafkaMsgPb.Builder imKafka = KafkaMsg.KafkaMsgPb.newBuilder();
             imKafka.setClientId(client.getId());
             imKafka.setData(baseMsg.getData());
+            imKafka.setIsEncrypt(baseMsg.getIsEncrypt());
             BaseKafkaProducer.getInstance().send(Topics.TOPIC_IM,baseMsg.getCmd(),imKafka);
             return;
         }
@@ -97,6 +100,7 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg.BaseMs
             //send to im server
             KafkaMsg.KafkaMsgPb.Builder imKafka = KafkaMsg.KafkaMsgPb.newBuilder();
             imKafka.setMsgId(baseMsg.getMsgId());
+            imKafka.setIsEncrypt(baseMsg.getIsEncrypt());
             BaseKafkaProducer.getInstance().send(Topics.TOPIC_IM,baseMsg.getCmd(),imKafka);
             return;
         }
@@ -104,6 +108,7 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg.BaseMs
         KafkaMsg.KafkaMsgPb.Builder kafkaMsg = KafkaMsg.KafkaMsgPb.newBuilder();
         kafkaMsg.setMsgId(baseMsg.getMsgId());
         kafkaMsg.setData(baseMsg.getData());
+        kafkaMsg.setIsEncrypt(baseMsg.getIsEncrypt());
         kafkaMsg.setChannelId(ctx.channel().id().asLongText());
         if (client!=null){
             kafkaMsg.setClientId(client.getId());
@@ -129,6 +134,7 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg.BaseMs
         result.setCmd(Cmds.CMD_SEND_AES_KEY);
         result.setMsgId(baseMsg.getMsgId());
         result.setData(ByteString.copyFrom(JsonUtil.json2Bytes(json)));
+        result.setIsEncrypt(baseMsg.getIsEncrypt());
         ctx.writeAndFlush(result);
     }
 
@@ -168,6 +174,7 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg.BaseMs
         result.setCmd(Cmds.CMD_DEVICE_AUTH);
         result.setMsgId(baseMsg.getMsgId());
         result.setData(ByteString.copyFrom(JsonUtil.json2Bytes(json)));
+        result.setIsEncrypt(baseMsg.getIsEncrypt());
         ctx.writeAndFlush(result);
     }
 

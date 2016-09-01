@@ -59,9 +59,10 @@ public class IMController {
         json.put("msg",imData.getString("msg"));
         imBuilder.setClientId(imData.getString("to"));
         imBuilder.setData(ByteString.copyFrom(JsonUtil.json2Bytes(json)));
+        imBuilder.setIsEncrypt(true);
         //TODO
-        //put to im queue and get Id
-        imBuilder.setMsgId(1);
+        //put to redis
+        imBuilder.setMsgId(param.getMsgId());
         BaseKafkaProducer.getInstance().send(Topics.TOPIC_IM_RESP, Cmds.CMD_IM_PUSH, imBuilder);
     }
 

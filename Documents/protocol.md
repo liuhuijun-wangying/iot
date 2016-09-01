@@ -12,7 +12,7 @@
 
 ## 心跳包
 - cmd=0
-- 一般30s发一次，连续N(一般N=5)个收不到应重连，收到数据应把未收到心跳包个数清0重新计数
+- 一般在无数据读写(idle)之后的30s发一次，连续N(一般N=4)个收不到重连，收到数据应把未收到心跳包个数清0重新计数
 
 ## 密钥协商过程和协议
 - tcp连接建立成功后，会收到服务器端推送来的RSA公钥
@@ -28,14 +28,14 @@ resp json格式为：{"code":code,"msg":msg}，code 100/200分别代表ok/解密
 - 同一个id同时只能在同一个客户端auth,否则前面的会收到提示,提示cmd=103,无内容,然后被clsoe
 - 请求：cmd=101, isEncrypt=true, data=req json
 - req json:{"version":version,"id":id,"abilities": jsonArray}
-- 响应: cmd=101, isEncrypt=false, data=resp json
+- 响应: cmd=101, isEncrypt=true, data=resp json
 - resp json：{"code":code,"msg":msg}
 code 100/200分别代表ok/异常
 
 ## APP注册
 - 请求：cmd=102, isEncrypt=true, data=req json
 - req json:{"username":username,"password":password(进行md5)}
-- 响应：cmd=102, isEncrypt=false, data=resp json
+- 响应：cmd=102, isEncrypt=true, data=resp json
 - resp json：{"code":code,"msg":msg}
 code 100/200/1001分别代表ok/异常/用户已经存在
 
@@ -43,6 +43,6 @@ code 100/200/1001分别代表ok/异常/用户已经存在
 - 同一个id同时只能在同一个客户端login,否则前面的会收到提示,提示cmd=103,无内容,然后被clsoe
 - 请求：cmd=100, isEncrypt=true, data=req json
 - req json:{"version":version,username":username,"password":password(进行md5)}
-- 响应: cmd=100, isEncrypt=false, data=resp json
+- 响应: cmd=100, isEncrypt=true, data=resp json
 - resp json：{"code":code,"msg":msg}
 code 100/200/1002分别代表ok/异常/用户名或密码错误

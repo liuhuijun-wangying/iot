@@ -7,8 +7,8 @@ import com.iot.common.util.CryptUtil;
 //稍加修改，也可用于android
 public class ClientMain {
 
-    private static final ChannelHandler<ClientSocketChannel,BaseMsg.BaseMsgPbOrBuilder> handler = new DeviceHandler();
-    //private static final ChannelHandler<ClientSocketChannel,BaseMsg.BaseMsgPbOrBuilder> handler = new AppHandler();
+    //private static final ChannelHandler<ClientSocketChannel,BaseMsg.BaseMsgPbOrBuilder> handler = new DeviceHandler();
+    private static final ChannelHandler<ClientSocketChannel,BaseMsg.BaseMsgPbOrBuilder> handler = new AppHandler();
 
     public static void main(String[] args){
         initAesKey();

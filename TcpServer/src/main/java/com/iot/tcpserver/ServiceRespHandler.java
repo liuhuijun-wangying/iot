@@ -53,6 +53,7 @@ public class ServiceRespHandler implements BaseKafkaConsumer.KafkaProcessor{
         baseMsg.setMsgId(value.getMsgId());
         baseMsg.setCmd(key);
         baseMsg.setData(value.getData());
+        baseMsg.setIsEncrypt(value.getIsEncrypt());
         ctx.writeAndFlush(baseMsg);
 
     }
@@ -87,6 +88,7 @@ public class ServiceRespHandler implements BaseKafkaConsumer.KafkaProcessor{
         baseMsg.setMsgId(value.getMsgId());
         baseMsg.setCmd(Cmds.CMD_APP_AUTH);
         baseMsg.setData(value.getData());
+        baseMsg.setIsEncrypt(value.getIsEncrypt());
         ctx.writeAndFlush(baseMsg);
     }
 }

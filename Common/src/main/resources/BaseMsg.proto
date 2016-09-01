@@ -6,7 +6,7 @@ option java_outer_classname = "BaseMsg";
 
 message BaseMsgPb {
     int32 cmd = 1;
-    int64 msgId = 2;
+    string msgId = 2;
     bool isEncrypt = 3;
     bytes data = 4;
 }

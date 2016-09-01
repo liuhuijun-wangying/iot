@@ -1,6 +1,7 @@
 package com.iot.common.util;
 
 import java.util.Collection;
+import java.util.UUID;
 
 /**
  * Created by zc on 16-8-2.
@@ -35,5 +36,9 @@ public class TextUtil {
         if (isEmpty){
             throw new NullPointerException("param is null");
         }
+    }
+
+    public static String uuid(){
+        return UUID.randomUUID().toString();
     }
 }

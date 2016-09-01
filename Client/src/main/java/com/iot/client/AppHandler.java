@@ -7,6 +7,7 @@ import com.iot.common.constant.RespCode;
 import com.iot.common.model.BaseMsg;
 import com.iot.common.util.CryptUtil;
 import com.iot.common.util.JsonUtil;
+import com.iot.common.util.TextUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -56,11 +57,11 @@ public class AppHandler extends AbstractHandler {
         }
     }
 
-    private long msgId = 1;
-    private Map<Long,BaseMsg.BaseMsgPb.Builder> imMap = new HashMap<>();
+    private Map<String,BaseMsg.BaseMsgPb.Builder> imMap = new HashMap<>();
     private void sendImMsg(ClientSocketChannel ctx){
         JSONObject json = new JSONObject();
         json.put("to",ClientEnv.CLIENT_ID);
+        String msgId = TextUtil.uuid();
         json.put("msg","hello, im msg="+msgId);
 
         BaseMsg.BaseMsgPb.Builder builder = BaseMsg.BaseMsgPb.newBuilder();
@@ -71,7 +72,6 @@ public class AppHandler extends AbstractHandler {
         //TODO deal with timeout msg
         imMap.put(msgId,builder);
         System.out.println("=====>send im msg, msgid="+msgId+",map size="+imMap.size());
-        msgId++;
         ctx.send(builder);
     }
 
@@ -190,7 +190,6 @@ public class AppHandler extends AbstractHandler {
     private void doAddDevice(ClientSocketChannel ctx){
         JSONObject json = new JSONObject();
         json.put("deviceId",ClientEnv.CLIENT_ID);
-        //json.put("from","zc_usr");
 
         BaseMsg.BaseMsgPb.Builder builder = BaseMsg.BaseMsgPb.newBuilder();
         builder.setCmd(Cmds.CMD_ADD_DEVICE);

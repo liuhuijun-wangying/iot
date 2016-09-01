@@ -39,20 +39,34 @@ public final class KafkaMsg {
         getClientIdBytes();
 
     /**
+     * <code>optional bool isEncrypt = 3;</code>
+     */
+    boolean getIsEncrypt();
+
+    /**
      * <pre>
      *BaseMsg里面的msgId
      * </pre>
      *
-     * <code>optional int64 msgId = 3;</code>
+     * <code>optional string msgId = 4;</code>
      */
-    long getMsgId();
+    java.lang.String getMsgId();
+    /**
+     * <pre>
+     *BaseMsg里面的msgId
+     * </pre>
+     *
+     * <code>optional string msgId = 4;</code>
+     */
+    com.google.protobuf.ByteString
+        getMsgIdBytes();
 
     /**
      * <pre>
      *BaseMsg里面的data
      * </pre>
      *
-     * <code>optional bytes data = 4;</code>
+     * <code>optional bytes data = 5;</code>
      */
     com.google.protobuf.ByteString getData();
   }
@@ -70,7 +84,8 @@ public final class KafkaMsg {
     private KafkaMsgPb() {
       channelId_ = "";
       clientId_ = "";
-      msgId_ = 0L;
+      isEncrypt_ = false;
+      msgId_ = "";
       data_ = com.google.protobuf.ByteString.EMPTY;
     }
 
@@ -113,10 +128,16 @@ public final class KafkaMsg {
             }
             case 24: {
 
-              msgId_ = input.readInt64();
+              isEncrypt_ = input.readBool();
               break;
             }
             case 34: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              msgId_ = s;
+              break;
+            }
+            case 42: {
 
               data_ = input.readBytes();
               break;
@@ -212,27 +233,65 @@ public final class KafkaMsg {
       }
     }
 
-    public static final int MSGID_FIELD_NUMBER = 3;
-    private long msgId_;
+    public static final int ISENCRYPT_FIELD_NUMBER = 3;
+    private boolean isEncrypt_;
+    /**
+     * <code>optional bool isEncrypt = 3;</code>
+     */
+    public boolean getIsEncrypt() {
+      return isEncrypt_;
+    }
+
+    public static final int MSGID_FIELD_NUMBER = 4;
+    private volatile java.lang.Object msgId_;
     /**
      * <pre>
      *BaseMsg里面的msgId
      * </pre>
      *
-     * <code>optional int64 msgId = 3;</code>
+     * <code>optional string msgId = 4;</code>
      */
-    public long getMsgId() {
-      return msgId_;
+    public java.lang.String getMsgId() {
+      java.lang.Object ref = msgId_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        msgId_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     *BaseMsg里面的msgId
+     * </pre>
+     *
+     * <code>optional string msgId = 4;</code>
+     */
+    public com.google.protobuf.ByteString
+        getMsgIdBytes() {
+      java.lang.Object ref = msgId_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        msgId_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
-    public static final int DATA_FIELD_NUMBER = 4;
+    public static final int DATA_FIELD_NUMBER = 5;
     private com.google.protobuf.ByteString data_;
     /**
      * <pre>
      *BaseMsg里面的data
      * </pre>
      *
-     * <code>optional bytes data = 4;</code>
+     * <code>optional bytes data = 5;</code>
      */
     public com.google.protobuf.ByteString getData() {
       return data_;
@@ -256,11 +315,14 @@ public final class KafkaMsg {
       if (!getClientIdBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 2, clientId_);
       }
-      if (msgId_ != 0L) {
-        output.writeInt64(3, msgId_);
+      if (isEncrypt_ != false) {
+        output.writeBool(3, isEncrypt_);
+      }
+      if (!getMsgIdBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 4, msgId_);
       }
       if (!data_.isEmpty()) {
-        output.writeBytes(4, data_);
+        output.writeBytes(5, data_);
       }
     }
 
@@ -275,13 +337,16 @@ public final class KafkaMsg {
       if (!getClientIdBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, clientId_);
       }
-      if (msgId_ != 0L) {
+      if (isEncrypt_ != false) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(3, msgId_);
+          .computeBoolSize(3, isEncrypt_);
+      }
+      if (!getMsgIdBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, msgId_);
       }
       if (!data_.isEmpty()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(4, data_);
+          .computeBytesSize(5, data_);
       }
       memoizedSize = size;
       return size;
@@ -303,8 +368,10 @@ public final class KafkaMsg {
           .equals(other.getChannelId());
       result = result && getClientId()
           .equals(other.getClientId());
-      result = result && (getMsgId()
-          == other.getMsgId());
+      result = result && (getIsEncrypt()
+          == other.getIsEncrypt());
+      result = result && getMsgId()
+          .equals(other.getMsgId());
       result = result && getData()
           .equals(other.getData());
       return result;
@@ -321,9 +388,11 @@ public final class KafkaMsg {
       hash = (53 * hash) + getChannelId().hashCode();
       hash = (37 * hash) + CLIENTID_FIELD_NUMBER;
       hash = (53 * hash) + getClientId().hashCode();
+      hash = (37 * hash) + ISENCRYPT_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+          getIsEncrypt());
       hash = (37 * hash) + MSGID_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-          getMsgId());
+      hash = (53 * hash) + getMsgId().hashCode();
       hash = (37 * hash) + DATA_FIELD_NUMBER;
       hash = (53 * hash) + getData().hashCode();
       hash = (29 * hash) + unknownFields.hashCode();
@@ -448,7 +517,9 @@ public final class KafkaMsg {
 
         clientId_ = "";
 
-        msgId_ = 0L;
+        isEncrypt_ = false;
+
+        msgId_ = "";
 
         data_ = com.google.protobuf.ByteString.EMPTY;
 
@@ -476,6 +547,7 @@ public final class KafkaMsg {
         com.iot.common.model.KafkaMsg.KafkaMsgPb result = new com.iot.common.model.KafkaMsg.KafkaMsgPb(this);
         result.channelId_ = channelId_;
         result.clientId_ = clientId_;
+        result.isEncrypt_ = isEncrypt_;
         result.msgId_ = msgId_;
         result.data_ = data_;
         onBuilt();
@@ -527,8 +599,12 @@ public final class KafkaMsg {
           clientId_ = other.clientId_;
           onChanged();
         }
-        if (other.getMsgId() != 0L) {
-          setMsgId(other.getMsgId());
+        if (other.getIsEncrypt() != false) {
+          setIsEncrypt(other.getIsEncrypt());
+        }
+        if (!other.getMsgId().isEmpty()) {
+          msgId_ = other.msgId_;
+          onChanged();
         }
         if (other.getData() != com.google.protobuf.ByteString.EMPTY) {
           setData(other.getData());
@@ -697,26 +773,85 @@ public final class KafkaMsg {
         return this;
       }
 
-      private long msgId_ ;
+      private boolean isEncrypt_ ;
+      /**
+       * <code>optional bool isEncrypt = 3;</code>
+       */
+      public boolean getIsEncrypt() {
+        return isEncrypt_;
+      }
+      /**
+       * <code>optional bool isEncrypt = 3;</code>
+       */
+      public Builder setIsEncrypt(boolean value) {
+        
+        isEncrypt_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bool isEncrypt = 3;</code>
+       */
+      public Builder clearIsEncrypt() {
+        
+        isEncrypt_ = false;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object msgId_ = "";
       /**
        * <pre>
        *BaseMsg里面的msgId
        * </pre>
        *
-       * <code>optional int64 msgId = 3;</code>
+       * <code>optional string msgId = 4;</code>
        */
-      public long getMsgId() {
-        return msgId_;
+      public java.lang.String getMsgId() {
+        java.lang.Object ref = msgId_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          msgId_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
       }
       /**
        * <pre>
        *BaseMsg里面的msgId
        * </pre>
        *
-       * <code>optional int64 msgId = 3;</code>
+       * <code>optional string msgId = 4;</code>
        */
-      public Builder setMsgId(long value) {
-        
+      public com.google.protobuf.ByteString
+          getMsgIdBytes() {
+        java.lang.Object ref = msgId_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          msgId_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       *BaseMsg里面的msgId
+       * </pre>
+       *
+       * <code>optional string msgId = 4;</code>
+       */
+      public Builder setMsgId(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
         msgId_ = value;
         onChanged();
         return this;
@@ -726,11 +861,29 @@ public final class KafkaMsg {
        *BaseMsg里面的msgId
        * </pre>
        *
-       * <code>optional int64 msgId = 3;</code>
+       * <code>optional string msgId = 4;</code>
        */
       public Builder clearMsgId() {
         
-        msgId_ = 0L;
+        msgId_ = getDefaultInstance().getMsgId();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       *BaseMsg里面的msgId
+       * </pre>
+       *
+       * <code>optional string msgId = 4;</code>
+       */
+      public Builder setMsgIdBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        msgId_ = value;
         onChanged();
         return this;
       }
@@ -741,7 +894,7 @@ public final class KafkaMsg {
        *BaseMsg里面的data
        * </pre>
        *
-       * <code>optional bytes data = 4;</code>
+       * <code>optional bytes data = 5;</code>
        */
       public com.google.protobuf.ByteString getData() {
         return data_;
@@ -751,7 +904,7 @@ public final class KafkaMsg {
        *BaseMsg里面的data
        * </pre>
        *
-       * <code>optional bytes data = 4;</code>
+       * <code>optional bytes data = 5;</code>
        */
       public Builder setData(com.google.protobuf.ByteString value) {
         if (value == null) {
@@ -767,7 +920,7 @@ public final class KafkaMsg {
        *BaseMsg里面的data
        * </pre>
        *
-       * <code>optional bytes data = 4;</code>
+       * <code>optional bytes data = 5;</code>
        */
       public Builder clearData() {
         
@@ -838,10 +991,11 @@ public final class KafkaMsg {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\016KafkaMsg.proto\022\005model\"N\n\nKafkaMsgPb\022\021\n" +
-      "\tchannelId\030\001 \001(\t\022\020\n\010clientId\030\002 \001(\t\022\r\n\005ms" +
-      "gId\030\003 \001(\003\022\014\n\004data\030\004 \001(\014B \n\024com.iot.commo" +
-      "n.modelB\010KafkaMsgb\006proto3"
+      "\n\016KafkaMsg.proto\022\005model\"a\n\nKafkaMsgPb\022\021\n" +
+      "\tchannelId\030\001 \001(\t\022\020\n\010clientId\030\002 \001(\t\022\021\n\tis" +
+      "Encrypt\030\003 \001(\010\022\r\n\005msgId\030\004 \001(\t\022\014\n\004data\030\005 \001" +
+      "(\014B \n\024com.iot.common.modelB\010KafkaMsgb\006pr" +
+      "oto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -860,7 +1014,7 @@ public final class KafkaMsg {
     internal_static_model_KafkaMsgPb_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_model_KafkaMsgPb_descriptor,
-        new java.lang.String[] { "ChannelId", "ClientId", "MsgId", "Data", });
+        new java.lang.String[] { "ChannelId", "ClientId", "IsEncrypt", "MsgId", "Data", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

@@ -7,6 +7,7 @@ option java_outer_classname = "KafkaMsg";
 message KafkaMsgPb {
     string channelId = 1;
     string clientId = 2;
-    int64 msgId = 3;//BaseMsg里面的msgId
-    bytes data = 4;//BaseMsg里面的data
+    bool isEncrypt = 3;
+    string msgId = 4;//BaseMsg里面的msgId
+    bytes data = 5;//BaseMsg里面的data
 }

@@ -51,6 +51,7 @@ public class KafkaMsgReceiver implements BaseKafkaConsumer.KafkaProcessor{
         if (Topics.TOPIC_SERVICE.equals(topic)){
             builder.setMsgId(value.getMsgId());
             builder.setChannelId(value.getChannelId());
+            builder.setIsEncrypt(value.getIsEncrypt());
             BaseKafkaProducer.getInstance().send(Topics.TOPIC_SERVICE_RESP, cmd, builder);
         }
     }

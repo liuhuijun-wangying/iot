@@ -62,7 +62,7 @@ public class AppHandler extends AbstractHandler {
         JSONObject json = new JSONObject();
         json.put("to",ClientEnv.CLIENT_ID);
         String msgId = TextUtil.uuid();
-        json.put("msg","hello, im msg="+msgId);
+        json.put("msg","hello");
 
         BaseMsg.BaseMsgPb.Builder builder = BaseMsg.BaseMsgPb.newBuilder();
         builder.setCmd(Cmds.CMD_IM);
@@ -76,8 +76,8 @@ public class AppHandler extends AbstractHandler {
     }
 
     private void omImResp(BaseMsg.BaseMsgPbOrBuilder msg){
-        System.out.println("=====>recv im resp::msgid="+msg.getMsgId()
-            +",map contains="+imMap.containsKey(msg.getMsgId()));
+        /*System.out.println("=====>recv im resp::msgid="+msg.getMsgId()
+            +",map contains="+imMap.containsKey(msg.getMsgId()));*/
         imMap.remove(msg.getMsgId());
     }
 

@@ -30,7 +30,7 @@ public class DeviceHandler extends AbstractHandler {
                 onDiscussKeyResp(ctx,msg);
                 break;
             case Cmds.CMD_DEVICE_AUTH://resp
-                onDeviceAuthResp(msg);
+                onDeviceAuthResp(msg,ctx);
                 break;
             case Cmds.CMD_ANOTHOR_LOGIN:
                 System.err.println("ctx is closed due to another login");
@@ -51,13 +51,23 @@ public class DeviceHandler extends AbstractHandler {
             System.err.println("=====>omImPush msg is empty,msgid="+msg.getMsgId());
             return;
         }
-        JSONObject json = JsonUtil.bytes2Json(msg.getData().toByteArray());
-        System.out.println("=====>recv im,msgid="+msg.getMsgId()+",json="+json.toJSONString());
+        JSONArray jsonArray = JsonUtil.bytes2JsonArray(msg.getData().toByteArray());
+        if (jsonArray.size()==0){
+            System.err.println("recv im push size=0");
+            return;
+        }
 
         //resp
         BaseMsg.BaseMsgPb.Builder builder = BaseMsg.BaseMsgPb.newBuilder();
         builder.setCmd(Cmds.CMD_IM_PUSH);
-        builder.setMsgId(msg.getMsgId());
+        JSONArray resp = new JSONArray();
+        for (int i=0;i<jsonArray.size();i++){
+            System.out.println("=====>recv im,msgid="+msg.getMsgId()+",json="+jsonArray.getJSONObject(i).toJSONString());
+            JSONObject respJson = new JSONObject();
+            respJson.put("msgid",jsonArray.getJSONObject(i).getString("msgid"));
+            resp.add(respJson);
+        }
+        builder.setData(ByteString.copyFrom(JsonUtil.json2Bytes(resp)));
         ctx.send(builder);
     }
 
@@ -78,7 +88,7 @@ public class DeviceHandler extends AbstractHandler {
         }
     }
 
-    private void onDeviceAuthResp(BaseMsg.BaseMsgPbOrBuilder msg) {
+    private void onDeviceAuthResp(BaseMsg.BaseMsgPbOrBuilder msg, ClientSocketChannel ctx) {
         if(msg.getData().isEmpty()){
             System.err.println("=====>app auth resp msg is empty");
             return;
@@ -89,6 +99,9 @@ public class DeviceHandler extends AbstractHandler {
 
         if(statusCode== RespCode.COMMON_OK){
             System.out.println("=====>auth ok");
+            BaseMsg.BaseMsgPb.Builder builder = BaseMsg.BaseMsgPb.newBuilder();
+            builder.setCmd(Cmds.CMD_GET_IM_OFFLINE_MSG);
+            ctx.send(builder);
         }else{
             System.err.println("=====>onDiscussKeyResp::errCode::"+statusCode);
         }

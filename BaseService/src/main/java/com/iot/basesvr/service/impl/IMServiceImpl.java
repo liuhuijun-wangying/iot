@@ -8,11 +8,13 @@ import com.iot.common.constant.RespCode;
 import com.iot.common.util.JsonUtil;
 import com.iot.common.util.TextUtil;
 import com.iot.basesvr.service.IMService;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zc on 16-8-26.
@@ -22,6 +24,8 @@ public class IMServiceImpl implements IMService {
 
     @Resource
     private FriendUserDeviceMapper friendUserDeviceMapper;
+    @Resource(name = "redisTemplate")
+    private HashOperations<String,String,String> hashOperations;
 
     @Override
     public JSONObject addDevice(String username, String deviceId) throws Exception {
@@ -61,6 +65,22 @@ public class IMServiceImpl implements IMService {
                 return JsonUtil.buildCommonResp(RespCode.DEL_FRIEND_NOT_EXISTS,"you are not friends");
             }
         }
+    }
+
+    @Override
+    public void putImMsg(String redisKey, String msgKey, String msgValue) {
+        //TODO expire
+        hashOperations.put(redisKey,msgKey,msgValue);
+    }
+
+    @Override
+    public Long removeImMsg(String redisKey, String... msgKeys) {
+        return hashOperations.delete(redisKey,msgKeys);
+    }
+
+    @Override
+    public Map<String, String> getAllImMsg(String redisKey) {
+        return hashOperations.entries(redisKey);
     }
 
     private FriendUserDevice selectFriendUserDevice(String username, String deviceId){

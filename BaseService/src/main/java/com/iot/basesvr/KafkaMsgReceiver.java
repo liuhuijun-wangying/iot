@@ -40,12 +40,12 @@ public class KafkaMsgReceiver implements BaseKafkaConsumer.KafkaProcessor{
                 builder.setData(ByteString.copyFrom((byte[])obj));
             }
         } catch (InvocationTargetException methodExp){
-            logger.error("invoke err: methos:"+m.obj+"--"+m.m.getName(),methodExp);
+            logger.error("invoke err: method:"+m.m.getName(),methodExp);
             JSONObject expJson = JsonUtil.buildCommonResp(RespCode.COMMON_EXCEPTION,methodExp.getMessage());
             builder.setData(ByteString.copyFrom(JsonUtil.json2Bytes(expJson)));
         } catch (Exception e) {
             //server error
-            logger.error("invoke err: methos:"+m.obj+"--"+m.m.getName(),e);
+            logger.error("invoke err: method:"+m.m.getName(),e);
         }
 
         if (Topics.TOPIC_SERVICE.equals(topic)){

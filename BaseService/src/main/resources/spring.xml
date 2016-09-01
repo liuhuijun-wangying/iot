@@ -4,6 +4,7 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:aop="http://www.springframework.org/schema/aop"
        xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:p="http://www.springframework.org/schema/p"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd
        http://www.springframework.org/schema/context
@@ -81,5 +82,38 @@
         <aop:pointcut id="interceptorPointCuts" expression="execution(* com.iot.basesvr.service.*.*(..))"/>
         <aop:advisor advice-ref="txAdvice" pointcut-ref="interceptorPointCuts"/>
     </aop:config>
+
+    <!-- jedis连接池的配置信息 -->
+    <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <!-- 说明一个pool可以有多少个Jedis实例 -->
+        <property name="maxTotal" value="${redis.max.active}" />
+        <!-- 最大空闲连接数-->
+        <property name="maxIdle" value="${redis.max.idle}" />
+        <!-- 最小空闲连接数, 默认0 -->
+        <property name="minIdle" value="${redis.min.idle}" />
+        <!-- 获得一个jedis实例的时候是否检查连接可用性（ping()） -->
+        <property name="testOnBorrow" value="true" />
+        <!-- return 一个jedis实例给pool时，是否检查连接可用性（ping()） -->
+        <property name="testOnReturn" value="true" />
+        <!-- idle状态监测用异步线程evict进行检查， -->
+        <property name="testWhileIdle" value="true" />
+        <!-- 一次最多evict的pool里的jedis实例个数 -->
+        <property name="numTestsPerEvictionRun" value="10" />
+        <!-- test idle 线程的时间间隔 -->
+        <property name="timeBetweenEvictionRunsMillis" value="60000" />
+        <!--最大等待wait时间-->
+        <property name="maxWaitMillis" value="${redis.max.wait}" />
+        <!--borrowObject()将会阻塞，直到有可用新的或者空闲的object为止，或者如果配置了maxWait，
+        如果请求阻塞超时，将抛出NoSuchElementException.如果maxWait为负数，请求将会无限制的阻
+        塞下去
+        -->
+        <property name="blockWhenExhausted" value="true" />
+    </bean>
+
+    <bean id="jedisConnFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
+          p:host-name="${redis.host}" p:port="${redis.port}" p:pool-config-ref="jedisPoolConfig"/>
+
+    <bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate"
+          p:connection-factory-ref="jedisConnFactory"/>
 
 </beans>

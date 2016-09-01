@@ -2,7 +2,6 @@ package com.iot.basesvr.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.iot.common.constant.Cmds;
-import com.iot.common.constant.RespCode;
 import com.iot.common.model.KafkaMsg;
 import com.iot.common.util.JsonUtil;
 import com.iot.basesvr.annotation.Cmd;
@@ -42,11 +41,6 @@ public class AccountController {
             appAuthResult.put("username",data.getString("username"));
         } else {
             appAuthResult = accountService.login(null, null);
-        }
-
-        //TODO offline msg
-        if (appAuthResult.getIntValue("code")== RespCode.COMMON_OK){//login ok
-
         }
         return JsonUtil.json2Bytes(appAuthResult);
     }

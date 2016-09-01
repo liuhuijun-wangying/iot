@@ -1,6 +1,7 @@
 package com.iot.common.util;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import java.nio.charset.StandardCharsets;
@@ -24,6 +25,13 @@ public class JsonUtil {
         return JSON.parseObject(new String(bs, StandardCharsets.UTF_8));
     }
 
+    public static JSONArray bytes2JsonArray(byte[] bs){
+        if(TextUtil.isEmpty(bs)){
+            return null;
+        }
+        return JSON.parseArray(new String(bs, StandardCharsets.UTF_8));
+    }
+
     public static byte[] json2Bytes(JSONObject jsonObject){
         if (jsonObject==null){
             return new byte[]{};
@@ -31,14 +39,10 @@ public class JsonUtil {
         return jsonObject.toJSONString().getBytes(StandardCharsets.UTF_8);
     }
 
-    /*public static JSONObject string2Json(String str){
-        return JSON.parseObject(str);
-    }
-
-    public static String json2String(JSONObject jsonObject){
-        if (jsonObject==null){
-            return "";
+    public static byte[] json2Bytes(JSONArray jsonArray){
+        if (jsonArray==null){
+            return new byte[]{};
         }
-        return jsonObject.toJSONString();
-    }*/
+        return jsonArray.toJSONString().getBytes(StandardCharsets.UTF_8);
+    }
 }

@@ -22,27 +22,13 @@ public class AppHandler extends AbstractHandler {
     private boolean isLogined = false;
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, BaseMsg.BaseMsgPb msg) throws Exception {
+    protected void onRead(ChannelHandlerContext ctx, BaseMsg.BaseMsgPb msg) throws Exception {
         switch (msg.getCmd()){
-            case Cmds.CMD_PUSH_RSA_PUB_KEY:
-                sendAesKey(ctx,msg);
-                break;
-            case Cmds.CMD_SEND_AES_KEY://resp
-                onDiscussKeyResp(ctx,msg);
-                break;
             case Cmds.CMD_APP_REGISTER://resp
                 onRegResp(ctx,msg);
                 break;
             case Cmds.CMD_APP_AUTH://resp
                 onAppAuthResp(ctx,msg);
-                break;
-            case Cmds.CMD_ANOTHOR_LOGIN:
-                System.err.println("ctx is closed due to another login");
-                ctx.disconnect();
-                break;
-            case Cmds.CMD_EXP:
-                System.err.println("ctx is closed due to server internal exp");
-                //ctx.disconnect();
                 break;
             case Cmds.CMD_ADD_DEVICE:
                 onAddDeviceResp(ctx,msg);
@@ -79,24 +65,6 @@ public class AppHandler extends AbstractHandler {
     }
 
     /**************************************some base msg***********************************/
-
-    private void onDiscussKeyResp(ChannelHandlerContext ctx, BaseMsg.BaseMsgPbOrBuilder msg){
-        if(msg.getData().isEmpty()){
-            System.err.println("=====>discuss key resp msg is empty");
-            return;
-        }
-
-        JSONObject json = JsonUtil.bytes2Json(msg.getData().toByteArray());
-        int statusCode = json.getIntValue("code");
-
-        if(statusCode== RespCode.COMMON_OK){
-            //为了测试 先注册个账号
-            System.out.println("=====>discuss key ok");
-            doAppReg(ctx);
-        }else{
-            System.err.println("=====>discuss key failed, err code:"+statusCode);
-        }
-    }
 
     private void onRegResp(ChannelHandlerContext ctx, BaseMsg.BaseMsgPbOrBuilder msg) {
         if(msg.getData().isEmpty()){
@@ -152,7 +120,8 @@ public class AppHandler extends AbstractHandler {
         }
     }
 
-    private void doAppReg(ChannelHandlerContext ctx) {
+    @Override
+    protected void onDiscussKeyOk(ChannelHandlerContext ctx) {//reg
         JSONObject json = new JSONObject();
         json.put("username","zc_usr");
         json.put("password", CryptUtil.md5("zc_psw"));

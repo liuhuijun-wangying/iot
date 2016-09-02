@@ -15,26 +15,11 @@ import io.netty.channel.ChannelHandlerContext;
  */
 public class DeviceHandler extends AbstractHandler {
 
-
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, BaseMsg.BaseMsgPb msg) throws Exception {
+    protected void onRead(ChannelHandlerContext ctx, BaseMsg.BaseMsgPb msg) throws Exception {
         switch (msg.getCmd()){
-            case Cmds.CMD_PUSH_RSA_PUB_KEY:
-                sendAesKey(ctx,msg);
-                break;
-            case Cmds.CMD_SEND_AES_KEY://resp
-                onDiscussKeyResp(ctx,msg);
-                break;
             case Cmds.CMD_DEVICE_AUTH://resp
                 onDeviceAuthResp(msg,ctx);
-                break;
-            case Cmds.CMD_ANOTHOR_LOGIN:
-                System.err.println("ctx is closed due to another login");
-                ctx.disconnect();
-                break;
-            case Cmds.CMD_EXP:
-                System.err.println("ctx is closed due to server internal exp");
-                ctx.disconnect();
                 break;
             case Cmds.CMD_IM_PUSH:
                 omImPush(ctx,msg);
@@ -66,23 +51,6 @@ public class DeviceHandler extends AbstractHandler {
         ctx.writeAndFlush(builder);
     }
 
-    private void onDiscussKeyResp(ChannelHandlerContext ctx, BaseMsg.BaseMsgPbOrBuilder msg) {
-        if(msg.getData().isEmpty()){
-            System.err.println("=====>discuss key resp msg is empty");
-            return;
-        }
-
-        JSONObject json = JsonUtil.bytes2Json(msg.getData().toByteArray());
-        int statusCode = json.getIntValue("code");
-
-        if(statusCode== RespCode.COMMON_OK){
-            System.out.println("=====>discuss key ok");
-            doDeviceAuth(ctx);
-        }else{
-            System.err.println("=====>discuss key failed, err code::"+statusCode);
-        }
-    }
-
     private void onDeviceAuthResp(BaseMsg.BaseMsgPbOrBuilder msg, ChannelHandlerContext ctx) {
         if(msg.getData().isEmpty()){
             System.err.println("=====>app auth resp msg is empty");
@@ -102,7 +70,8 @@ public class DeviceHandler extends AbstractHandler {
         }
     }
 
-    private void doDeviceAuth(ChannelHandlerContext ctx) {
+    @Override
+    protected void onDiscussKeyOk(ChannelHandlerContext ctx) {
         JSONObject json = new JSONObject();
         json.put("version","1.0");
         json.put("id", ClientEnv.CLIENT_ID);

@@ -10,4 +10,7 @@ public class ClientEnv {
     public static final String DISPATCHER_ADDR = "http://127.0.0.1:9999/?id=";
 
     public static byte[] AES_KEY = CryptUtil.generateAESKey();
+
+    /** idle seconds **/
+    public static final int IDLE_TIME = 5;
 }

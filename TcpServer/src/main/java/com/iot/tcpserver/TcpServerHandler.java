@@ -109,6 +109,6 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<BaseMsg.BaseMs
         JSONObject json = JsonUtil.buildCommonResp(RespCode.COMMON_EXCEPTION,cause.getMessage());
         result.setData(ByteString.copyFrom(JsonUtil.json2Bytes(json)));
         ctx.writeAndFlush(result);
-        ctx.close();
+        //ctx.close();
     }
 }
